@@ -1,0 +1,475 @@
+<html lang="de" class="scroll-smooth"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cura Doma | Liebevoller ambulanter Betreuungsdienst</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Plus Jakarta Sans for headings (soft, humanist), Inter for body (clean, readable) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&amp;family=Plus+Jakarta+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet">
+  <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+</head>
+<body class="bg-[#F8FEFF] text-[#111111] antialiased selection:bg-[#BFEAF2] selection:text-[#111111]" style="font-family: 'Inter', sans-serif;">
+
+  <!-- Top Utility Bar -->
+  <div class="w-full bg-[#DFF7F8] border-b border-[#BFEAF2]/50 py-2 hidden sm:block">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12 flex justify-between items-center text-xs font-normal text-[#5F6B73]">
+      <div class="flex items-center gap-6">
+        <a href="tel:+4900000000" class="flex items-center gap-1.5 hover:text-[#111111] transition-colors">
+          <iconify-icon icon="solar:phone-calling-linear" width="16" stroke-width="1.5"></iconify-icon>
+          0800 123 456 78
+        </a>
+        <a href="mailto:info@curadoma.de" class="flex items-center gap-1.5 hover:text-[#111111] transition-colors">
+          <iconify-icon icon="solar:letter-linear" width="16" stroke-width="1.5"></iconify-icon>
+          info@curadoma.de
+        </a>
+      </div>
+      <div class="flex items-center gap-1.5 text-[#6FD3D1] font-normal">
+        <iconify-icon icon="solar:heart-angle-linear" width="16" stroke-width="1.5"></iconify-icon>
+        Wir beraten Sie gerne kostenlos
+      </div>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="sticky top-0 z-50 w-full bg-[#FFFFFF]/90 backdrop-blur-md border-b border-[#E5F4F5] shadow-[0_4px_20px_rgb(191,234,242,0.15)]">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12 h-20 flex items-center justify-between">
+      
+      <!-- Logo -->
+      <a href="#" class="block h-12 transition-opacity hover:opacity-80" aria-label="Cura Doma Startseite">
+        <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" class="h-full w-auto">
+          <g stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M 30 130 L 150 40 L 270 130" stroke="#5F6B73"></path>
+            <path d="M 150 40 L 150 110" stroke="#5F6B73"></path>
+            <path d="M 150 40 L 165 40 A 35 35 0 0 1 165 110 L 150 110" stroke="#5F6B73"></path>
+            <path d="M 140 42 A 35 35 0 1 0 128 105" stroke="#6FD3D1"></path>
+          </g>
+          <text x="150" y="170" font-family="'Plus Jakarta Sans', sans-serif" font-size="22" font-weight="500" fill="#6FD3D1" text-anchor="middle" letter-spacing="0.1em">CURA DOMA</text>
+        </svg>
+      </a>
+
+      <div class="hidden lg:flex items-center gap-8">
+        <a href="#" class="text-sm font-light text-[#111111]">Startseite</a>
+        <a href="#leistungen" class="text-sm font-light text-[#5F6B73] hover:text-[#6FD3D1] transition-colors">Leistungen</a>
+        <a href="#entlastung" class="text-sm font-light text-[#5F6B73] hover:text-[#6FD3D1] transition-colors">Entlastungsleistungen</a>
+        <a href="#demenz" class="text-sm font-light text-[#5F6B73] hover:text-[#6FD3D1] transition-colors">Senioren &amp; Demenzbetreuung</a>
+        <a href="#kontakt" class="text-sm font-light text-[#FFFFFF] bg-[#6FD3D1] hover:bg-[#5BC2C0] transition-colors rounded-full py-2.5 px-6 shadow-[0_4px_14px_rgb(111,211,209,0.3)]">
+          Kostenloses Erstgespräch
+        </a>
+      </div>
+
+      <button class="lg:hidden p-2 text-[#5F6B73]" aria-label="Menü öffnen">
+        <iconify-icon icon="solar:hamburger-menu-linear" width="24" stroke-width="1.5"></iconify-icon>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="relative pt-16 pb-24 lg:pt-28 lg:pb-32 overflow-hidden bg-gradient-to-b from-[#FFFFFF] to-[#F8FEFF]">
+    <div class="absolute top-0 right-0 w-[600px] h-[600px] bg-[#BFEAF2] opacity-20 rounded-full blur-3xl pointer-events-none transform translate-x-1/3 -translate-y-1/3"></div>
+    <div class="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#DFF7F8] opacity-40 rounded-full blur-3xl pointer-events-none transform -translate-x-1/3 translate-y-1/3"></div>
+
+    <div class="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col lg:flex-row items-center gap-16 relative z-10">
+      <div class="flex-1 text-center lg:text-left">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FFFFFF] border border-[#E5F4F5] shadow-sm text-xs font-normal text-[#5F6B73] mb-8">
+          <iconify-icon icon="solar:hand-heart-linear" class="text-[#6FD3D1]" width="18" stroke-width="1.5"></iconify-icon>
+          Vertrauensvolle Betreuung im eigenen Zuhause
+        </div>
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-[#111111] leading-[1.15] mb-6" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+          Sie können nicht immer da sein. <br class="hidden lg:block">
+          <span class="text-[#6FD3D1]">Wir können es.</span>
+        </h1>
+        <p class="text-lg lg:text-xl text-[#5F6B73] leading-relaxed max-w-2xl mx-auto lg:mx-0 mb-10 font-light">
+          Liebevolle und individuelle Unterstützung für pflegebedürftige Menschen in ihrer gewohnten Umgebung. Wir entlasten Angehörige und fördern ein würdevolles, selbstbestimmtes Leben.
+        </p>
+        <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+          <a href="#kontakt" class="w-full sm:w-auto bg-[#6FD3D1] text-[#FFFFFF] hover:bg-[#5BC2C0] px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)] flex items-center justify-center gap-2">
+            Kostenloses Beratungsgespräch
+          </a>
+          <a href="#leistungen" class="w-full sm:w-auto bg-[#FFFFFF] text-[#5F6B73] border border-[#E5F4F5] hover:bg-[#F8FEFF] hover:text-[#111111] px-8 py-3.5 rounded-full text-base font-normal transition-all flex items-center justify-center">
+            Unsere Leistungen entdecken
+          </a>
+        </div>
+      </div>
+
+      <div class="flex-1 w-full max-w-lg lg:max-w-none relative">
+        <div class="relative rounded-3xl overflow-hidden shadow-[0_20px_60px_rgb(191,234,242,0.4)] border-4 border-[#FFFFFF]">
+          <img src="https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?q=80&amp;w=1200&amp;auto=format&amp;fit=crop" alt="Betreuerin hält die Hände einer älteren Dame" class="w-full h-auto aspect-[4/3] object-cover">
+        </div>
+        
+        <!-- Trust Badge -->
+        <div class="absolute -bottom-6 -left-4 lg:-left-12 bg-[#FFFFFF] p-5 rounded-2xl shadow-[0_10px_30px_rgb(0,0,0,0.05)] border border-[#E5F4F5] flex items-center gap-4">
+          <div class="w-12 h-12 bg-[#DFF7F8] rounded-full flex items-center justify-center text-[#6FD3D1]">
+            <iconify-icon icon="solar:shield-check-linear" width="24" stroke-width="1.5"></iconify-icon>
+          </div>
+          <div>
+            <div class="text-sm font-medium tracking-tight text-[#111111]" style="font-family: 'Plus Jakarta Sans', sans-serif;">Anerkannter Partner</div>
+            <div class="text-xs text-[#5F6B73] font-light mt-0.5">Abrechnung mit der Pflegekasse</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Introduction / Trust Section -->
+  <section class="py-24 bg-[#FFFFFF]">
+    <div class="max-w-4xl mx-auto px-6 text-center">
+      <iconify-icon icon="solar:users-group-two-rounded-linear" width="48" class="text-[#BFEAF2] mb-6" stroke-width="1"></iconify-icon>
+      <h2 class="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-6" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+        Der Mensch im Mittelpunkt
+      </h2>
+      <p class="text-lg lg:text-xl text-[#5F6B73] leading-relaxed font-light">
+        Cura Doma ist Ihr anerkannter ambulanter Betreuungsdienst. Unsere Mission ist es, pflegebedürftigen Menschen und ihren Familien zur Seite zu stehen. Wir fördern die Selbstständigkeit, schaffen Freiräume für pflegende Angehörige und machen es möglich, so lange wie möglich sicher und geborgen im eigenen Zuhause zu leben.
+      </p>
+    </div>
+  </section>
+
+  <!-- Services Overview -->
+  <section id="leistungen" class="py-24 bg-[#F8FEFF]">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12">
+      <div class="mb-16 text-center max-w-2xl mx-auto">
+        <h2 class="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-4" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+          Wie wir Sie unterstützen können
+        </h2>
+        <p class="text-lg text-[#5F6B73] font-light">
+          Individuelle Leistungen, die sich sanft in Ihren Alltag einfügen.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Service Card 1 -->
+        <div class="bg-[#FFFFFF] p-8 rounded-3xl border border-[#E5F4F5] shadow-sm hover:shadow-md transition-shadow duration-300">
+          <div class="w-14 h-14 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] mb-6">
+            <iconify-icon icon="solar:cup-hot-linear" width="28" stroke-width="1.5"></iconify-icon>
+          </div>
+          <h3 class="text-xl font-medium tracking-tight text-[#111111] mb-3" style="font-family: 'Plus Jakarta Sans', sans-serif;">Alltagsbegleitung</h3>
+          <p class="text-[15px] text-[#5F6B73] leading-relaxed font-light">
+            Zuhören, Vorlesen, gemeinsame Spaziergänge oder Kochen. Wir leisten Gesellschaft und bringen Freude in den Tag.
+          </p>
+        </div>
+
+        <!-- Service Card 2 -->
+        <div class="bg-[#FFFFFF] p-8 rounded-3xl border border-[#E5F4F5] shadow-sm hover:shadow-md transition-shadow duration-300">
+          <div class="w-14 h-14 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] mb-6">
+            <iconify-icon icon="solar:home-smile-linear" width="28" stroke-width="1.5"></iconify-icon>
+          </div>
+          <h3 class="text-xl font-medium tracking-tight text-[#111111] mb-3" style="font-family: 'Plus Jakarta Sans', sans-serif;">Hilfe im Haushalt</h3>
+          <p class="text-[15px] text-[#5F6B73] leading-relaxed font-light">
+            Unterstützung bei der Reinigung der Wohnung, Wäschepflege und beim Einkaufen – für ein gepflegtes Zuhause.
+          </p>
+        </div>
+
+        <!-- Service Card 3 -->
+        <div class="bg-[#FFFFFF] p-8 rounded-3xl border border-[#E5F4F5] shadow-sm hover:shadow-md transition-shadow duration-300">
+          <div class="w-14 h-14 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] mb-6">
+            <iconify-icon icon="solar:routing-linear" width="28" stroke-width="1.5"></iconify-icon>
+          </div>
+          <h3 class="text-xl font-medium tracking-tight text-[#111111] mb-3" style="font-family: 'Plus Jakarta Sans', sans-serif;">Begleitung zu Terminen</h3>
+          <p class="text-[15px] text-[#5F6B73] leading-relaxed font-light">
+            Sichere Begleitung zu Ärzten, Behörden oder Veranstaltungen. Wir organisieren den Ablauf und bleiben an Ihrer Seite.
+          </p>
+        </div>
+
+        <!-- Service Card 4 -->
+        <div class="bg-[#FFFFFF] p-8 rounded-3xl border border-[#E5F4F5] shadow-sm hover:shadow-md transition-shadow duration-300">
+          <div class="w-14 h-14 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] mb-6">
+            <iconify-icon icon="solar:brain-linear" width="28" stroke-width="1.5"></iconify-icon>
+          </div>
+          <h3 class="text-xl font-medium tracking-tight text-[#111111] mb-3" style="font-family: 'Plus Jakarta Sans', sans-serif;">Demenzbetreuung</h3>
+          <p class="text-[15px] text-[#5F6B73] leading-relaxed font-light">
+            Fachkundige, einfühlsame Betreuung, die Struktur gibt, Erinnerungen aktiviert und Sicherheit vermittelt.
+          </p>
+        </div>
+
+        <!-- Service Card 5 -->
+        <div class="bg-[#FFFFFF] p-8 rounded-3xl border border-[#E5F4F5] shadow-sm hover:shadow-md transition-shadow duration-300">
+          <div class="w-14 h-14 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] mb-6">
+            <iconify-icon icon="solar:users-group-rounded-linear" width="28" stroke-width="1.5"></iconify-icon>
+          </div>
+          <h3 class="text-xl font-medium tracking-tight text-[#111111] mb-3" style="font-family: 'Plus Jakarta Sans', sans-serif;">Entlastung für Angehörige</h3>
+          <p class="text-[15px] text-[#5F6B73] leading-relaxed font-light">
+            Verlässliche Übernahme der Betreuung, damit pflegende Familienmitglieder beruhigt neue Kraft schöpfen können.
+          </p>
+        </div>
+
+        <!-- Service Card 6 -->
+        <div class="bg-[#FFFFFF] p-8 rounded-3xl border border-[#E5F4F5] shadow-sm hover:shadow-md transition-shadow duration-300">
+          <div class="w-14 h-14 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] mb-6">
+            <iconify-icon icon="solar:clipboard-list-linear" width="28" stroke-width="1.5"></iconify-icon>
+          </div>
+          <h3 class="text-xl font-medium tracking-tight text-[#111111] mb-3" style="font-family: 'Plus Jakarta Sans', sans-serif;">Alltagsorganisation</h3>
+          <p class="text-[15px] text-[#5F6B73] leading-relaxed font-light">
+            Hilfe beim Schriftverkehr, Organisieren von Mahlzeitendiensten oder Planung der Woche. Wir bringen Ordnung hinein.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Entlastungsleistungen & Pflegekasse (Reimbursement) -->
+  <section id="entlastung" class="py-24 bg-[#FFFFFF]">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12">
+      <div class="flex flex-col lg:flex-row gap-16 items-center">
+        
+        <div class="flex-1">
+          <h2 class="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-6" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+            Ihre Ansprüche bei der Pflegekasse
+          </h2>
+          <p class="text-lg text-[#5F6B73] leading-relaxed font-light mb-8">
+            Wussten Sie schon? Ab Pflegegrad 1 steht Ihnen ein monatlicher <strong>Entlastungsbetrag von 125 Euro (§ 45b SGB XI)</strong> zur Verfügung. Dieser kann für unsere haushaltsnahen Dienstleistungen und die Alltagsbegleitung genutzt werden.
+          </p>
+          
+          <div class="bg-[#F8FEFF] p-6 rounded-2xl border border-[#E5F4F5] mb-8">
+            <h4 class="text-base font-medium text-[#111111] mb-2 flex items-center gap-2">
+              <iconify-icon icon="solar:info-circle-linear" class="text-[#6FD3D1]"></iconify-icon> Weitere Möglichkeiten
+            </h4>
+            <ul class="space-y-3 text-[15px] text-[#5F6B73] font-light">
+              <li class="flex items-start gap-2">
+                <iconify-icon icon="solar:check-circle-linear" class="text-[#6FD3D1] mt-0.5 shrink-0"></iconify-icon>
+                <span><strong>Verhinderungspflege:</strong> Fällt die private Pflegeperson aus, können wir einspringen. Die Kosten trägt die Kasse.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <iconify-icon icon="solar:check-circle-linear" class="text-[#6FD3D1] mt-0.5 shrink-0"></iconify-icon>
+                <span><strong>Umwandlung von Pflegesachleistungen:</strong> Nutzen Sie ungenutzte Sachleistungsbeträge für unsere Betreuung.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="flex-1 w-full bg-[#F8FEFF] rounded-3xl p-8 lg:p-10 border border-[#E5F4F5]">
+          <h3 class="text-2xl font-medium tracking-tight text-[#111111] mb-8 text-center" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+            Einfach und unkompliziert
+          </h3>
+          
+          <div class="space-y-8 relative">
+            <div class="absolute left-6 top-8 bottom-8 w-px bg-[#DFF7F8] -z-10"></div>
+            
+            <div class="flex gap-6">
+              <div class="w-12 h-12 rounded-full bg-[#FFFFFF] border-2 border-[#6FD3D1] flex items-center justify-center text-[#6FD3D1] font-medium text-lg shrink-0" style="font-family: 'Plus Jakarta Sans', sans-serif;">1</div>
+              <div>
+                <h4 class="text-lg font-medium text-[#111111] mb-1" style="font-family: 'Plus Jakarta Sans', sans-serif;">Beratung</h4>
+                <p class="text-sm text-[#5F6B73] font-light">Wir besprechen Ihre individuelle Situation und zeigen auf, welche Budgets der Pflegekasse Ihnen zustehen.</p>
+              </div>
+            </div>
+
+            <div class="flex gap-6">
+              <div class="w-12 h-12 rounded-full bg-[#FFFFFF] border-2 border-[#6FD3D1] flex items-center justify-center text-[#6FD3D1] font-medium text-lg shrink-0" style="font-family: 'Plus Jakarta Sans', sans-serif;">2</div>
+              <div>
+                <h4 class="text-lg font-medium text-[#111111] mb-1" style="font-family: 'Plus Jakarta Sans', sans-serif;">Antrag &amp; Organisation</h4>
+                <p class="text-sm text-[#5F6B73] font-light">Wir helfen Ihnen bei der Beantragung der Leistungen und planen gemeinsam die Einsätze nach Ihren Wünschen.</p>
+              </div>
+            </div>
+
+            <div class="flex gap-6">
+              <div class="w-12 h-12 rounded-full bg-[#6FD3D1] text-[#FFFFFF] flex items-center justify-center font-medium text-lg shrink-0 shadow-md" style="font-family: 'Plus Jakarta Sans', sans-serif;">3</div>
+              <div>
+                <h4 class="text-lg font-medium text-[#111111] mb-1" style="font-family: 'Plus Jakarta Sans', sans-serif;">Direkte Abrechnung</h4>
+                <p class="text-sm text-[#5F6B73] font-light">Sobald alles bewilligt ist, rechnen wir unsere Leistungen bequem und direkt mit Ihrer Pflegekasse ab. Sie müssen sich um nichts kümmern.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Senioren & Demenzbetreuung -->
+  <section id="demenz" class="py-24 bg-[#F8FEFF]">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      
+      <div class="order-2 lg:order-1 relative">
+        <div class="aspect-square rounded-3xl overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1529144415895-6aaf8be872fb?q=80&amp;w=1000&amp;auto=format&amp;fit=crop" alt="Betreuerin liest Seniorin vor" class="w-full h-full object-cover">
+        </div>
+        <div class="absolute inset-0 bg-[#BFEAF2] opacity-10 rounded-3xl mix-blend-multiply"></div>
+      </div>
+
+      <div class="order-1 lg:order-2">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
+          Spezialisierte Betreuung
+        </div>
+        <h2 class="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-6" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+          Senioren- und Demenzbetreuung mit Herz
+        </h2>
+        <p class="text-lg text-[#5F6B73] leading-relaxed font-light mb-8">
+          Menschen mit demenziellen Veränderungen benötigen eine Umgebung, die Geborgenheit und Sicherheit ausstrahlt. Wir begegnen unseren Klienten mit tiefem Respekt, Empathie und fachlichem Wissen.
+        </p>
+        
+        <ul class="space-y-4">
+          <li class="flex items-start gap-4 p-4 rounded-2xl bg-[#FFFFFF] border border-[#E5F4F5]">
+            <iconify-icon icon="solar:sun-2-linear" class="text-[#6FD3D1] text-2xl mt-0.5"></iconify-icon>
+            <div>
+              <div class="text-base font-medium text-[#111111]">Tagesstruktur &amp; Orientierung</div>
+              <div class="text-sm text-[#5F6B73] font-light mt-1">Feste Rhythmen und vertraute Rituale geben Sicherheit im Alltag.</div>
+            </div>
+          </li>
+          <li class="flex items-start gap-4 p-4 rounded-2xl bg-[#FFFFFF] border border-[#E5F4F5]">
+            <iconify-icon icon="solar:chat-smile-2-linear" class="text-[#6FD3D1] text-2xl mt-0.5"></iconify-icon>
+            <div>
+              <div class="text-base font-medium text-[#111111]">Biografiearbeit &amp; Gespräche</div>
+              <div class="text-sm text-[#5F6B73] font-light mt-1">Wir knüpfen an Lebensgeschichten an und aktivieren positive Erinnerungen.</div>
+            </div>
+          </li>
+          <li class="flex items-start gap-4 p-4 rounded-2xl bg-[#FFFFFF] border border-[#E5F4F5]">
+            <iconify-icon icon="solar:shield-user-linear" class="text-[#6FD3D1] text-2xl mt-0.5"></iconify-icon>
+            <div>
+              <div class="text-base font-medium text-[#111111]">Schulung für Angehörige</div>
+              <div class="text-sm text-[#5F6B73] font-light mt-1">Wir beraten Sie im Umgang mit der Erkrankung und bieten emotionale Entlastung.</div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Why Families Choose Us (Trust Cards) -->
+  <section class="py-20 bg-[#FFFFFF]">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12 text-center">
+      <h2 class="text-2xl lg:text-3xl font-medium tracking-tight text-[#111111] mb-12" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+        Warum sich Familien für uns entscheiden
+      </h2>
+      
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-8">
+        <div class="flex flex-col items-center">
+          <div class="w-16 h-16 rounded-full bg-[#F8FEFF] border border-[#E5F4F5] flex items-center justify-center text-[#6FD3D1] mb-4">
+            <iconify-icon icon="solar:user-heart-linear" width="32" stroke-width="1.5"></iconify-icon>
+          </div>
+          <h4 class="text-base font-medium text-[#111111]">Individuell</h4>
+        </div>
+        <div class="flex flex-col items-center">
+          <div class="w-16 h-16 rounded-full bg-[#F8FEFF] border border-[#E5F4F5] flex items-center justify-center text-[#6FD3D1] mb-4">
+            <iconify-icon icon="solar:clock-circle-linear" width="32" stroke-width="1.5"></iconify-icon>
+          </div>
+          <h4 class="text-base font-medium text-[#111111]">Zuverlässig</h4>
+        </div>
+        <div class="flex flex-col items-center">
+          <div class="w-16 h-16 rounded-full bg-[#F8FEFF] border border-[#E5F4F5] flex items-center justify-center text-[#6FD3D1] mb-4">
+            <iconify-icon icon="solar:hand-shake-linear" width="32" stroke-width="1.5"></iconify-icon>
+          </div>
+          <h4 class="text-base font-medium text-[#111111]">Respektvoll</h4>
+        </div>
+        <div class="flex flex-col items-center">
+          <div class="w-16 h-16 rounded-full bg-[#F8FEFF] border border-[#E5F4F5] flex items-center justify-center text-[#6FD3D1] mb-4">
+            <iconify-icon icon="solar:shield-star-linear" width="32" stroke-width="1.5"></iconify-icon>
+          </div>
+          <h4 class="text-base font-medium text-[#111111]">Vertrauensvoll</h4>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Service Area -->
+  <section class="py-20 bg-[#F8FEFF] border-t border-[#E5F4F5]">
+    <div class="max-w-4xl mx-auto px-6 text-center">
+      <div class="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#DFF7F8] text-[#6FD3D1] mb-6">
+        <iconify-icon icon="solar:map-point-linear" width="24"></iconify-icon>
+      </div>
+      <h2 class="text-2xl font-medium tracking-tight text-[#111111] mb-4" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+        Unser Einsatzgebiet
+      </h2>
+      <p class="text-[17px] text-[#5F6B73] font-light mb-8">
+        Wir sind für Sie da im Raum <strong>Springe, Hameln und der näheren Umgebung</strong>.
+      </p>
+      <a href="#kontakt" class="text-sm font-medium text-[#6FD3D1] hover:text-[#5BC2C0] transition-colors flex items-center justify-center gap-1.5">
+        Prüfen Sie unverbindlich, ob wir auch bei Ihnen unterstützen können
+        <iconify-icon icon="solar:arrow-right-linear"></iconify-icon>
+      </a>
+    </div>
+  </section>
+
+  <!-- Contact CTA -->
+  <section id="kontakt" class="py-24 lg:py-32 bg-[#FFFFFF]">
+    <div class="max-w-4xl mx-auto px-6 text-center">
+      <h2 class="text-3xl lg:text-5xl font-medium tracking-tight text-[#111111] mb-6" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+        Lassen Sie uns helfen.
+      </h2>
+      <p class="text-lg lg:text-xl text-[#5F6B73] mb-10 max-w-2xl mx-auto font-light">
+        Nehmen Sie Kontakt auf für ein kostenfreies Erstgespräch. Wir nehmen uns Zeit für Sie und beantworten alle Fragen zur Pflegekasse in Ruhe.
+      </p>
+      
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+        <a href="tel:+4900000000" class="w-full sm:w-auto bg-[#6FD3D1] text-[#FFFFFF] hover:bg-[#5BC2C0] px-8 py-4 rounded-full text-base font-normal transition-all flex items-center justify-center gap-2 shadow-sm">
+          <iconify-icon icon="solar:phone-calling-linear" width="20"></iconify-icon>
+          0800 123 456 78
+        </a>
+        <a href="mailto:info@curadoma.de" class="w-full sm:w-auto bg-[#F8FEFF] text-[#111111] border border-[#E5F4F5] hover:bg-[#DFF7F8] px-8 py-4 rounded-full text-base font-normal transition-all flex items-center justify-center gap-2">
+          <iconify-icon icon="solar:letter-linear" width="20" class="text-[#6FD3D1]"></iconify-icon>
+          Nachricht schreiben
+        </a>
+      </div>
+
+      <div class="text-sm text-[#5F6B73] font-light flex items-center justify-center gap-2">
+        <iconify-icon icon="solar:clock-circle-linear" class="text-[#6FD3D1]"></iconify-icon>
+        Wir melden uns in der Regel innerhalb von 24 Stunden bei Ihnen.
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-[#F8FEFF] border-t border-[#E5F4F5] pt-16 pb-8">
+    <div class="max-w-7xl mx-auto px-6 lg:px-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+        
+        <!-- Brand Info -->
+        <div class="md:col-span-2">
+          <div class="flex items-center gap-2 mb-4">
+            <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg" class="h-8 w-auto">
+              <g stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M 140 42 A 35 35 0 1 0 128 105" stroke="#6FD3D1"></path>
+              </g>
+            </svg>
+            <span class="font-medium text-lg tracking-tight text-[#111111]" style="font-family: 'Plus Jakarta Sans', sans-serif;">CURA DOMA</span>
+          </div>
+          <p class="text-sm text-[#5F6B73] leading-relaxed font-light max-w-sm">
+            Ihr würdevoller, ambulanter Betreuungsdienst. Wir unterstützen Senioren und Pflegebedürftige dabei, sicher und umsorgt im eigenen Zuhause zu leben.
+          </p>
+        </div>
+
+        <!-- Links -->
+        <div>
+          <h4 class="text-[#111111] font-medium mb-4" style="font-family: 'Plus Jakarta Sans', sans-serif;">Navigation</h4>
+          <ul class="space-y-3 text-sm text-[#5F6B73] font-light">
+            <li><a href="#" class="hover:text-[#6FD3D1] transition-colors">Startseite</a></li>
+            <li><a href="#leistungen" class="hover:text-[#6FD3D1] transition-colors">Leistungen</a></li>
+            <li><a href="#entlastung" class="hover:text-[#6FD3D1] transition-colors">Pflegekasse &amp; Antrag</a></li>
+            <li><a href="#demenz" class="hover:text-[#6FD3D1] transition-colors">Seniorenbetreuung</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact -->
+        <div>
+          <h4 class="text-[#111111] font-medium mb-4" style="font-family: 'Plus Jakarta Sans', sans-serif;">Kontakt</h4>
+          <ul class="space-y-3 text-sm text-[#5F6B73] font-light">
+            <li class="flex items-start gap-2">
+              <iconify-icon icon="solar:phone-calling-linear" class="mt-0.5 shrink-0 text-[#6FD3D1]"></iconify-icon>
+              0800 123 456 78
+            </li>
+            <li class="flex items-start gap-2">
+              <iconify-icon icon="solar:letter-linear" class="mt-0.5 shrink-0 text-[#6FD3D1]"></iconify-icon>
+              info@curadoma.de
+            </li>
+            <li class="flex items-start gap-2">
+              <iconify-icon icon="solar:map-point-linear" class="mt-0.5 shrink-0 text-[#6FD3D1]"></iconify-icon>
+              Musterstraße 12<br>31832 Springe
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Legal & Copyright -->
+      <div class="pt-8 border-t border-[#E5F4F5] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <p class="text-xs text-[#5F6B73] font-light">
+          © 2024 Cura Doma. Alle Rechte vorbehalten.
+        </p>
+        <div class="flex gap-6 text-xs text-[#5F6B73] font-light">
+          <a href="#" class="hover:text-[#6FD3D1] transition-colors">Impressum</a>
+          <a href="#" class="hover:text-[#6FD3D1] transition-colors">Datenschutz</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+
+</body></html>
