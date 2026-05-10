@@ -1,0 +1,22 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+
+# Vite
+.vite/
+
+# Editor / OS
+.vscode/
+.idea/
+Thumbs.db
+
+# Playwright MCP test artifacts
+.playwright-mcp/
+curadoma-home-fullpage.png
+homepage-top.png
+
+# Local env (never commit secrets)
+.env
+.env.*
+!.env.example

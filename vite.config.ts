@@ -16,7 +16,10 @@ function figmaAssetResolver() {
   }
 }
 
-export default defineConfig({
+// On GitHub Pages the site is served from /Curadoma/ (project page).
+// In `vite dev` we want the app at /. Vite injects DEV/PROD via mode.
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? '/Curadoma/' : '/',
   plugins: [
     figmaAssetResolver(),
     // The React and Tailwind plugins are both required for Make, even if
@@ -33,4 +36,4 @@ export default defineConfig({
 
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
-})
+}))

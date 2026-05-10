@@ -13,6 +13,10 @@ import { ImpressumPage } from "./components/ImpressumPage";
 import { DatenschutzPage } from "./components/DatenschutzPage";
 import { KarrierePage } from "./components/KarrierePage";
 
+// import.meta.env.BASE_URL is "/Curadoma/" on Pages, "/" in dev. Strip the
+// trailing slash so React Router treats it as a basename.
+const basename = import.meta.env.BASE_URL.replace(/\/$/, "") || "/";
+
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -43,4 +47,4 @@ export const router = createBrowserRouter([
       },
     ],
   },
-]);
+], { basename });
