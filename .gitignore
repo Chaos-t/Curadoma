@@ -16,6 +16,9 @@ Thumbs.db
 curadoma-home-fullpage.png
 homepage-top.png
 
+# Supabase CLI scratch
+supabase/.temp/
+
 # Local env (never commit secrets)
 .env
 .env.*
