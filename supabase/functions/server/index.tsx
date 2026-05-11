@@ -108,7 +108,42 @@ function rowsTable(rows: Array<[string, string | null | undefined]>) {
 // Anonymous clients only call POST (insert). Reading/updating/deleting
 // requires the service-role key which is never exposed to the frontend.
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// --- Validation (mirror of src/lib/validation.ts) ---------------------------
+// Defense in depth: the frontend already enforces these rules, but a hostile
+// client can edit the request, so we re-check everything server-side.
+
+const EMAIL_RE = /^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$/;
+const PHONE_CHARS_RE = /^[+0-9 ()\/\-.]+$/;
+const URL_LIKE_RE = /(https?:\/\/|www\.|\.(?:com|de|net|org|info|ru|cn|biz)(?:\b|\/))/i;
+const HAS_LETTER_RE = /\p{L}/u;
+const REPEAT_CHARS_RE = /(.)\1{3,}/u;
+
+const LIMITS = {
+  NAME_MIN: 2,
+  NAME_MAX: 60,
+  MESSAGE_MIN: 10,
+  MESSAGE_MAX: 2500,
+  SUBJECT_MAX: 120,
+  EMAIL_MAX: 254,
+  PHONE_MAX: 25,
+} as const;
+
+function isValidName(v: string): boolean {
+  return v.length >= LIMITS.NAME_MIN
+    && v.length <= LIMITS.NAME_MAX
+    && HAS_LETTER_RE.test(v)
+    && !URL_LIKE_RE.test(v)
+    && !REPEAT_CHARS_RE.test(v);
+}
+function isValidEmail(v: string): boolean {
+  return v.length > 0 && v.length <= LIMITS.EMAIL_MAX && EMAIL_RE.test(v);
+}
+function isValidPhone(v: string): boolean {
+  if (v.length === 0 || v.length > LIMITS.PHONE_MAX) return false;
+  if (!PHONE_CHARS_RE.test(v)) return false;
+  const digits = v.replace(/\D/g, "");
+  return digits.length >= 7 && digits.length <= 15;
+}
 
 app.post("/make-server-ec6100a6/contact-messages", async (c) => {
   try {
@@ -126,9 +161,15 @@ app.post("/make-server-ec6100a6/contact-messages", async (c) => {
     const consent_privacy = Boolean(body.consent_privacy);
 
     const errors: Record<string, string> = {};
-    if (!name) errors.name = "Name ist erforderlich.";
-    if (!email || !EMAIL_RE.test(email)) errors.email = "Bitte geben Sie eine gültige E-Mail-Adresse an.";
-    if (!message) errors.message = "Nachricht ist erforderlich.";
+    if (!name) errors.name = "Bitte geben Sie Ihren Namen an.";
+    else if (!isValidName(name)) errors.name = "Bitte geben Sie einen echten Namen ein.";
+    if (!email) errors.email = "Bitte geben Sie Ihre E-Mail-Adresse an.";
+    else if (!isValidEmail(email)) errors.email = "Bitte geben Sie eine gültige E-Mail-Adresse an.";
+    if (phone && !isValidPhone(phone)) errors.phone = "Bitte geben Sie eine gültige Telefonnummer an.";
+    if (subject && subject.length > LIMITS.SUBJECT_MAX) errors.subject = "Der Betreff ist zu lang.";
+    if (!message) errors.message = "Bitte schreiben Sie eine Nachricht.";
+    else if (message.length < LIMITS.MESSAGE_MIN) errors.message = "Bitte schreiben Sie etwas mehr.";
+    else if (message.length > LIMITS.MESSAGE_MAX) errors.message = "Die Nachricht ist zu lang.";
     if (!consent_privacy) errors.consent_privacy = "Bitte stimmen Sie der Datenschutzerklärung zu.";
 
     if (Object.keys(errors).length > 0) {
@@ -201,8 +242,13 @@ app.post("/make-server-ec6100a6/job-applications", async (c) => {
     const consent_privacy = Boolean(body.consent_privacy);
 
     if (!name) errors.name = "Bitte geben Sie Ihren Namen an.";
-    if (!email || !EMAIL_RE.test(email)) errors.email = "Bitte geben Sie eine gültige E-Mail-Adresse an.";
+    else if (!isValidName(name)) errors.name = "Bitte geben Sie einen echten Namen ein.";
+    if (!email) errors.email = "Bitte geben Sie Ihre E-Mail-Adresse an.";
+    else if (!isValidEmail(email)) errors.email = "Bitte geben Sie eine gültige E-Mail-Adresse an.";
     if (!phone) errors.phone = "Bitte geben Sie eine Telefonnummer an.";
+    else if (!isValidPhone(phone)) errors.phone = "Bitte geben Sie eine gültige Telefonnummer an.";
+    if (city.length > LIMITS.NAME_MAX) errors.city = "Wohnort ist zu lang.";
+    if (message.length > LIMITS.MESSAGE_MAX) errors.motivation = "Die Motivation ist zu lang.";
     if (!consent_privacy) errors.consent_privacy = "Bitte stimmen Sie der Datenschutzerklärung zu.";
     if (Object.keys(errors).length > 0) {
       return c.json({ error: "Validierung fehlgeschlagen.", fields: errors }, 422);

@@ -1,7 +1,17 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router";
 import { Phone, Mail, MapPin, Clock, Heart, Send, CheckCircle, Navigation, ExternalLink, AlertCircle } from "lucide-react";
 import { projectId, publicAnonKey } from "/utils/supabase/info";
+import {
+  validateName,
+  validateEmail,
+  validatePhone,
+  validateMessage,
+  validateSubject,
+  validateConsent,
+  looksLikeBotSubmit,
+  Limits,
+} from "../../lib/validation";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 const img = "https://images.unsplash.com/photo-1758518725921-1eb74ed293be?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmcmllbmRseSUyMGNvbnN1bHRhdGlvbiUyMG9mZmljZSUyMG1lZXRpbmclMjB3YXJtfGVufDF8fHx8MTc3NTMxNDQ5MXww&ixlib=rb-4.1.0&q=80&w=1080";
@@ -34,34 +44,67 @@ export function KontaktPage() {
     subject: "",
     message: "",
     consent: false,
+    // Honeypot — must stay empty. Real users won't see this field; bots
+    // typically autofill any input they recognise.
+    website: "",
   });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  // Time the form was first rendered — used to filter out instant
+  // (sub-2.5s) bot submissions.
+  const openedAtRef = useRef<number>(Date.now());
 
   const update = (key: keyof typeof form, value: string | boolean) => {
     setForm((f) => ({ ...f, [key]: value }));
   };
 
+  const validateAll = (): Record<string, string> => {
+    const errs: Record<string, string> = {};
+    const firstNameErr = validateName(form.firstName, "Vornamen");
+    const lastNameErr = validateName(form.lastName, "Nachnamen");
+    if (firstNameErr) errs.firstName = firstNameErr;
+    if (lastNameErr) errs.lastName = lastNameErr;
+    const emailErr = validateEmail(form.email);
+    if (emailErr) errs.email = emailErr;
+    const phoneErr = validatePhone(form.phone, false);
+    if (phoneErr) errs.phone = phoneErr;
+    const subjectErr = validateSubject(form.subject);
+    if (subjectErr) errs.subject = subjectErr;
+    const messageErr = validateMessage(form.message);
+    if (messageErr) errs.message = messageErr;
+    const consentErr = validateConsent(form.consent);
+    if (consentErr) errs.consent_privacy = consentErr;
+    return errs;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setFieldErrors({});
 
-    const errs: Record<string, string> = {};
-    if (!form.firstName.trim() && !form.lastName.trim()) errs.name = "Bitte geben Sie Ihren Namen an.";
-    if (!form.email.trim()) errs.email = "Bitte geben Sie Ihre E-Mail-Adresse an.";
-    if (!form.message.trim()) errs.message = "Bitte schreiben Sie eine Nachricht.";
-    if (!form.consent) errs.consent_privacy = "Bitte stimmen Sie der Datenschutzerklärung zu.";
+    // Honeypot tripped → silently pretend success. Don't tell the bot which
+    // field gave it away.
+    if (form.website) {
+      setSubmitted(true);
+      return;
+    }
+
+    const errs = validateAll();
     if (Object.keys(errs).length > 0) {
       setFieldErrors(errs);
+      return;
+    }
+    setFieldErrors({});
+
+    if (looksLikeBotSubmit(openedAtRef.current)) {
+      setError("Bitte versuchen Sie es in ein paar Sekunden noch einmal.");
       return;
     }
 
     setSubmitting(true);
     try {
-      const fullName = `${form.firstName} ${form.lastName}`.trim();
+      const fullName = `${form.firstName.trim()} ${form.lastName.trim()}`;
       const res = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-ec6100a6/contact-messages`,
         {
@@ -138,29 +181,91 @@ export function KontaktPage() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5" noValidate>
+                {/* Honeypot — hidden from sighted users + screen readers, but
+                    present in the DOM so naive bots autofill it. */}
+                <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", width: 1, height: 1, overflow: "hidden" }}>
+                  <label>
+                    Website (bitte freilassen)
+                    <input
+                      type="text"
+                      tabIndex={-1}
+                      autoComplete="off"
+                      value={form.website}
+                      onChange={(e) => update("website", e.target.value)}
+                    />
+                  </label>
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm font-medium text-[#111111] mb-1.5">Vorname *</label>
-                    <input type="text" value={form.firstName} onChange={(e) => update("firstName", e.target.value)} className="w-full px-4 py-3 rounded-xl border border-[#E5F4F5] bg-[#F8FEFF] text-sm font-light text-[#111111] focus:outline-none focus:border-[#6FD3D1] focus:ring-1 focus:ring-[#6FD3D1] transition-colors" placeholder="Max" />
+                    <label className="block text-sm font-medium text-[#111111] mb-1.5" htmlFor="kontakt-firstName">Vorname *</label>
+                    <input
+                      id="kontakt-firstName"
+                      type="text"
+                      autoComplete="given-name"
+                      maxLength={Limits.NAME_MAX}
+                      required
+                      aria-invalid={!!fieldErrors.firstName}
+                      value={form.firstName}
+                      onChange={(e) => update("firstName", e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-[#E5F4F5] bg-[#F8FEFF] text-sm font-light text-[#111111] focus:outline-none focus:border-[#6FD3D1] focus:ring-1 focus:ring-[#6FD3D1] transition-colors"
+                      placeholder="Max"
+                    />
+                    {fieldErrors.firstName && <p className="text-xs text-red-500 mt-1">{fieldErrors.firstName}</p>}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#111111] mb-1.5">Nachname *</label>
-                    <input type="text" value={form.lastName} onChange={(e) => update("lastName", e.target.value)} className="w-full px-4 py-3 rounded-xl border border-[#E5F4F5] bg-[#F8FEFF] text-sm font-light text-[#111111] focus:outline-none focus:border-[#6FD3D1] focus:ring-1 focus:ring-[#6FD3D1] transition-colors" placeholder="Mustermann" />
+                    <label className="block text-sm font-medium text-[#111111] mb-1.5" htmlFor="kontakt-lastName">Nachname *</label>
+                    <input
+                      id="kontakt-lastName"
+                      type="text"
+                      autoComplete="family-name"
+                      maxLength={Limits.NAME_MAX}
+                      required
+                      aria-invalid={!!fieldErrors.lastName}
+                      value={form.lastName}
+                      onChange={(e) => update("lastName", e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl border border-[#E5F4F5] bg-[#F8FEFF] text-sm font-light text-[#111111] focus:outline-none focus:border-[#6FD3D1] focus:ring-1 focus:ring-[#6FD3D1] transition-colors"
+                      placeholder="Mustermann"
+                    />
+                    {fieldErrors.lastName && <p className="text-xs text-red-500 mt-1">{fieldErrors.lastName}</p>}
                   </div>
                 </div>
-                {fieldErrors.name && <p className="text-xs text-red-500 -mt-3">{fieldErrors.name}</p>}
                 <div>
-                  <label className="block text-sm font-medium text-[#111111] mb-1.5">E-Mail-Adresse *</label>
-                  <input type="email" value={form.email} onChange={(e) => update("email", e.target.value)} className="w-full px-4 py-3 rounded-xl border border-[#E5F4F5] bg-[#F8FEFF] text-sm font-light text-[#111111] focus:outline-none focus:border-[#6FD3D1] focus:ring-1 focus:ring-[#6FD3D1] transition-colors" placeholder="max@beispiel.de" />
+                  <label className="block text-sm font-medium text-[#111111] mb-1.5" htmlFor="kontakt-email">E-Mail-Adresse *</label>
+                  <input
+                    id="kontakt-email"
+                    type="email"
+                    autoComplete="email"
+                    inputMode="email"
+                    maxLength={Limits.EMAIL_MAX}
+                    required
+                    aria-invalid={!!fieldErrors.email}
+                    value={form.email}
+                    onChange={(e) => update("email", e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5F4F5] bg-[#F8FEFF] text-sm font-light text-[#111111] focus:outline-none focus:border-[#6FD3D1] focus:ring-1 focus:ring-[#6FD3D1] transition-colors"
+                    placeholder="max@beispiel.de"
+                  />
                   {fieldErrors.email && <p className="text-xs text-red-500 mt-1">{fieldErrors.email}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[#111111] mb-1.5">Telefonnummer</label>
-                  <input type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} className="w-full px-4 py-3 rounded-xl border border-[#E5F4F5] bg-[#F8FEFF] text-sm font-light text-[#111111] focus:outline-none focus:border-[#6FD3D1] focus:ring-1 focus:ring-[#6FD3D1] transition-colors" placeholder="05151 7107093" />
+                  <label className="block text-sm font-medium text-[#111111] mb-1.5" htmlFor="kontakt-phone">Telefonnummer</label>
+                  <input
+                    id="kontakt-phone"
+                    type="tel"
+                    autoComplete="tel"
+                    inputMode="tel"
+                    maxLength={25}
+                    aria-invalid={!!fieldErrors.phone}
+                    value={form.phone}
+                    onChange={(e) => update("phone", e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5F4F5] bg-[#F8FEFF] text-sm font-light text-[#111111] focus:outline-none focus:border-[#6FD3D1] focus:ring-1 focus:ring-[#6FD3D1] transition-colors"
+                    placeholder="05151 7107093"
+                  />
+                  {fieldErrors.phone && <p className="text-xs text-red-500 mt-1">{fieldErrors.phone}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[#111111] mb-1.5">Betreff</label>
-                  <select value={form.subject} onChange={(e) => update("subject", e.target.value)} className="w-full px-4 py-3 rounded-xl border border-[#E5F4F5] bg-[#F8FEFF] text-sm font-light text-[#5F6B73] focus:outline-none focus:border-[#6FD3D1] focus:ring-1 focus:ring-[#6FD3D1] transition-colors">
+                  <label className="block text-sm font-medium text-[#111111] mb-1.5" htmlFor="kontakt-subject">Betreff</label>
+                  <select id="kontakt-subject" value={form.subject} onChange={(e) => update("subject", e.target.value)} className="w-full px-4 py-3 rounded-xl border border-[#E5F4F5] bg-[#F8FEFF] text-sm font-light text-[#5F6B73] focus:outline-none focus:border-[#6FD3D1] focus:ring-1 focus:ring-[#6FD3D1] transition-colors">
                     <option value="">Bitte wählen...</option>
                     <option>Alltagsbegleitung</option>
                     <option>Hilfe im Haushalt</option>
@@ -171,8 +276,21 @@ export function KontaktPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[#111111] mb-1.5">Ihre Nachricht *</label>
-                  <textarea value={form.message} onChange={(e) => update("message", e.target.value)} rows={5} className="w-full px-4 py-3 rounded-xl border border-[#E5F4F5] bg-[#F8FEFF] text-sm font-light text-[#111111] focus:outline-none focus:border-[#6FD3D1] focus:ring-1 focus:ring-[#6FD3D1] transition-colors resize-none" placeholder="Beschreiben Sie kurz Ihre Situation oder Ihr Anliegen..."></textarea>
+                  <label className="block text-sm font-medium text-[#111111] mb-1.5" htmlFor="kontakt-message">
+                    Ihre Nachricht *
+                    <span className="text-[11px] font-light text-[#9AA3A8] ml-2">{form.message.length}/{Limits.MESSAGE_MAX}</span>
+                  </label>
+                  <textarea
+                    id="kontakt-message"
+                    rows={5}
+                    maxLength={Limits.MESSAGE_MAX}
+                    required
+                    aria-invalid={!!fieldErrors.message}
+                    value={form.message}
+                    onChange={(e) => update("message", e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border border-[#E5F4F5] bg-[#F8FEFF] text-sm font-light text-[#111111] focus:outline-none focus:border-[#6FD3D1] focus:ring-1 focus:ring-[#6FD3D1] transition-colors resize-none"
+                    placeholder="Beschreiben Sie kurz Ihre Situation oder Ihr Anliegen..."
+                  />
                   {fieldErrors.message && <p className="text-xs text-red-500 mt-1">{fieldErrors.message}</p>}
                 </div>
                 <label className="flex items-start gap-3 text-sm text-[#5F6B73] font-light leading-relaxed">

@@ -101,84 +101,196 @@ export function EinzugsgebietSection({ heading = true }: { heading?: boolean }) 
           </div>
         </div>
 
-        {/* Tour Chips — a teal "spotlight" sweeps through the cities one by one,
-            suggesting our team driving from town to town. */}
-        <div className="text-center mb-6">
+        {/* Roadmap: a Car icon drives along a dashed road from town to town.
+            Each stop pulses teal as the car arrives. */}
+        <div className="text-center mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-[11px] font-medium text-[#6FD3D1] uppercase tracking-wider">
             <Car size={14} strokeWidth={1.7} />
-            Wir fahren regelmäßig zu Ihnen
+            Unsere Tour durch die Region
           </div>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-3 py-2">
+        <ol
+          className="cura-roadmap relative mx-auto max-w-3xl pt-2 pb-4"
+          style={{ "--n": cities.length } as CSSProperties}
+        >
+          {/* Dashed road line down the middle (desktop) / left (mobile) */}
+          <span className="cura-roadmap-line" aria-hidden="true" />
+
+          {/* Moving car */}
+          <span
+            className="cura-roadmap-car shadow-[0_10px_28px_rgb(111,211,209,0.45)]"
+            aria-hidden="true"
+          >
+            <Car size={18} strokeWidth={1.8} />
+          </span>
+
           {cities.map((c, i) => (
-            <span
+            <li
               key={c}
-              className="cura-tour-chip inline-flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-light shrink-0"
+              className={`cura-roadmap-stop ${i % 2 === 0 ? "is-left" : "is-right"}`}
               style={{ "--i": i } as CSSProperties}
             >
-              <MapPin size={14} className="cura-tour-pin" />
-              <span className="cura-tour-label">{c}</span>
-            </span>
+              <div className="cura-roadmap-card inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#E5F4F5] shadow-sm">
+                <span className="text-[11px] font-medium tabular-nums text-[#9AA3A8] tracking-wider">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span className="w-px h-3 bg-[#E5F4F5]" aria-hidden="true" />
+                <MapPin size={14} className="text-[#6FD3D1]" />
+                <span className="text-sm font-medium text-[#5F6B73]">{c}</span>
+              </div>
+              <span className="cura-roadmap-dot" aria-hidden="true" />
+            </li>
           ))}
-        </div>
+        </ol>
       </div>
 
       <style>{`
-        .cura-tour-chip {
-          /* idle baseline */
-          background: #ffffff;
-          border-color: #E5F4F5;
-          color: #5F6B73;
-          box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-          transform: translateY(0) scale(1);
-          will-change: transform, box-shadow, background-color, color;
-          animation: curaCityVisit 7.8s linear infinite calc(var(--i) * 0.6s);
-        }
-        .cura-tour-chip .cura-tour-pin {
-          color: #6FD3D1;
-          animation: curaCityVisitPin 7.8s linear infinite calc(var(--i) * 0.6s);
+        .cura-roadmap {
+          --cycle: 18s;
+          --car-size: 40px;
+          list-style: none;
+          padding-inline-start: 0;
         }
 
-        @keyframes curaCityVisit {
-          /* 0%: peak — team just arrived */
+        /* Dashed road */
+        .cura-roadmap-line {
+          position: absolute;
+          top: 0; bottom: 0;
+          width: 0;
+          border-left: 2px dashed #BFEAF2;
+          z-index: 0;
+        }
+
+        /* Stop dot — anchored to the road */
+        .cura-roadmap-dot {
+          position: absolute;
+          top: 50%;
+          width: 14px; height: 14px;
+          border-radius: 9999px;
+          background: #ffffff;
+          box-shadow: 0 0 0 3px #BFEAF2;
+          z-index: 2;
+          transform: translate(-50%, -50%);
+        }
+
+        /* The moving car */
+        .cura-roadmap-car {
+          position: absolute;
+          top: 0;
+          width: var(--car-size);
+          height: var(--car-size);
+          border-radius: 9999px;
+          background: #6FD3D1;
+          color: #ffffff;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 3;
+          opacity: 0;
+          transform: translate(-50%, -50%);
+          animation: curaCarTravel var(--cycle) linear infinite;
+        }
+
+        /* Stop pulse — fires when car arrives at that stop */
+        .cura-roadmap-dot {
+          animation: curaStopPulse var(--cycle) linear infinite;
+          animation-delay: calc((var(--i) + 0.5) / var(--n) * var(--cycle));
+        }
+        .cura-roadmap-card {
+          animation: curaCardPulse var(--cycle) linear infinite;
+          animation-delay: calc((var(--i) + 0.5) / var(--n) * var(--cycle));
+          will-change: transform, box-shadow;
+        }
+
+        /* Each stop's dot anchors to the road, so its 'left' lives with the
+           road definitions below. The card just flows in normal text-align. */
+        .cura-roadmap-stop { position: relative; display: block; }
+        .cura-roadmap-stop + .cura-roadmap-stop { margin-top: 14px; }
+
+        /* Mobile: road on the left, single column, dots on the left edge */
+        .cura-roadmap-line { left: 22px; }
+        .cura-roadmap-car  { left: 22px; }
+        .cura-roadmap-dot  { left: 22px; }
+        .cura-roadmap-stop.is-left,
+        .cura-roadmap-stop.is-right {
+          padding: 6px 0 6px 56px;
+          text-align: left;
+        }
+
+        /* Desktop ≥ 768px: zig-zag, road in the middle */
+        @media (min-width: 768px) {
+          .cura-roadmap-line { left: 50%; }
+          .cura-roadmap-car  { left: 50%; }
+          .cura-roadmap-dot  { left: 50%; }
+          .cura-roadmap-stop + .cura-roadmap-stop { margin-top: 18px; }
+          .cura-roadmap-stop.is-left {
+            padding: 6px calc(50% + 32px) 6px 0;
+            text-align: right;
+          }
+          .cura-roadmap-stop.is-right {
+            padding: 6px 0 6px calc(50% + 32px);
+            text-align: left;
+          }
+        }
+
+        /* Car keyframes: fade in near first stop, linear to last stop, fade out.
+           Linear region (4%–96%) maps the car's top position to time, so the
+           car center is at stop i exactly when t = (i + 0.5)/N * cycle.        */
+        @keyframes curaCarTravel {
+          0%, 3%    { top: 4%;   opacity: 0; }
+          4%        { top: 4%;   opacity: 1; }
+          96%       { top: 96%;  opacity: 1; }
+          97%, 100% { top: 96%;  opacity: 0; }
+        }
+
+        /* Stop dot pulse: peak at 0% of its (delayed) cycle = exact car arrival */
+        @keyframes curaStopPulse {
           0% {
             background: #6FD3D1;
-            border-color: #6FD3D1;
-            color: #ffffff;
             box-shadow:
-              0 0 0 6px rgba(111, 211, 209, 0.22),
-              0 12px 28px rgba(111, 211, 209, 0.38);
-            transform: translateY(-4px) scale(1.06);
+              0 0 0 4px rgba(111, 211, 209, 0.30),
+              0 6px 18px rgba(111, 211, 209, 0.55);
+            transform: translate(-50%, -50%) scale(1.55);
           }
-          /* 7%: ring expands and fades — radar */
-          7% {
+          6% {
             background: #6FD3D1;
-            border-color: #6FD3D1;
-            color: #ffffff;
             box-shadow:
               0 0 0 14px rgba(111, 211, 209, 0),
-              0 6px 16px rgba(111, 211, 209, 0.18);
-            transform: translateY(-2px) scale(1.03);
+              0 2px 10px rgba(111, 211, 209, 0.2);
+            transform: translate(-50%, -50%) scale(1.2);
           }
-          /* 14%: settled back to idle white */
-          14%, 100% {
+          12%, 100% {
             background: #ffffff;
-            border-color: #E5F4F5;
-            color: #5F6B73;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
-            transform: translateY(0) scale(1);
+            box-shadow: 0 0 0 3px #BFEAF2;
+            transform: translate(-50%, -50%) scale(1);
           }
         }
 
-        @keyframes curaCityVisitPin {
-          0%, 7%    { color: #ffffff; transform: scale(1.15); }
-          14%, 100% { color: #6FD3D1; transform: scale(1); }
+        /* Card pulse: subtle lift + teal glow when car arrives */
+        @keyframes curaCardPulse {
+          0% {
+            box-shadow:
+              0 0 0 3px rgba(111, 211, 209, 0.25),
+              0 14px 28px rgba(111, 211, 209, 0.28);
+            transform: scale(1.03);
+          }
+          8% {
+            box-shadow:
+              0 0 0 0 rgba(111, 211, 209, 0),
+              0 6px 14px rgba(111, 211, 209, 0.1);
+            transform: scale(1.01);
+          }
+          14%, 100% {
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            transform: scale(1);
+          }
         }
 
         @media (prefers-reduced-motion: reduce) {
-          .cura-tour-chip,
-          .cura-tour-chip .cura-tour-pin { animation: none; }
+          .cura-roadmap-car { animation: none; opacity: 1; top: 50%; }
+          .cura-roadmap-dot,
+          .cura-roadmap-card { animation: none; }
         }
       `}</style>
     </section>

@@ -1,7 +1,16 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Link } from "react-router";
 import { Briefcase, ArrowRight, CheckCircle, AlertCircle, Send, Heart, Users, Clock } from "lucide-react";
 import { projectId, publicAnonKey } from "/utils/supabase/info";
+import {
+  validateName,
+  validateEmail,
+  validatePhone,
+  validateMessage,
+  validateConsent,
+  looksLikeBotSubmit,
+  Limits,
+} from "../../lib/validation";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
@@ -32,6 +41,8 @@ type FormState = {
   motivation: string;
   cv_filename: string;
   consent_privacy: boolean;
+  /** Honeypot — must stay empty. */
+  website: string;
 };
 
 const initial: FormState = {
@@ -50,6 +61,7 @@ const initial: FormState = {
   motivation: "",
   cv_filename: "",
   consent_privacy: false,
+  website: "",
 };
 
 export function KarrierePage() {
@@ -59,6 +71,7 @@ export function KarrierePage() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const openedAtRef = useRef<number>(Date.now());
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
@@ -66,15 +79,39 @@ export function KarrierePage() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    setFieldErrors({});
+
+    // Honeypot tripped → silently "succeed".
+    if (form.website) {
+      setSubmitted(true);
+      return;
+    }
 
     const errs: Record<string, string> = {};
-    if (!form.name.trim()) errs.name = "Bitte geben Sie Ihren vollständigen Namen an.";
-    if (!form.email.trim()) errs.email = "Bitte geben Sie Ihre E-Mail-Adresse an.";
-    if (!form.phone.trim()) errs.phone = "Bitte geben Sie eine Telefonnummer an.";
-    if (!form.consent_privacy) errs.consent_privacy = "Bitte stimmen Sie der Datenschutzerklärung zu.";
+    const nameErr = validateName(form.name, "Namen");
+    const emailErr = validateEmail(form.email);
+    const phoneErr = validatePhone(form.phone, true);
+    const consentErr = validateConsent(form.consent_privacy);
+    if (nameErr) errs.name = nameErr;
+    if (emailErr) errs.email = emailErr;
+    if (phoneErr) errs.phone = phoneErr;
+    if (consentErr) errs.consent_privacy = consentErr;
+    // City is optional but if filled, sanity-check length
+    if (form.city.trim() && form.city.trim().length > 60) {
+      errs.city = "Wohnort darf höchstens 60 Zeichen haben.";
+    }
+    // Motivation is optional but cap length
+    if (form.motivation.trim()) {
+      const mErr = validateMessage(form.motivation);
+      if (mErr && mErr.includes("zu lang")) errs.motivation = mErr;
+    }
     if (Object.keys(errs).length > 0) {
       setFieldErrors(errs);
+      return;
+    }
+    setFieldErrors({});
+
+    if (looksLikeBotSubmit(openedAtRef.current)) {
+      setError("Bitte versuchen Sie es in ein paar Sekunden noch einmal.");
       return;
     }
 
@@ -89,7 +126,8 @@ export function KarrierePage() {
             Authorization: `Bearer ${publicAnonKey}`,
           },
           body: JSON.stringify({
-            ...form,
+            // Strip honeypot — don't send "website" upstream.
+            ...(({ website: _hp, ...rest }) => rest)(form),
             experience_household: form.experience_household === "ja",
             experience_care: form.experience_care === "ja",
             drivers_license: form.drivers_license === "ja",
@@ -229,22 +267,36 @@ export function KarrierePage() {
             </div>
           ) : (
             <form onSubmit={onSubmit} className="space-y-5 bg-[#F8FEFF] rounded-3xl border border-[#E5F4F5] p-6 sm:p-8" noValidate>
+              {/* Honeypot field — must stay empty */}
+              <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", width: 1, height: 1, overflow: "hidden" }}>
+                <label>
+                  Website (bitte freilassen)
+                  <input
+                    type="text"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    value={form.website}
+                    onChange={(e) => set("website", e.target.value)}
+                  />
+                </label>
+              </div>
+
               <Field label="Vollständiger Name *" error={fieldErrors.name}>
-                <input type="text" value={form.name} onChange={(e) => set("name", e.target.value)} className={inputCls} placeholder="Vor- und Nachname" />
+                <input type="text" autoComplete="name" maxLength={Limits.NAME_MAX} required aria-invalid={!!fieldErrors.name} value={form.name} onChange={(e) => set("name", e.target.value)} className={inputCls} placeholder="Vor- und Nachname" />
               </Field>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <Field label="E-Mail-Adresse *" error={fieldErrors.email}>
-                  <input type="email" value={form.email} onChange={(e) => set("email", e.target.value)} className={inputCls} placeholder="name@beispiel.de" />
+                  <input type="email" autoComplete="email" inputMode="email" maxLength={Limits.EMAIL_MAX} required aria-invalid={!!fieldErrors.email} value={form.email} onChange={(e) => set("email", e.target.value)} className={inputCls} placeholder="name@beispiel.de" />
                 </Field>
                 <Field label="Telefonnummer *" error={fieldErrors.phone}>
-                  <input type="tel" value={form.phone} onChange={(e) => set("phone", e.target.value)} className={inputCls} placeholder="05151 7107093" />
+                  <input type="tel" autoComplete="tel" inputMode="tel" maxLength={25} required aria-invalid={!!fieldErrors.phone} value={form.phone} onChange={(e) => set("phone", e.target.value)} className={inputCls} placeholder="05151 7107093" />
                 </Field>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <Field label="Wohnort">
-                  <input type="text" value={form.city} onChange={(e) => set("city", e.target.value)} className={inputCls} placeholder="Hameln" />
+                <Field label="Wohnort" error={fieldErrors.city}>
+                  <input type="text" autoComplete="address-level2" maxLength={60} value={form.city} onChange={(e) => set("city", e.target.value)} className={inputCls} placeholder="Hameln" />
                 </Field>
                 <Field label="Gewünschte Arbeitszeit">
                   <select value={form.working_hours} onChange={(e) => set("working_hours", e.target.value)} className={inputCls}>
@@ -286,8 +338,15 @@ export function KarrierePage() {
                 </Field>
               </div>
 
-              <Field label="Kurze Motivation">
-                <textarea value={form.motivation} onChange={(e) => set("motivation", e.target.value)} rows={4} className={`${inputCls} resize-none`} placeholder="Warum möchten Sie bei Cura Doma arbeiten?" />
+              <Field label="Kurze Motivation" error={fieldErrors.motivation}>
+                <textarea
+                  value={form.motivation}
+                  onChange={(e) => set("motivation", e.target.value)}
+                  rows={4}
+                  maxLength={Limits.MESSAGE_MAX}
+                  className={`${inputCls} resize-none`}
+                  placeholder="Warum möchten Sie bei Cura Doma arbeiten?"
+                />
               </Field>
 
               <Field label="Lebenslauf / Unterlagen (optional)">
