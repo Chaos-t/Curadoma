@@ -1,4 +1,5 @@
-import { MapPin, Navigation, Clock } from "lucide-react";
+import { MapPin, Navigation, Clock, Car } from "lucide-react";
+import type { CSSProperties } from "react";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
@@ -100,32 +101,84 @@ export function EinzugsgebietSection({ heading = true }: { heading?: boolean }) 
           </div>
         </div>
 
-        {/* Marquee Chips */}
-        <div className="relative overflow-hidden py-4 [mask-image:linear-gradient(to_right,transparent,black_10%,black_90%,transparent)]">
-          <div className="flex gap-3 animate-marquee whitespace-nowrap">
-            {[...cities, ...cities].map((c, i) => (
-              <span
-                key={i}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white border border-[#E5F4F5] text-sm text-[#5F6B73] font-light shadow-sm shrink-0"
-              >
-                <MapPin size={14} className="text-[#6FD3D1]" />
-                {c}
-              </span>
-            ))}
+        {/* Tour Chips — a teal "spotlight" sweeps through the cities one by one,
+            suggesting our team driving from town to town. */}
+        <div className="text-center mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-[11px] font-medium text-[#6FD3D1] uppercase tracking-wider">
+            <Car size={14} strokeWidth={1.7} />
+            Wir fahren regelmäßig zu Ihnen
           </div>
+        </div>
+
+        <div className="flex flex-wrap justify-center gap-3 py-2">
+          {cities.map((c, i) => (
+            <span
+              key={c}
+              className="cura-tour-chip inline-flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-light shrink-0"
+              style={{ "--i": i } as CSSProperties}
+            >
+              <MapPin size={14} className="cura-tour-pin" />
+              <span className="cura-tour-label">{c}</span>
+            </span>
+          ))}
         </div>
       </div>
 
       <style>{`
-        @keyframes marquee {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
+        .cura-tour-chip {
+          /* idle baseline */
+          background: #ffffff;
+          border-color: #E5F4F5;
+          color: #5F6B73;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+          transform: translateY(0) scale(1);
+          will-change: transform, box-shadow, background-color, color;
+          animation: curaCityVisit 7.8s linear infinite calc(var(--i) * 0.6s);
         }
-        .animate-marquee {
-          animation: marquee 40s linear infinite;
+        .cura-tour-chip .cura-tour-pin {
+          color: #6FD3D1;
+          animation: curaCityVisitPin 7.8s linear infinite calc(var(--i) * 0.6s);
         }
+
+        @keyframes curaCityVisit {
+          /* 0%: peak — team just arrived */
+          0% {
+            background: #6FD3D1;
+            border-color: #6FD3D1;
+            color: #ffffff;
+            box-shadow:
+              0 0 0 6px rgba(111, 211, 209, 0.22),
+              0 12px 28px rgba(111, 211, 209, 0.38);
+            transform: translateY(-4px) scale(1.06);
+          }
+          /* 7%: ring expands and fades — radar */
+          7% {
+            background: #6FD3D1;
+            border-color: #6FD3D1;
+            color: #ffffff;
+            box-shadow:
+              0 0 0 14px rgba(111, 211, 209, 0),
+              0 6px 16px rgba(111, 211, 209, 0.18);
+            transform: translateY(-2px) scale(1.03);
+          }
+          /* 14%: settled back to idle white */
+          14%, 100% {
+            background: #ffffff;
+            border-color: #E5F4F5;
+            color: #5F6B73;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+            transform: translateY(0) scale(1);
+          }
+        }
+
+        @keyframes curaCityVisitPin {
+          0%, 7%    { color: #ffffff; transform: scale(1.15); }
+          14%, 100% { color: #6FD3D1; transform: scale(1); }
+        }
+
         @media (prefers-reduced-motion: reduce) {
-          .animate-marquee { animation: none; }
+          .cura-tour-chip,
+          .cura-tour-chip .cura-tour-pin { animation: none; }
         }
       `}</style>
     </section>
