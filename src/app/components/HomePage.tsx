@@ -20,7 +20,7 @@ const partners = [
 function PartnerSection() {
   const loop = [...partners, ...partners];
   return (
-    <section className="py-24 bg-white/80 overflow-hidden">
+    <section className="py-24 bg-white/40 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="text-center max-w-2xl mx-auto mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-5 uppercase tracking-wider">
@@ -89,7 +89,7 @@ export function HomePage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative pt-16 pb-24 lg:pt-28 lg:pb-32 overflow-hidden bg-gradient-to-b from-white/80 to-[#F8FEFF]/80">
+      <section className="relative pt-16 pb-24 lg:pt-28 lg:pb-32 overflow-hidden bg-gradient-to-b from-white/40 to-[#F8FEFF]/40">
         <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#BFEAF2] opacity-20 rounded-full blur-3xl pointer-events-none translate-x-1/3 -translate-y-1/3"></div>
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#DFF7F8] opacity-40 rounded-full blur-3xl pointer-events-none -translate-x-1/3 translate-y-1/3"></div>
 
@@ -139,7 +139,7 @@ export function HomePage() {
       </section>
 
       {/* Introduction */}
-      <section className="py-24 bg-white/80">
+      <section className="py-24 bg-white/40">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <Users size={48} strokeWidth={1} className="text-[#BFEAF2] mb-6 mx-auto" />
           <h2 className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-6" style={jakarta}>
@@ -198,7 +198,7 @@ export function HomePage() {
       </section>
 
       {/* Entlastungsleistungen & Pflegekasse */}
-      <section className="py-24 bg-white/80">
+      <section className="py-24 bg-white/40">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="flex flex-col lg:flex-row gap-16 items-center">
             <div className="flex-1">
@@ -301,7 +301,7 @@ export function HomePage() {
       </section>
 
       {/* Why Families Choose Us */}
-      <section className="py-20 bg-white/80">
+      <section className="py-20 bg-white/40">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center">
           <h2 className="text-2xl lg:text-3xl font-medium tracking-tight text-[#111111] mb-12" style={jakarta}>
             Warum sich Familien für uns entscheiden
@@ -333,7 +333,7 @@ export function HomePage() {
       <EinzugsgebietSection />
 
       {/* Contact CTA */}
-      <section className="py-24 lg:py-32 bg-white/80">
+      <section className="py-24 lg:py-32 bg-white/40">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-3xl lg:text-5xl font-medium tracking-tight text-[#111111] mb-6" style={jakarta}>
             Interesse an einer kostenlosen <br className="hidden lg:block" />und unverbindlichen Beratung?

@@ -5,7 +5,7 @@ const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
 export function EinzugsgebietSection({ heading = true }: { heading?: boolean }) {
   return (
-    <section className="py-24 bg-white/80 border-t border-[#E5F4F5]">
+    <section className="py-24 bg-white/40 border-t border-[#E5F4F5]">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {heading && (
           <div className="max-w-3xl mx-auto text-center mb-12">
