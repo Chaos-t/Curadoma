@@ -39,7 +39,7 @@ src/app/App.tsx         RouterProvider wrapper
 src/app/routes.tsx      single source of truth for routes; Layout wraps all pages
 src/app/components/
   Layout.tsx              top utility bar + sticky nav + footer + <Outlet/>
-  BackgroundScene.tsx     fixed-position pseudo-3D background (replaces old WaveBackground): blurred orbs drifting in CSS 3D depth, mobile-trimmed variant
+  BackgroundScene.tsx     fixed-position static page background — just the vertical gradient. We iterated three times on animated variants (drifting orbs → aurora mesh + 3D wireframe sphere → layered sine waves) and the user removed each one. Stays static now; keep it that way unless explicitly asked otherwise.
   CityRoadmap.tsx         the Einzugsgebiet animation — two serpentine SVG paths (Hameln hub, Paderborn hub), car follows path on scroll, mobile gets a stacked vertical timeline
   GoogleReviews.tsx       right-to-left marquee of review cards on the homepage; fetches live data from `/reviews` Edge Function on mount + every 30 min, falls back to src/lib/reviews-data.ts placeholders if endpoint 503s. Each card links to the reviewer's Google profile.
   InstagramFeed.tsx       right-to-left marquee of latest IG posts; fetches `/instagram-posts` on mount + every 30 min. Section hides itself when secrets missing or no posts returned — never shows a broken state.
