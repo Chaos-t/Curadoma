@@ -2,23 +2,46 @@ import { Link } from "react-router";
 import {
   Home, Brain, Users, Info, CheckCircle,
   MapPin, Clock, Sun, MessageCircle, Shield, ShieldCheck, Heart, Handshake,
-  ArrowRight, HandHeart, Phone, Mail, Sparkles, Repeat, Calendar,
+  ArrowRight, HandHeart, Phone, Mail, Sparkles, Repeat, Calendar, ExternalLink,
 } from "lucide-react";
 import { EinzugsgebietSection } from "./EinzugsgebietSection";
 import { GoogleReviews } from "./GoogleReviews";
 import { InstagramFeed } from "./InstagramFeed";
 
-const partners = [
-  { name: "Pflegekasse Niedersachsen", short: "PN" },
-  { name: "AOK Gesundheitspartner", short: "AOK" },
-  { name: "Apotheke am Markt", short: "AM" },
-  { name: "Sanitätshaus Hameln", short: "SH" },
-  { name: "Hausarztpraxis Süntelblick", short: "HS" },
-  { name: "DRK Ortsverein", short: "DRK" },
+type Partner = {
+  name: string;
+  /** External URL the card links to (opens in new tab). */
+  url: string;
+  /** Logo image URL — hot-linked from the partner's CDN. */
+  logoUrl: string;
+  /** Tagline under the partner name. */
+  tagline: string;
+};
+
+const partners: Partner[] = [
+  {
+    name: "Verbund Pflegehilfe",
+    url: "https://www.pflegehilfe.org/",
+    logoUrl: "https://static.pflegehilfe.org/favicons/apple-touch-icon-180x180.png",
+    tagline: "Bundesweite Pflegeberatung",
+  },
+  {
+    name: "PflegeHelfer24",
+    url: "https://pflege-helfer24.de/",
+    logoUrl: "https://a.storyblok.com/f/289506/1396x1396/fa34d298ea/ph24_new_icon_only.png",
+    tagline: "Hausnotruf & Pflegehilfen",
+  },
+  {
+    name: "Pflegehilfe Hameln",
+    url: "https://pflegehilfe-hameln.de/",
+    logoUrl: "https://pflegehilfe-hameln.de/pflegehilfe-hameln-logo-blau.png",
+    tagline: "Regional vor Ort",
+  },
 ];
 
 function PartnerSection() {
-  const loop = [...partners, ...partners];
+  // Repeat 4× so the marquee feels populated even with only 3 partners
+  const loop = [...partners, ...partners, ...partners, ...partners];
   return (
     <section className="py-24 bg-white/80 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
@@ -30,8 +53,8 @@ function PartnerSection() {
             Gemeinsam stark für Sie
           </h2>
           <p className="text-[15px] lg:text-base text-[#5F6B73] font-light leading-relaxed">
-            Wir arbeiten vertrauensvoll mit regionalen und überregionalen Partnern zusammen, um Ihnen
-            eine umfassende Betreuung zu ermöglichen.
+            Wir arbeiten vertrauensvoll mit Beratungs- und Versorgungspartnern zusammen,
+            um Ihnen eine umfassende Betreuung zu ermöglichen.
           </p>
         </div>
 
@@ -40,14 +63,14 @@ function PartnerSection() {
           <div className="hidden md:block relative overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
             <div className="flex gap-6 motion-safe:animate-[curaPartnerMarquee_45s_linear_infinite]">
               {loop.map((p, i) => (
-                <PartnerCard key={`${p.name}-${i}`} name={p.name} short={p.short} />
+                <PartnerCard key={`${p.name}-${i}`} partner={p} />
               ))}
             </div>
           </div>
           <div className="md:hidden flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 px-6">
             {partners.map((p) => (
-              <div key={p.name} className="snap-start shrink-0 w-[70%]">
-                <PartnerCard name={p.name} short={p.short} />
+              <div key={p.name} className="snap-start shrink-0 w-[80%]">
+                <PartnerCard partner={p} />
               </div>
             ))}
           </div>
@@ -63,20 +86,39 @@ function PartnerSection() {
   );
 }
 
-function PartnerCard({ name, short }: { name: string; short: string }) {
+function PartnerCard({ partner }: { partner: Partner }) {
   return (
-    <div className="shrink-0 w-56 bg-white rounded-2xl border border-[#E5F4F5] shadow-[0_8px_24px_rgb(191,234,242,0.25)] p-5 flex items-center gap-4 motion-safe:animate-[curaFadeIn_900ms_ease-out_both]">
-      <div className="w-14 h-14 rounded-xl bg-[#DFF7F8] flex items-center justify-center text-[#6FD3D1] shrink-0" style={{ fontFamily: "'Lora', serif" }}>
-        <span className="text-base font-medium tracking-wide">{short}</span>
+    <a
+      href={partner.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group relative shrink-0 w-64 bg-white rounded-2xl border border-[#E5F4F5] shadow-[0_8px_24px_rgb(191,234,242,0.25)] hover:shadow-[0_14px_32px_rgb(191,234,242,0.45)] hover:border-[#BFEAF2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6FD3D1] transition-all duration-200 p-5 flex items-center gap-4 motion-safe:animate-[curaFadeIn_900ms_ease-out_both] no-underline"
+      aria-label={`${partner.name} — externe Website öffnen`}
+    >
+      {/* Logo with bg-mint tile so transparent-PNG logos read on white */}
+      <div className="w-14 h-14 rounded-xl bg-[#F8FEFF] border border-[#E5F4F5] flex items-center justify-center shrink-0 overflow-hidden">
+        <img
+          src={partner.logoUrl}
+          alt={`${partner.name} Logo`}
+          loading="lazy"
+          referrerPolicy="no-referrer"
+          className="max-w-[80%] max-h-[80%] object-contain"
+        />
       </div>
-      <div className="min-w-0">
-        <div className="text-xs uppercase tracking-wider text-[#9AA3A8] font-light mb-0.5">Partner</div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-[#9AA3A8] font-light mb-0.5">
+          Partner
+          <ExternalLink size={10} className="text-[#9AA3A8] opacity-0 group-hover:opacity-100 transition-opacity" />
+        </div>
         <div className="text-sm font-medium text-[#111111] truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-          {name}
+          {partner.name}
+        </div>
+        <div className="text-[11px] text-[#5F6B73] font-light truncate">
+          {partner.tagline}
         </div>
       </div>
       <style>{`@keyframes curaFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
-    </div>
+    </a>
   );
 }
 
