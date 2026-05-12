@@ -94,7 +94,7 @@ export function HomePage() {
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#DFF7F8] opacity-40 rounded-full blur-3xl pointer-events-none -translate-x-1/3 translate-y-1/3"></div>
 
         <div className="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col lg:flex-row items-center gap-16 relative z-10">
-          <div className="flex-1 text-center lg:text-left">
+          <div className="cura-hero-text flex-1 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#E5F4F5] shadow-sm text-xs font-normal text-[#5F6B73] mb-8">
               <HandHeart size={18} strokeWidth={1.5} className="text-[#6FD3D1]" />
               Vertrauensvolle Betreuung im eigenen Zuhause
@@ -121,7 +121,7 @@ export function HomePage() {
             </div>
           </div>
 
-          <div className="flex-1 w-full max-w-lg lg:max-w-none relative">
+          <div className="cura-hero-image flex-1 w-full max-w-lg lg:max-w-none relative">
             <div className="relative rounded-3xl overflow-hidden shadow-[0_20px_60px_rgb(191,234,242,0.4)] border-4 border-white">
               <img src={heroImage} alt="Betreuerin hält die Hände einer älteren Dame" className="w-full h-auto aspect-[4/3] object-cover" />
             </div>
@@ -136,6 +136,29 @@ export function HomePage() {
             </div>
           </div>
         </div>
+
+        <style>{`
+          /* Slow slide-in from the sides on first render. The text on
+             the left, the image on the right — image enters a touch
+             later so the eye lands on the headline first. */
+          @keyframes curaHeroEnterLeft {
+            0%   { opacity: 0; transform: translateX(-44px); }
+            100% { opacity: 1; transform: translateX(0); }
+          }
+          @keyframes curaHeroEnterRight {
+            0%   { opacity: 0; transform: translateX(44px); }
+            100% { opacity: 1; transform: translateX(0); }
+          }
+          .cura-hero-text {
+            animation: curaHeroEnterLeft 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+          }
+          .cura-hero-image {
+            animation: curaHeroEnterRight 1.4s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .cura-hero-text, .cura-hero-image { animation: none; }
+          }
+        `}</style>
       </section>
 
       {/* Introduction */}
