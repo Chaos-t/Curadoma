@@ -1,32 +1,25 @@
-// Google Reviews data.
+// Fallback Google Reviews data.
 //
-// THE PLACEHOLDER REVIEWS BELOW ARE EXAMPLES ONLY.
-// They are clearly marked with `isPlaceholder: true` and must be
-// replaced before the site goes live with real visitors.
+// THE WIRED-UP FLOW: `GoogleReviews.tsx` fetches `/reviews` from the
+// Supabase Edge Function on mount, which calls Google Places Details
+// API server-side and returns real reviews. The data here is only used
+// when that fetch fails (missing secrets, upstream down, etc.) so the
+// home page never goes empty.
 //
-// Two ways to put REAL reviews here:
+// The fallback reviews are clearly marked with `isPlaceholder: true`
+// and the UI shows a warning banner whenever they are rendered.
 //
-// 1) Manual paste (simplest, no API key needed):
-//    - Open https://www.google.com/maps and search for "Cura Doma Hameln"
-//    - Copy each review (author, rating, text, date) into the array below
-//    - Set `isPlaceholder: false`
-//    - Commit + push
+// To make live reviews work in production:
 //
-// 2) Google Places API (auto-updating; recommended once you have many
-//    reviews):
-//    - Get a Place ID from https://developers.google.com/maps/documentation/places/web-service/place-id
-//    - Get an API key with the Places API enabled
-//    - Store the key as a Supabase Edge Function secret
-//      (NOT in this repo — keys committed to client code become public)
-//    - Add a `GET /reviews` endpoint to supabase/functions/server/index.ts
-//      that calls https://maps.googleapis.com/maps/api/place/details/json
-//      with fields=reviews and returns the JSON to the client
-//    - In GoogleReviews.tsx, fetch from that endpoint on mount and
-//      fall back to this static list if the fetch fails.
+// 1) Find your Place ID: https://developers.google.com/maps/documentation/places/web-service/place-id
+// 2) In Supabase Dashboard → Edge Functions → server → Secrets, set
+//    `GOOGLE_PLACES_API_KEY` (Places API enabled) and `GOOGLE_PLACE_ID`.
+// 3) Redeploy the function (`supabase functions deploy server` or via
+//    the dashboard). The frontend will start showing live data on the
+//    next page load.
 //
-//    Note: the Places API returns max 5 reviews per call (Google's
-//    cap). For more reviews use a paid service like Trustpilot, or
-//    paste manually.
+// Note: Google Places Details API caps reviews at 5 per call. That's
+// an upstream limit, not a bug here.
 
 export type Review = {
   author: string;

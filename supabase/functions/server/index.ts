@@ -20,6 +20,192 @@ app.use(
 
 app.get("/make-server-ec6100a6/health", (c) => c.json({ status: "ok" }));
 
+// --- External-API cache helpers --------------------------------------------
+// Both /reviews and /instagram-posts call rate-limited upstream APIs. We
+// cache responses in kv_store_ec6100a6 with a per-key TTL so the upstream
+// only gets hit once every TTL window, regardless of how many users hit
+// the site. The cache also acts as a stale-while-error fallback.
+
+type CacheRecord<T> = { data: T; fetchedAt: number };
+
+async function cachedFetch<T>(
+  key: string,
+  ttlMs: number,
+  fetcher: () => Promise<T>,
+): Promise<{ data: T; cached: boolean; stale: boolean }> {
+  const now = Date.now();
+  let cached: CacheRecord<T> | undefined;
+  try {
+    cached = (await kv.get(`cache:${key}`)) as CacheRecord<T> | undefined;
+  } catch (e) {
+    console.log(`cache get failed for ${key}:`, e);
+  }
+
+  if (cached && now - cached.fetchedAt < ttlMs) {
+    return { data: cached.data, cached: true, stale: false };
+  }
+
+  try {
+    const fresh = await fetcher();
+    try {
+      await kv.set(`cache:${key}`, { data: fresh, fetchedAt: now });
+    } catch (e) {
+      console.log(`cache set failed for ${key}:`, e);
+    }
+    return { data: fresh, cached: false, stale: false };
+  } catch (err) {
+    // Upstream failed — serve last known good if we have one
+    if (cached) {
+      console.log(`upstream ${key} failed, serving stale cache:`, err);
+      return { data: cached.data, cached: true, stale: true };
+    }
+    throw err;
+  }
+}
+
+// --- Google Places: real reviews -------------------------------------------
+// Requires two Edge Function secrets:
+//   GOOGLE_PLACES_API_KEY  — server-side API key with Places API enabled
+//   GOOGLE_PLACE_ID        — the Place ID of the Cura Doma Google Business
+//                            listing (find via the Place ID Finder tool)
+// The Places Details API returns up to 5 reviews per call — that's a hard
+// Google limit. Cache TTL: 6 hours (reviews don't change often).
+
+type GoogleReview = {
+  author_name: string;
+  author_url?: string;
+  language?: string;
+  profile_photo_url?: string;
+  rating: number;
+  relative_time_description: string;
+  text: string;
+  time: number;
+};
+
+type ReviewsResponse = {
+  reviews: GoogleReview[];
+  rating?: number;
+  total?: number;
+  placeUrl?: string;
+};
+
+app.get("/make-server-ec6100a6/reviews", async (c) => {
+  const apiKey = Deno.env.get("GOOGLE_PLACES_API_KEY");
+  const placeId = Deno.env.get("GOOGLE_PLACE_ID");
+
+  if (!apiKey) {
+    return c.json(
+      { error: "GOOGLE_PLACES_API_KEY is not set as a Supabase secret.", missing: ["GOOGLE_PLACES_API_KEY"] },
+      503,
+    );
+  }
+  if (!placeId) {
+    return c.json(
+      { error: "GOOGLE_PLACE_ID is not set as a Supabase secret. Find it via the Google Place ID Finder.", missing: ["GOOGLE_PLACE_ID"] },
+      503,
+    );
+  }
+
+  try {
+    const { data, cached, stale } = await cachedFetch<ReviewsResponse>(
+      `reviews:${placeId}`,
+      6 * 60 * 60 * 1000, // 6 hours
+      async () => {
+        const url = new URL("https://maps.googleapis.com/maps/api/place/details/json");
+        url.searchParams.set("place_id", placeId);
+        url.searchParams.set("fields", "reviews,rating,user_ratings_total,url");
+        url.searchParams.set("language", "de");
+        url.searchParams.set("reviews_sort", "newest");
+        url.searchParams.set("key", apiKey);
+
+        const res = await fetch(url.toString());
+        const json = await res.json();
+        if (json.status !== "OK") {
+          throw new Error(`Places API status ${json.status}: ${json.error_message ?? "unknown"}`);
+        }
+        const result = json.result ?? {};
+        return {
+          reviews: (result.reviews ?? []) as GoogleReview[],
+          rating: result.rating,
+          total: result.user_ratings_total,
+          placeUrl: result.url,
+        };
+      },
+    );
+    return c.json({ ...data, cached, stale });
+  } catch (err) {
+    console.log("reviews fetch failed:", err);
+    return c.json({ error: String(err) }, 502);
+  }
+});
+
+// --- Instagram Graph API: latest media -------------------------------------
+// Requires two Edge Function secrets:
+//   INSTAGRAM_ACCESS_TOKEN          — long-lived Page access token (60 days,
+//                                      refresh via the Graph API refresh
+//                                      endpoint before expiry)
+//   INSTAGRAM_BUSINESS_ACCOUNT_ID   — IG Business/Creator account ID
+//                                      (numeric, from Meta Business Suite)
+// Cache TTL: 30 minutes — Instagram updates are time-sensitive but the
+// API is also more rate-limited than Places.
+
+type IGPost = {
+  id: string;
+  caption?: string;
+  media_type: "IMAGE" | "VIDEO" | "CAROUSEL_ALBUM";
+  media_url: string;
+  permalink: string;
+  thumbnail_url?: string;
+  timestamp: string;
+};
+
+app.get("/make-server-ec6100a6/instagram-posts", async (c) => {
+  const token = Deno.env.get("INSTAGRAM_ACCESS_TOKEN");
+  const igId = Deno.env.get("INSTAGRAM_BUSINESS_ACCOUNT_ID");
+
+  if (!token || !igId) {
+    const missing: string[] = [];
+    if (!token) missing.push("INSTAGRAM_ACCESS_TOKEN");
+    if (!igId) missing.push("INSTAGRAM_BUSINESS_ACCOUNT_ID");
+    return c.json(
+      {
+        error: "Instagram secrets are not set. Add them as Supabase Edge Function secrets.",
+        missing,
+      },
+      503,
+    );
+  }
+
+  try {
+    const { data, cached, stale } = await cachedFetch<{ posts: IGPost[] }>(
+      `instagram:${igId}`,
+      30 * 60 * 1000, // 30 minutes
+      async () => {
+        const url = new URL(`https://graph.facebook.com/v18.0/${igId}/media`);
+        url.searchParams.set(
+          "fields",
+          "id,caption,media_type,media_url,permalink,thumbnail_url,timestamp",
+        );
+        url.searchParams.set("limit", "12");
+        url.searchParams.set("access_token", token);
+
+        const res = await fetch(url.toString());
+        const json = await res.json();
+        if (!res.ok || json.error) {
+          throw new Error(
+            `Graph API ${res.status}: ${json.error?.message ?? JSON.stringify(json)}`,
+          );
+        }
+        return { posts: (json.data ?? []) as IGPost[] };
+      },
+    );
+    return c.json({ ...data, cached, stale });
+  } catch (err) {
+    console.log("instagram fetch failed:", err);
+    return c.json({ error: String(err) }, 502);
+  }
+});
+
 // --- Resend email helper ----------------------------------------------------
 // Sends transactional emails via the Resend API using the RESEND_API_KEY
 // secret configured on the Edge Function. The sender address must be a

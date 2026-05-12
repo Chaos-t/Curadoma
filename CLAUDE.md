@@ -41,7 +41,8 @@ src/app/components/
   Layout.tsx              top utility bar + sticky nav + footer + <Outlet/>
   BackgroundScene.tsx     fixed-position pseudo-3D background (replaces old WaveBackground): blurred orbs drifting in CSS 3D depth, mobile-trimmed variant
   CityRoadmap.tsx         the Einzugsgebiet animation — two serpentine SVG paths (Hameln hub, Paderborn hub), car follows path on scroll, mobile gets a stacked vertical timeline
-  GoogleReviews.tsx       right-to-left marquee of review cards on the homepage; data source = src/lib/reviews-data.ts (currently placeholder — see below)
+  GoogleReviews.tsx       right-to-left marquee of review cards on the homepage; fetches live data from `/reviews` Edge Function on mount + every 30 min, falls back to src/lib/reviews-data.ts placeholders if endpoint 503s. Each card links to the reviewer's Google profile.
+  InstagramFeed.tsx       right-to-left marquee of latest IG posts; fetches `/instagram-posts` on mount + every 30 min. Section hides itself when secrets missing or no posts returned — never shows a broken state.
   CuraDomaLogo.tsx        logo: <img> monogram + "Cura Doma" wordmark in Lora
   HomePage.tsx, LeistungenPage.tsx, …  one file per route
   EinzugsgebietSection.tsx  reused on / and /einzugsgebiet; now just frames a header + CityRoadmap
@@ -139,12 +140,26 @@ Routes:
 - `GET  /health` → `{status:"ok"}`
 - `POST /contact-messages` — body: `{name, email, phone?, subject?, message, page_source?, consent_privacy}`. Stores under `contact_message:<uuid>` in `kv_store_ec6100a6`, then emails `info@curadoma.de` via Resend. Validation returns `422 {error, fields}` with German field-level messages.
 - `POST /job-applications` — body: career form fields. Stores under `job_application:<uuid>`, emails `Tolunay.u@outlook.de`. **Note:** the CV file is *not* uploaded — only its filename is sent. The user-facing form lets the applicant pick a file, but the bytes are dropped client-side. Both the email body and the autoreply mention this. If asked to "make CV upload work," that's a real feature request, not a bug.
+- `GET  /reviews` — returns `{reviews, rating, total, placeUrl, cached, stale}`. Calls Google Places Details API server-side; cached 6h in `kv_store_ec6100a6` under `cache:reviews:<placeId>`. Returns `503 {missing: [...]}` when `GOOGLE_PLACES_API_KEY` or `GOOGLE_PLACE_ID` secret is absent. Google caps reviews at 5 per call — this is an upstream limit, not our bug.
+- `GET  /instagram-posts` — returns `{posts, cached, stale}`. Calls Instagram Graph API `v18.0/{ig-id}/media`; cached 30 min in KV. Returns `503 {missing: [...]}` when `INSTAGRAM_ACCESS_TOKEN` or `INSTAGRAM_BUSINESS_ACCOUNT_ID` secret is absent. Long-lived tokens last 60 days — refresh via the Graph API before expiry.
+
+Cache pattern (`cachedFetch<T>` helper in [index.ts](supabase/functions/server/index.ts)): get from KV → if fresh return → else hit upstream → write to KV → return. On upstream failure with a stale cache: serve the stale cache and flag `stale: true`. On failure with no cache: return 502.
 
 Auth model: anonymous clients call POST with the public anon key in `Authorization: Bearer …`. Reading/updating/deleting rows requires the service role key, which lives only in the Function env (`SUPABASE_SERVICE_ROLE_KEY`). The frontend never gets a service-role key.
 
 Email sender:
 - Sender defaults to `Cura Doma <onboarding@resend.dev>` (Resend's shared dev sender) until `RESEND_FROM` is set on a verified domain.
 - `RESEND_API_KEY` is required; without it the endpoint still returns `201` and stores the row, but `email_sent: false` comes back in the response. Don't treat that as a bug-in-code — it's a config issue.
+
+Required Supabase Edge Function secrets (set in Supabase Dashboard → Edge Functions → server → Secrets):
+- `RESEND_API_KEY` — transactional email (contact + job application notifications)
+- `RESEND_FROM` *(optional)* — verified sender address, defaults to Resend's shared dev sender
+- `GOOGLE_PLACES_API_KEY` — server-side API key with Places API enabled
+- `GOOGLE_PLACE_ID` — Place ID of the Cura Doma Google Business listing
+- `INSTAGRAM_ACCESS_TOKEN` — long-lived Page access token (Meta Graph API; 60-day TTL)
+- `INSTAGRAM_BUSINESS_ACCOUNT_ID` — numeric IG Business/Creator account ID
+
+If any of these are missing, the relevant endpoint returns `503 {missing: [...]}`. The frontend handles the cases gracefully — `GoogleReviews` falls back to `src/lib/reviews-data.ts` placeholders + a warning banner; `InstagramFeed` hides itself entirely.
 
 The committed `utils/supabase/info.tsx` carries `projectId` + the **anon** key. That is intentional and safe (anon keys are designed to be client-visible). Do not move it to env vars — Figma Make regenerates this file, and breaking the contract will lose changes on the next pull.
 

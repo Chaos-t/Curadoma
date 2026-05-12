@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { EinzugsgebietSection } from "./EinzugsgebietSection";
 import { GoogleReviews } from "./GoogleReviews";
+import { InstagramFeed } from "./InstagramFeed";
 
 const partners = [
   { name: "Pflegekasse Niedersachsen", short: "PN" },
@@ -326,6 +327,8 @@ export function HomePage() {
       <PartnerSection />
 
       <GoogleReviews />
+
+      <InstagramFeed />
 
       <EinzugsgebietSection />
 
