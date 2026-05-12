@@ -6,9 +6,6 @@
 // when that fetch fails (missing secrets, upstream down, etc.) so the
 // home page never goes empty.
 //
-// The fallback reviews are clearly marked with `isPlaceholder: true`
-// and the UI shows a warning banner whenever they are rendered.
-//
 // To make live reviews work in production:
 //
 // 1) Set `GOOGLE_PLACES_API_KEY` (Places API enabled) in Supabase
@@ -23,6 +20,11 @@
 //
 // Note: Google Places Details API caps reviews at 5 per call. That's
 // an upstream limit, not a bug here.
+//
+// The reviews below are REAL — manually copied from the Cura Doma
+// Google Maps listing on 2026-05-12. They serve as the offline
+// fallback if the live API is unreachable, so the social proof on the
+// home page never disappears.
 
 export type Review = {
   author: string;
@@ -42,62 +44,69 @@ export type Review = {
 
 export const reviews: Review[] = [
   {
-    author: "Beispiel — bitte ersetzen",
+    author: "Laura Aliu",
     rating: 5,
-    text: "Liebevolle und zuverlässige Betreuung meiner Mutter. Das Team von Cura Doma nimmt sich Zeit, hört zu und geht individuell auf ihre Wünsche ein. Wir fühlen uns rundum gut aufgehoben.",
-    date: "vor 2 Wochen",
-    location: "Hameln",
-    initial: "M",
-    isPlaceholder: true,
-  },
-  {
-    author: "Beispiel — bitte ersetzen",
-    rating: 5,
-    text: "Sehr professionelle Beratung und kompetente Unterstützung im Alltag. Besonders die Demenzbetreuung ist mit viel Geduld und Einfühlungsvermögen durchgeführt worden.",
-    date: "vor 1 Monat",
-    location: "Bad Pyrmont",
-    initial: "P",
-    isPlaceholder: true,
-  },
-  {
-    author: "Beispiel — bitte ersetzen",
-    rating: 5,
-    text: "Pünktlich, freundlich und immer ein offenes Ohr. Die Mitarbeiter sind herzlich und mein Vater freut sich jedes Mal auf den Besuch. Wir können Cura Doma uneingeschränkt empfehlen.",
-    date: "vor 3 Monaten",
-    location: "Springe",
-    initial: "K",
-    isPlaceholder: true,
-  },
-  {
-    author: "Beispiel — bitte ersetzen",
-    rating: 5,
-    text: "Die Abrechnung über die Pflegekasse hat super geklappt — wir wurden von Anfang an gut beraten. Die Hauswirtschaftsleistungen sind eine echte Entlastung im Familienalltag.",
-    date: "vor 4 Monaten",
-    location: "Aerzen",
-    initial: "S",
-    isPlaceholder: true,
-  },
-  {
-    author: "Beispiel — bitte ersetzen",
-    rating: 5,
-    text: "Endlich ein Pflegedienst, bei dem man als Angehöriger ernst genommen wird. Die Verhinderungspflege war für uns ein Segen. Vielen Dank an das gesamte Team!",
+    text: "Ein äußerst zuverlässiger Betreuungsdienst! Die Mitarbeiter sind immer pünktlich, arbeiten sehr sauber und gehen einfühlsam auf individuelle Bedürfnisse ein. Absolut empfehlenswert!",
     date: "vor 5 Monaten",
-    location: "Coppenbrügge",
-    initial: "T",
-    isPlaceholder: true,
+    initial: "L",
+    isPlaceholder: false,
   },
   {
-    author: "Beispiel — bitte ersetzen",
+    author: "Michelle",
     rating: 5,
-    text: "Wir hatten zuerst Bedenken, fremde Menschen ins Haus zu lassen. Aber die Betreuer von Cura Doma sind ein Teil der Familie geworden. Riesigen Dank!",
+    text: "Ich bin absolut begeistert vom Betreuungsdienst – sowohl von der Chefin als auch vom gesamten Team. Man spürt in jedem Kontakt die Herzlichkeit, Kompetenz und Verlässlichkeit, mit der hier gearbeitet wird. Die Betreuung ist durchweg professionell, einfühlsam und engagiert. Was besonders hervorsticht: Man kann sich jederzeit auf das Team verlassen. Termine werden zuverlässig eingehalten, Anliegen werden ernst genommen und es wird immer nach individuellen Lösungen gesucht. Ein großes Dankeschön an alle – hier wird großartige Arbeit geleistet!",
+    date: "vor 11 Monaten",
+    initial: "M",
+    isPlaceholder: false,
+  },
+  {
+    author: "Jocelyne .Del.",
+    rating: 5,
+    text: "Ich kann den Betreuungsdienst von Cura Doma nur wärmstens empfehlen! Die Betreuung ist stets von großer Herzlichkeit, Pünktlichkeit und Gewissenhaftigkeit geprägt. Die Mitarbeiter gehen liebevoll auf die Bedürfnisse der älteren Menschen ein und sorgen dafür, dass sie sich gut aufgehoben und umsorgt fühlen. Cura Doma schafft es, mit viel Engagement und Herz den Alltag älterer Menschen zu bereichern. Vielen Dank für die großartige Arbeit!",
+    date: "vor 11 Monaten",
+    location: "Local Guide",
+    initial: "J",
+    isPlaceholder: false,
+  },
+  {
+    author: "Paula K",
+    rating: 5,
+    text: "Ein sehr guter Betreuungsdienst! Die Chefin ist immer mit viel Herz, Freundlichkeit, Einfühlsamkeit und Professionalität im Einsatz. Ein Dienst auf den man sich immer verlassen und freuen kann. Sie machen ihre Arbeit sehr gut und für ein paar liebe Worte finden sie auch immer Zeit. Könnte ich mehr als 5 Sterne vergeben, würde ich 10 geben! Vielen Dank an das Team!!",
+    date: "vor einem Jahr",
+    initial: "P",
+    isPlaceholder: false,
+  },
+  {
+    author: "Bauchgefühl",
+    rating: 5,
+    text: "Unser erster Eindruck von Cura Doma war äußerst positiv! Schon beim ersten Gespräch zeigte sich das Team als äußerst freundlich und fachlich kompetent. Wir schätzen die Pünktlichkeit, Höflichkeit und Zuverlässigkeit, die das Team bei jeder Betreuungssitzung an den Tag legt. Die Abwicklung mit der Krankenkasse verlief reibungslos, und wir erhielten wertvolle Tipps und Unterstützung bei all unseren Fragen. Wir können Cura Doma uneingeschränkt weiterempfehlen!",
+    date: "vor einem Jahr",
+    location: "Local Guide",
+    initial: "B",
+    isPlaceholder: false,
+  },
+  {
+    author: "Jonatan Urra",
+    rating: 5,
+    text: "Die Inhaberin ist super nett und zuverlässig, meine Eltern haben nur gutes von den Leistungen des Betreuungsdienstes erzählt.",
     date: "vor 6 Monaten",
-    location: "Hessisch Oldendorf",
+    initial: "J",
+    isPlaceholder: false,
+  },
+  {
+    author: "Astrid Günther",
+    rating: 5,
+    text: "Sehr hilfsbereit, freundlich und flexibel. Hier zählen die Bedürfnisse des Menschen und nicht nur das Geld. Ein Dienst, der seine Arbeit nicht nur als Beruf, sondern als Berufung ansieht. Kann ich wirklich empfehlen.",
+    date: "vor 11 Monaten",
     initial: "A",
-    isPlaceholder: true,
+    isPlaceholder: false,
   },
 ];
 
 export const reviewSummary = {
-  count: reviews.length,
-  average: reviews.reduce((s, r) => s + r.rating, 0) / reviews.length,
+  // Real Google data as of 2026-05-12: 9 reviews total, 5.0 ★ — two
+  // reviews are rating-only with no text (Kimberly Mori, René de Vries)
+  // and are intentionally not rendered here.
+  count: 9,
+  average: 5.0,
 };

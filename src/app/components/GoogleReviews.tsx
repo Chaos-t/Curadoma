@@ -169,7 +169,12 @@ export function GoogleReviews() {
     average: fallbackSummary.average,
     count: fallbackSummary.count,
   });
-  const [placeUrl, setPlaceUrl] = useState<string | undefined>(undefined);
+  // Hardcoded canonical link to the Cura Doma listing on Google Maps,
+  // used both as the fallback placeUrl AND as the per-card href when
+  // a live review doesn't carry its own author_url.
+  const [placeUrl, setPlaceUrl] = useState<string | undefined>(
+    "https://www.google.com/maps?cid=7622881786460465372",
+  );
   const [usingFallback, setUsingFallback] = useState(true);
 
   useEffect(() => {
@@ -262,14 +267,8 @@ export function GoogleReviews() {
           )}
         </div>
 
-        {usingFallback && (
-          <div className="mt-6 mx-auto max-w-xl rounded-2xl border border-[#FFE4B5] bg-[#FFF8E7] px-4 py-3 text-xs text-[#8A6A2A] font-medium text-center">
-            ⚠ Live-Bewertungen konnten nicht geladen werden — es werden
-            Beispiele angezeigt. Edge Function deployt? Secret
-            <code className="font-mono mx-1">GOOGLE_PLACES_API_KEY</code>
-            gesetzt?
-          </div>
-        )}
+{/* Static-data fallback is silent — the bundled reviews are the
+            real ones, just not the always-fresh live API copy. */}
       </div>
 
       {/* Marquee */}

@@ -74,8 +74,15 @@ async function cachedFetch<T>(
 // Google Places Details API returns up to 5 reviews per call — Google's
 // hard cap, not ours. Reviews are cached for 6 hours.
 
-const PLACE_DISCOVERY_QUERY = "Cura Doma Süntelhang 9 31787 Hameln";
+const PLACE_DISCOVERY_QUERY = "Cura Doma Hameln";
+// Hameln centre — used as locationbias so Google ranks nearby matches first.
+const HAMELN_LAT = 52.1037;
+const HAMELN_LNG = 9.3567;
 const PLACE_DISCOVERY_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+// Bumped from v1 → v2 so the previous wrong cache entry (curahumana) is
+// ignored without manually clearing the KV store.
+const PLACE_DISCOVERY_CACHE_KEY = "discovered_place_id_v2";
+const REQUIRED_NAME_FRAGMENT = "cura doma";
 
 type GoogleReview = {
   author_name: string;
@@ -98,15 +105,15 @@ type ReviewsResponse = {
 /** Resolve a place_id by searching for the business by text. Caches the
  *  result in KV for 7 days under `discovered_place_id`. */
 async function resolvePlaceId(apiKey: string): Promise<string> {
-  // 1. Manual override wins
+  // 1. Manual override wins.
   const override = Deno.env.get("GOOGLE_PLACE_ID");
   if (override) return override;
 
-  // 2. Check KV cache
+  // 2. Check KV cache (v2 key — see comment near the constant).
   type Cached = { id: string; fetchedAt: number };
   let cached: Cached | undefined;
   try {
-    cached = (await kv.get("discovered_place_id")) as Cached | undefined;
+    cached = (await kv.get(PLACE_DISCOVERY_CACHE_KEY)) as Cached | undefined;
   } catch (e) {
     console.log("place-id cache read failed:", e);
   }
@@ -114,29 +121,66 @@ async function resolvePlaceId(apiKey: string): Promise<string> {
     return cached.id;
   }
 
-  // 3. Discover via Find Place from Text API
-  const url = new URL("https://maps.googleapis.com/maps/api/place/findplacefromtext/json");
-  url.searchParams.set("input", PLACE_DISCOVERY_QUERY);
-  url.searchParams.set("inputtype", "textquery");
-  url.searchParams.set("fields", "place_id,name,formatted_address");
-  url.searchParams.set("language", "de");
-  url.searchParams.set("key", apiKey);
+  const saveCache = async (id: string) => {
+    try {
+      await kv.set(PLACE_DISCOVERY_CACHE_KEY, { id, fetchedAt: Date.now() });
+    } catch (e) {
+      console.log("place-id cache write failed:", e);
+    }
+  };
 
-  const res = await fetch(url.toString());
-  const json = await res.json();
-  if (json.status !== "OK" || !json.candidates?.[0]?.place_id) {
-    throw new Error(
-      `Find Place lookup for "${PLACE_DISCOVERY_QUERY}" failed: ${json.status}` +
-        (json.error_message ? ` (${json.error_message})` : ""),
+  // 3. First try Find Place from Text — cheap, returns one candidate. Bias
+  //    the search to Hameln so similar-name competitors in other cities
+  //    (e.g. "curahumana") are de-ranked.
+  const findUrl = new URL("https://maps.googleapis.com/maps/api/place/findplacefromtext/json");
+  findUrl.searchParams.set("input", PLACE_DISCOVERY_QUERY);
+  findUrl.searchParams.set("inputtype", "textquery");
+  findUrl.searchParams.set("fields", "place_id,name,formatted_address");
+  findUrl.searchParams.set("locationbias", `circle:5000@${HAMELN_LAT},${HAMELN_LNG}`);
+  findUrl.searchParams.set("language", "de");
+  findUrl.searchParams.set("key", apiKey);
+
+  const findRes = await fetch(findUrl.toString());
+  const findJson = await findRes.json();
+  if (findJson.status === "OK" && findJson.candidates?.[0]) {
+    const candidate = findJson.candidates[0];
+    const name = String(candidate.name ?? "").toLowerCase();
+    if (name.includes(REQUIRED_NAME_FRAGMENT)) {
+      await saveCache(candidate.place_id);
+      return candidate.place_id;
+    }
+    console.log(
+      `Find Place returned "${candidate.name}" (place_id ${candidate.place_id}) — name does not contain "${REQUIRED_NAME_FRAGMENT}", falling back to Text Search.`,
     );
   }
-  const id = json.candidates[0].place_id as string;
-  try {
-    await kv.set("discovered_place_id", { id, fetchedAt: Date.now() });
-  } catch (e) {
-    console.log("place-id cache write failed:", e);
+
+  // 4. Fallback: Text Search returns up to 20 results. Pick the first one
+  //    whose name actually contains "cura doma" (and not "curahumana").
+  const tsUrl = new URL("https://maps.googleapis.com/maps/api/place/textsearch/json");
+  tsUrl.searchParams.set("query", "Cura Doma Hameln Betreuungsdienst");
+  tsUrl.searchParams.set("location", `${HAMELN_LAT},${HAMELN_LNG}`);
+  tsUrl.searchParams.set("radius", "10000");
+  tsUrl.searchParams.set("language", "de");
+  tsUrl.searchParams.set("key", apiKey);
+
+  const tsRes = await fetch(tsUrl.toString());
+  const tsJson = await tsRes.json();
+  if (tsJson.status === "OK" && Array.isArray(tsJson.results)) {
+    const match = tsJson.results.find((r: { name?: string }) => {
+      const n = String(r.name ?? "").toLowerCase();
+      // Insist on "cura doma" — and rule out near-collisions like "curahumana"
+      // by requiring a word boundary after "cura".
+      return /\bcura\s+doma\b/i.test(n);
+    });
+    if (match?.place_id) {
+      await saveCache(match.place_id);
+      return match.place_id;
+    }
   }
-  return id;
+
+  throw new Error(
+    `Could not resolve a place_id for "${PLACE_DISCOVERY_QUERY}" — neither Find Place nor Text Search returned a match with "${REQUIRED_NAME_FRAGMENT}" in its name. Set GOOGLE_PLACE_ID as a Supabase secret to override.`,
+  );
 }
 
 app.get("/make-server-ec6100a6/reviews", async (c) => {

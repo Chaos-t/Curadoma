@@ -1,55 +1,85 @@
-// Two-layer pseudo-3D background, tuned for visibility through the
-// page's 80%-opaque section overlays.
+// Calm wave background — six soft SVG sine-curves layered at different
+// heights, each drifting horizontally at its own slow speed (parallax-
+// like). The result reads as quiet pastel ripples — "wellig und ruhig"
+// per the user's request.
 //
-// Layer 1 — Aurora mesh: five large pastel blobs (teal, mint, lavender,
-// blush, sage) drift independently. Colours kept SOFT (pastel pal) so
-// the mood stays calming, but ALPHA bumped up enough that the mood
-// reads through the bg-white/80 sections that overlay them.
+// Why SVG and not CSS gradient blobs:
+//   - Real wave SHAPES are what makes the scene feel like water /
+//     ribbons of silk, not just tinted air.
+//   - Each <path> is 2× viewport wide, animation translates it -50%
+//     so the loop is mathematically seamless.
 //
-// Layer 2 — 3D wireframe sphere: a stack of latitude rings, all
-// children of one 3D scene that slowly rotates. As the scene rotates
-// in 3D, the rings sweep through tilt angles — the result reads as a
-// transparent sphere spinning in space. Plus one wide orbit ring + one
-// counter-rotating accent ring for variety.
-//
-// Mobile: rings/sphere hidden — perspective is wasted on narrow
-// viewports and we save the GPU. The aurora layer stays, with reduced
-// blur radius for older-device performance.
-//
-// No three.js / no canvas — pure CSS + GPU compositing only.
+// Mobile: same effect, but with reduced wave count + lower blur — GPU
+// budget on old Android phones is tight.
+
+const WAVES = [
+  // Soft sky teal — top, faint
+  { top: "6%",  height: 280, fillId: "cura-wave-teal",     opacity: 0.55, blur: 6,  duration: 38, dir: 1, amplitude: 1.0 },
+  // Mint — upper middle
+  { top: "24%", height: 240, fillId: "cura-wave-mint",     opacity: 0.5,  blur: 8,  duration: 52, dir: -1, amplitude: 0.9 },
+  // Lavender — centre
+  { top: "42%", height: 260, fillId: "cura-wave-lavender", opacity: 0.45, blur: 10, duration: 64, dir: 1, amplitude: 1.1 },
+  // Cream / blush — lower middle
+  { top: "60%", height: 240, fillId: "cura-wave-blush",    opacity: 0.45, blur: 9,  duration: 46, dir: -1, amplitude: 0.85 },
+  // Soft sage — lower
+  { top: "76%", height: 260, fillId: "cura-wave-sage",     opacity: 0.5,  blur: 7,  duration: 58, dir: 1, amplitude: 1.0 },
+];
+
+// One canonical sine-ish curve, 2880 units wide (== 2× a 1440-wide
+// reference viewport) so each wave can translateX(-50%) and loop
+// seamlessly. The bottom of the path is filled so each wave appears
+// as a "filled below the curve" band, not just a stroke.
+function wavePathD(amplitude: number, height: number) {
+  // peaks at y = 50 - amplitude*40, valleys at y = 50 + amplitude*40
+  const peak = 50 - amplitude * 40;
+  const valley = 50 + amplitude * 40;
+  const baseline = height;
+  return [
+    `M 0,${peak}`,
+    `C 480,${valley} 960,${peak} 1440,${valley}`,
+    `S 2400,${peak} 2880,${valley}`,
+    `L 2880,${baseline} L 0,${baseline} Z`,
+  ].join(" ");
+}
 
 export function BackgroundScene() {
   return (
     <div className="cura-scene" aria-hidden="true">
       <div className="cura-scene-base" />
 
-      {/* Aurora mesh layer */}
-      <div className="cura-mesh">
-        <span className="cura-blob blob-teal" />
-        <span className="cura-blob blob-mint" />
-        <span className="cura-blob blob-lavender" />
-        <span className="cura-blob blob-blush" />
-        <span className="cura-blob blob-sage" />
-      </div>
-
-      {/* 3D wireframe layer — desktop only */}
-      <div className="cura-shapes">
-        {/* Counter-rotating accent ring (top-right) */}
-        <span className="cura-ring ring-accent-1" />
-
-        {/* Wireframe "sphere" — six latitude rings of one scene */}
-        <div className="cura-sphere">
-          <span className="cura-sphere-ring r1" />
-          <span className="cura-sphere-ring r2" />
-          <span className="cura-sphere-ring r3" />
-          <span className="cura-sphere-ring r4" />
-          <span className="cura-sphere-ring r5" />
-          <span className="cura-sphere-ring r6" />
+      {WAVES.map((w, i) => (
+        <div
+          key={i}
+          className="cura-wave"
+          style={{
+            top: w.top,
+            height: w.height,
+            opacity: w.opacity,
+            filter: `blur(${w.blur}px)`,
+            animationName: w.dir > 0 ? "cura-wave-drift-r" : "cura-wave-drift-l",
+            animationDuration: `${w.duration}s`,
+          }}
+        >
+          <svg
+            viewBox={`0 0 2880 ${w.height}`}
+            preserveAspectRatio="none"
+            width="200%"
+            height="100%"
+          >
+            <defs>
+              {/* One gradient per wave, defined inline so each <svg> is
+                  self-contained and we don't depend on an outer
+                  <defs>. The two stops give the wave a subtle vertical
+                  shading — top a touch more saturated than bottom. */}
+              <linearGradient id={`${w.fillId}-${i}`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor={WAVE_COLORS[w.fillId][0]} />
+                <stop offset="100%" stopColor={WAVE_COLORS[w.fillId][1]} />
+              </linearGradient>
+            </defs>
+            <path d={wavePathD(w.amplitude, w.height)} fill={`url(#${w.fillId}-${i})`} />
+          </svg>
         </div>
-
-        {/* Wide orbit (bottom-left) */}
-        <span className="cura-ring ring-accent-2" />
-      </div>
+      ))}
 
       <style>{`
         .cura-scene {
@@ -58,189 +88,52 @@ export function BackgroundScene() {
           z-index: 0;
           pointer-events: none;
           overflow: hidden;
-          perspective: 1600px;
-          perspective-origin: 50% 50%;
         }
         .cura-scene-base {
           position: absolute;
           inset: 0;
           background: linear-gradient(180deg, #FBFEFE 0%, #F4FBFC 50%, #F8FEFF 100%);
         }
-
-        /* ----- Aurora mesh: soft pastel field, but saturated enough to
-                survive an 80%-opaque section overlay sitting on top.   ----- */
-        .cura-mesh { position: absolute; inset: 0; }
-        .cura-blob {
+        .cura-wave {
           position: absolute;
-          width: 760px;
-          height: 760px;
-          border-radius: 50%;
-          filter: blur(56px);
-          opacity: 0.62;
+          left: 0;
+          /* 200% width, animation moves it from 0 → -50% (or back),
+             which puts the second copy of the sine pattern exactly
+             where the first one started — seamless loop. */
+          width: 200%;
           will-change: transform;
+          animation-timing-function: ease-in-out;
+          animation-iteration-count: infinite;
+          animation-direction: alternate;
         }
-        /* Soft pastel palette — the section overlays are now /55 so we
-           don't need to push saturation. Goal: visible-but-airy mood,
-           not saturated tint. */
-        .blob-teal {
-          top: 6%; left: -10%;
-          background: radial-gradient(circle at 35% 35%,
-            rgba(160, 220, 225, 0.70) 0%,
-            rgba(160, 220, 225, 0.28) 45%,
-            rgba(160, 220, 225, 0) 78%);
-          animation: cura-blob-1 42s ease-in-out infinite alternate;
+        @keyframes cura-wave-drift-r {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(-25%); }
         }
-        .blob-mint {
-          top: -8%; right: -6%;
-          background: radial-gradient(circle at 50% 45%,
-            rgba(195, 235, 215, 0.65) 0%,
-            rgba(195, 235, 215, 0.25) 45%,
-            rgba(195, 235, 215, 0) 78%);
-          animation: cura-blob-2 56s ease-in-out infinite alternate;
-        }
-        .blob-lavender {
-          top: 30%; left: 38%;
-          width: 880px; height: 880px;
-          background: radial-gradient(circle at 40% 50%,
-            rgba(218, 218, 240, 0.62) 0%,
-            rgba(218, 218, 240, 0.22) 50%,
-            rgba(218, 218, 240, 0) 80%);
-          animation: cura-blob-3 64s ease-in-out infinite alternate;
-        }
-        .blob-blush {
-          bottom: 4%; right: -2%;
-          background: radial-gradient(circle at 45% 50%,
-            rgba(255, 222, 225, 0.55) 0%,
-            rgba(255, 222, 225, 0.20) 48%,
-            rgba(255, 222, 225, 0) 80%);
-          animation: cura-blob-4 48s ease-in-out infinite alternate;
-        }
-        .blob-sage {
-          bottom: -2%; left: 6%;
-          background: radial-gradient(circle at 50% 45%,
-            rgba(210, 230, 210, 0.62) 0%,
-            rgba(210, 230, 210, 0.25) 45%,
-            rgba(210, 230, 210, 0) 78%);
-          animation: cura-blob-5 52s ease-in-out infinite alternate;
+        @keyframes cura-wave-drift-l {
+          0%   { transform: translateX(-25%); }
+          100% { transform: translateX(0); }
         }
 
-        @keyframes cura-blob-1 {
-          0%   { transform: translate3d(0, 0, 0) scale(1)   rotate(0deg); }
-          100% { transform: translate3d(90px, 70px, 0) scale(1.10) rotate(20deg); }
-        }
-        @keyframes cura-blob-2 {
-          0%   { transform: translate3d(0, 0, 0) scale(1)   rotate(0deg); }
-          100% { transform: translate3d(-70px, 90px, 0) scale(1.13) rotate(-15deg); }
-        }
-        @keyframes cura-blob-3 {
-          0%   { transform: translate3d(0, 0, 0) scale(1)   rotate(0deg); }
-          100% { transform: translate3d(-80px, -50px, 0) scale(1.08) rotate(25deg); }
-        }
-        @keyframes cura-blob-4 {
-          0%   { transform: translate3d(0, 0, 0) scale(1)   rotate(0deg); }
-          100% { transform: translate3d(60px, -80px, 0) scale(1.12) rotate(-20deg); }
-        }
-        @keyframes cura-blob-5 {
-          0%   { transform: translate3d(0, 0, 0) scale(1)   rotate(0deg); }
-          100% { transform: translate3d(80px, -60px, 0) scale(1.10) rotate(15deg); }
-        }
-
-        /* ----- 3D wireframe layer ----- */
-        .cura-shapes {
-          position: absolute;
-          inset: 0;
-          transform-style: preserve-3d;
-          display: none;
-        }
-        @media (min-width: 768px) {
-          .cura-shapes { display: block; }
-        }
-
-        /* Accent rings — flank the viewport corners. Thicker stroke +
-           inset highlight so they read as ribbons of light, not just
-           outlined circles, through the section overlays. */
-        .cura-ring {
-          position: absolute;
-          border-radius: 50%;
-          transform-style: preserve-3d;
-          will-change: transform;
-          border: 4px solid rgba(111, 211, 209, 0.85);
-          box-shadow:
-            inset 0 0 36px rgba(111, 211, 209, 0.32),
-            0 0 40px rgba(111, 211, 209, 0.35);
-        }
-        .ring-accent-1 {
-          width: 500px; height: 500px;
-          top: 14%; right: 2%;
-          animation: cura-ring-1 60s linear infinite;
-        }
-        .ring-accent-2 {
-          width: 380px; height: 380px;
-          bottom: 16%; left: 3%;
-          border-color: rgba(150, 200, 220, 0.82);
-          box-shadow:
-            inset 0 0 32px rgba(150, 200, 220, 0.28),
-            0 0 36px rgba(150, 200, 220, 0.35);
-          animation: cura-ring-2 78s linear infinite reverse;
-        }
-        @keyframes cura-ring-1 {
-          0%   { transform: rotateX(72deg) rotateY(-8deg) rotateZ(0deg); }
-          100% { transform: rotateX(72deg) rotateY(-8deg) rotateZ(360deg); }
-        }
-        @keyframes cura-ring-2 {
-          0%   { transform: rotateX(64deg) rotateY(14deg) rotateZ(0deg); }
-          100% { transform: rotateX(64deg) rotateY(14deg) rotateZ(360deg); }
-        }
-
-        /* ----- Wireframe sphere: a 3D scene of 6 latitude rings.
-                The whole scene rotates; each ring is parallel to the
-                "equator" but offset in Z, so the result reads as a
-                ghost sphere slowly spinning. ----- */
-        .cura-sphere {
-          position: absolute;
-          top: 50%; left: 50%;
-          width: 460px; height: 460px;
-          margin-top: -230px;
-          margin-left: -230px;
-          transform-style: preserve-3d;
-          animation: cura-sphere-spin 70s linear infinite;
-        }
-        .cura-sphere-ring {
-          position: absolute;
-          left: 50%; top: 50%;
-          width: 440px; height: 440px;
-          margin-top: -220px;
-          margin-left: -220px;
-          border-radius: 50%;
-          border: 2px solid rgba(120, 195, 205, 0.75);
-          box-shadow: 0 0 18px rgba(120, 195, 205, 0.18);
-          transform-style: preserve-3d;
-        }
-        /* Six rings, tilted on the X axis at increments so they form a
-           sphere when seen through perspective. */
-        .cura-sphere-ring.r1 { transform: rotateY(0deg)   rotateX(0deg);  }
-        .cura-sphere-ring.r2 { transform: rotateY(30deg)  rotateX(0deg);  }
-        .cura-sphere-ring.r3 { transform: rotateY(60deg)  rotateX(0deg);  }
-        .cura-sphere-ring.r4 { transform: rotateY(90deg)  rotateX(0deg);  }
-        .cura-sphere-ring.r5 { transform: rotateY(120deg) rotateX(0deg);  }
-        .cura-sphere-ring.r6 { transform: rotateY(150deg) rotateX(0deg);  }
-
-        @keyframes cura-sphere-spin {
-          0%   { transform: rotateX(70deg) rotateY(0deg)   rotateZ(0deg); }
-          50%  { transform: rotateX(60deg) rotateY(180deg) rotateZ(20deg); }
-          100% { transform: rotateX(70deg) rotateY(360deg) rotateZ(0deg); }
-        }
-
-        /* ----- Mobile trim ----- */
         @media (max-width: 767px) {
-          .cura-blob { filter: blur(38px); width: 500px; height: 500px; opacity: 0.72; }
-          .blob-lavender { width: 580px; height: 580px; }
+          /* On phones the waves stay, but a touch crisper (less blur) to
+             compensate for smaller paint area. */
+          .cura-wave { filter: blur(5px) !important; }
         }
-
         @media (prefers-reduced-motion: reduce) {
-          .cura-blob, .cura-ring, .cura-sphere { animation: none; }
+          .cura-wave { animation: none; }
         }
       `}</style>
     </div>
   );
 }
+
+// Per-wave gradient stops. Kept out of inline JSX so the wave map above
+// stays readable.
+const WAVE_COLORS: Record<string, [string, string]> = {
+  "cura-wave-teal":     ["rgba(150, 215, 220, 0.85)", "rgba(150, 215, 220, 0.25)"],
+  "cura-wave-mint":     ["rgba(195, 230, 215, 0.80)", "rgba(195, 230, 215, 0.22)"],
+  "cura-wave-lavender": ["rgba(215, 215, 235, 0.78)", "rgba(215, 215, 235, 0.20)"],
+  "cura-wave-blush":    ["rgba(255, 220, 220, 0.75)", "rgba(255, 220, 220, 0.20)"],
+  "cura-wave-sage":     ["rgba(205, 225, 200, 0.80)", "rgba(205, 225, 200, 0.22)"],
+};
