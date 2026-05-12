@@ -346,9 +346,12 @@ const escapeHtml = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 
 function curaEmailLayout(title: string, bodyHtml: string) {
+  // Generic fallback layout used by the job-application notification.
+  // The contact-form notification has its own dedicated, full-design
+  // template via contactNotificationEmail() below.
   return `<!doctype html><html><body style="margin:0;padding:24px;background:#F4FBFC;font-family:Inter,Arial,sans-serif;color:#2F3A40;">
   <div style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #E5F4F5;border-radius:20px;overflow:hidden;">
-    <div style="padding:24px 28px;border-bottom:1px solid #E5F4F5;background:linear-gradient(180deg,#FBFEFE,#F4FBFC);">
+    <div style="padding:24px 28px;border-bottom:1px solid #E5F4F5;background:#F4FBFC;" bgcolor="#F4FBFC">
       <div style="font-family:'Lora',Georgia,serif;font-size:22px;color:#6FBDB8;letter-spacing:0.4px;">Cura Doma</div>
       <div style="font-size:10px;letter-spacing:3px;color:#9AA3A8;margin-top:4px;">AMBULANTER BETREUUNGSDIENST</div>
     </div>
@@ -360,6 +363,182 @@ function curaEmailLayout(title: string, bodyHtml: string) {
       Diese Nachricht wurde automatisch über die Cura Doma Website gesendet.
     </div>
   </div></body></html>`;
+}
+
+// Logo URL hosted on a public Supabase Storage bucket. Stable, embeddable
+// in emails without auth.
+const CURA_LOGO_URL =
+  "https://gjcleedoysndaagtsqjb.supabase.co/storage/v1/object/public/Logo/ChatGPT%20Image%202.%20Mai%202026,%2016_07_38.png";
+
+/** Build the rich operator-notification email for a new contact-form
+ *  submission. Replaces template placeholders with HTML-escaped data;
+ *  optional fields (phone, subject) get sensible defaults so the
+ *  rendered email never has gaps. */
+function contactNotificationEmail(opts: {
+  name: string;
+  phone: string | null;
+  email: string;
+  subject: string | null;
+  message: string;
+}) {
+  const name = escapeHtml(opts.name);
+  const email = escapeHtml(opts.email);
+  const phoneRaw = opts.phone?.trim();
+  const phone = phoneRaw ? escapeHtml(phoneRaw) : null;
+  const subject = opts.subject?.trim() ? escapeHtml(opts.subject.trim()) : "Allgemeine Anfrage";
+  // Preserve user-entered line breaks in the message body.
+  const message = escapeHtml(opts.message).replace(/\n/g, "<br>");
+
+  // Telephone block is only rendered if a phone number was provided.
+  const phoneRow = phone
+    ? `<tr>
+         <td style="padding:12px 0; border-bottom:1px solid #e5e7eb; color:#6b7280;">Telefon</td>
+         <td style="padding:12px 0; border-bottom:1px solid #e5e7eb;">${phone}</td>
+       </tr>`
+    : "";
+  const phoneFooter = phone
+    ? `<p style="margin:18px 0 0 0; font-size:14px; line-height:1.6; color:#6b7280;">
+         Alternativ kann die Person telefonisch unter <strong>${phone}</strong> kontaktiert werden.
+       </p>`
+    : "";
+
+  return `<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cura Doma Anfrage</title>
+  </head>
+  <body style="margin:0; padding:0; background-color:#f4f7f6; font-family:Arial, Helvetica, sans-serif; color:#1f2933;">
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#f4f7f6" style="background-color:#f4f7f6; padding:30px 12px;">
+      <tr>
+        <td align="center">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:650px; background-color:#ffffff; border-radius:18px; overflow:hidden; box-shadow:0 8px 28px rgba(0,0,0,0.08);">
+            <!-- Header -->
+            <tr>
+              <td bgcolor="#e7f8f5" style="background-color:#e7f8f5; padding:30px; text-align:center; border-bottom:1px solid #d9f1ed;">
+                <table cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;">
+                  <tr>
+                    <td valign="middle" style="padding-right:14px;">
+                      <img src="${CURA_LOGO_URL}" alt="Cura Doma Logo" width="55" style="display:block; width:55px; max-width:55px; height:auto; border:0;" />
+                    </td>
+                    <td valign="middle" style="text-align:left;">
+                      <div style="font-size:30px; font-weight:700; color:#3f4548; line-height:1.1; letter-spacing:0.3px;">
+                        Cura <span style="font-weight:400; color:#14b8a6;">Doma</span>
+                      </div>
+                      <div style="margin-top:6px; font-size:14px; color:#4b5563; letter-spacing:0.3px;">Ambulanter Betreuungsdienst</div>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Intro -->
+            <tr>
+              <td style="padding:36px 34px 20px 34px;">
+                <h1 style="margin:0 0 14px 0; font-size:26px; line-height:1.3; color:#0f3f3a;">
+                  Neue Anfrage über die Cura Doma Webseite
+                </h1>
+                <p style="margin:0; font-size:16px; line-height:1.7; color:#4b5563;">
+                  Über das Kontaktformular der Cura Doma Webseite wurde eine neue Anfrage übermittelt.
+                  Die Kontaktdaten und die Nachricht der anfragenden Person finden Sie unten.
+                </p>
+              </td>
+            </tr>
+
+            <!-- Hinweisbox -->
+            <tr>
+              <td style="padding:18px 34px 8px 34px;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ecfdf9" style="background-color:#ecfdf9; border-left:5px solid #14b8a6; border-radius:12px;">
+                  <tr>
+                    <td style="padding:20px;">
+                      <p style="margin:0; font-size:15px; line-height:1.6; color:#134e4a;">
+                        <strong>Hinweis:</strong><br />
+                        Bitte prüfen Sie die Anfrage und nehmen Sie zeitnah Kontakt mit der Person auf.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Kontaktdaten -->
+            <tr>
+              <td style="padding:26px 34px 10px 34px;">
+                <h2 style="margin:0 0 16px 0; font-size:20px; color:#0f3f3a;">Kontaktdaten der Anfrage</h2>
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse; font-size:15px; color:#374151;">
+                  <tr>
+                    <td style="padding:12px 0; border-bottom:1px solid #e5e7eb; width:35%; color:#6b7280;">Name</td>
+                    <td style="padding:12px 0; border-bottom:1px solid #e5e7eb;">${name}</td>
+                  </tr>
+                  ${phoneRow}
+                  <tr>
+                    <td style="padding:12px 0; border-bottom:1px solid #e5e7eb; color:#6b7280;">E-Mail</td>
+                    <td style="padding:12px 0; border-bottom:1px solid #e5e7eb;"><a href="mailto:${email}" style="color:#14b8a6; text-decoration:none;">${email}</a></td>
+                  </tr>
+                  <tr>
+                    <td style="padding:12px 0; border-bottom:1px solid #e5e7eb; color:#6b7280;">Anliegen</td>
+                    <td style="padding:12px 0; border-bottom:1px solid #e5e7eb;">${subject}</td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+
+            <!-- Nachricht -->
+            <tr>
+              <td style="padding:22px 34px 10px 34px;">
+                <h2 style="margin:0 0 12px 0; font-size:20px; color:#0f3f3a;">Nachricht</h2>
+                <div style="background-color:#f9fafb; border:1px solid #e5e7eb; border-radius:12px; padding:18px; font-size:15px; line-height:1.7; color:#374151;">
+                  ${message}
+                </div>
+              </td>
+            </tr>
+
+            <!-- CTA -->
+            <tr>
+              <td align="center" style="padding:32px 34px 34px 34px;">
+                <a href="mailto:${email}" style="display:inline-block; background-color:#14b8a6; color:#ffffff; text-decoration:none; font-size:15px; font-weight:700; padding:14px 28px; border-radius:999px;">
+                  Direkt per E-Mail antworten
+                </a>
+                ${phoneFooter}
+              </td>
+            </tr>
+
+            <!-- Trennlinie -->
+            <tr>
+              <td style="padding:0 34px;"><div style="height:1px; background-color:#e5e7eb;"></div></td>
+            </tr>
+
+            <!-- Cura Doma Kontaktdaten -->
+            <tr>
+              <td style="padding:26px 34px; background-color:#ffffff;">
+                <h2 style="margin:0 0 14px 0; font-size:18px; color:#0f3f3a;">Cura Doma Kontaktdaten</h2>
+                <p style="margin:0; font-size:15px; line-height:1.8; color:#4b5563;">
+                  <strong style="color:#0f3f3a;">Cura Doma</strong><br />
+                  Ambulanter Betreuungsdienst<br /><br />
+                  Telefon: <a href="tel:+4951517107093" style="color:#14b8a6; text-decoration:none;">05151 710 7093</a><br />
+                  E-Mail: <a href="mailto:info@curadoma.de" style="color:#14b8a6; text-decoration:none;">info@curadoma.de</a>
+                </p>
+              </td>
+            </tr>
+
+            <!-- Footer -->
+            <tr>
+              <td bgcolor="#3f4548" style="background-color:#3f4548; padding:22px 30px; text-align:center;">
+                <p style="margin:0 0 8px 0; font-size:13px; line-height:1.6; color:#e5f7f4;">
+                  Diese E-Mail wurde automatisch über die Cura Doma Webseite versendet.
+                </p>
+                <p style="margin:0; font-size:12px; line-height:1.6; color:#b6e7df;">
+                  © 2026 Cura Doma – Ambulanter Betreuungsdienst. Alle Rechte vorbehalten.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
 }
 
 function rowsTable(rows: Array<[string, string | null | undefined]>) {
@@ -472,17 +651,7 @@ app.post("/make-server-ec6100a6/contact-messages", async (c) => {
       reply_to: email,
       subject: `Neue Anfrage von ${name}${subject ? ` — ${subject}` : ""}`,
       text: `Neue Kontaktanfrage über curadoma.de\n\nName: ${name}\nE-Mail: ${email}\nTelefon: ${phone ?? "—"}\nBetreff: ${subject ?? "—"}\nSeite: ${page_source ?? "—"}\nEingegangen: ${created_at}\n\nNachricht:\n${message}`,
-      html: curaEmailLayout(
-        "Neue Kontaktanfrage",
-        `${rowsTable([
-          ["Name", name],
-          ["E-Mail", email],
-          ["Telefon", phone],
-          ["Betreff", subject],
-          ["Seite", page_source],
-          ["Eingegangen", created_at],
-        ])}<div style="margin-top:18px;padding:14px 16px;background:#F4FBFC;border-radius:12px;color:#2F3A40;white-space:pre-wrap;font-size:14px;line-height:1.55;">${escapeHtml(message)}</div>`,
-      ),
+      html: contactNotificationEmail({ name, phone, email, subject, message }),
     });
     if (!emailRes.ok) console.log("Contact email send failed:", emailRes.error);
 

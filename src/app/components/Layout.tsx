@@ -2,7 +2,9 @@ import { useState, useEffect, useRef } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import { Phone, Mail, Heart, Menu, X, MapPin, ChevronDown } from "lucide-react";
 import { BackgroundScene } from "./BackgroundScene";
+import { CookieBanner } from "./CookieBanner";
 import { CuraDomaLogo } from "./CuraDomaLogo";
+import { requestReopenBanner } from "../../lib/consent";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
@@ -227,13 +229,22 @@ export function Layout() {
 
           <div className="pt-8 border-t border-[#E5F4F5] flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-xs text-[#5F6B73] font-light">© 2026 Cura Doma. Alle Rechte vorbehalten.</p>
-            <div className="flex gap-6 text-xs text-[#5F6B73] font-light">
+            <div className="flex flex-wrap gap-6 text-xs text-[#5F6B73] font-light">
               <Link to="/impressum" className="hover:text-[#6FD3D1] transition-colors">Impressum</Link>
               <Link to="/datenschutz" className="hover:text-[#6FD3D1] transition-colors">Datenschutz</Link>
+              <button
+                type="button"
+                onClick={() => requestReopenBanner()}
+                className="hover:text-[#6FD3D1] transition-colors cursor-pointer"
+              >
+                Cookie-Einstellungen
+              </button>
             </div>
           </div>
         </div>
       </footer>
+
+      <CookieBanner />
     </div>
   );
 }

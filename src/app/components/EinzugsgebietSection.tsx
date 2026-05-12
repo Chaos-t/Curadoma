@@ -1,7 +1,49 @@
-import { MapPin, Navigation, Clock } from "lucide-react";
+import { useEffect, useState } from "react";
+import { MapPin, Navigation, Clock, Lock } from "lucide-react";
 import { CityRoadmap } from "./CityRoadmap";
+import { consent, requestReopenBanner } from "../../lib/consent";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+
+/** Render the Google-Maps embed only when the visitor has accepted
+ *  external embeds. Otherwise show a click-to-load placeholder that
+ *  explains the trade-off and lets them adjust consent. */
+function HamelnMapEmbed() {
+  // Track the consent value reactively so toggling the banner updates the card.
+  const [allowed, setAllowed] = useState<boolean>(() => consent.externalAllowed());
+  useEffect(() => consent.subscribe((s) => setAllowed(s?.external === true)), []);
+
+  if (allowed) {
+    return (
+      <iframe
+        title="Standort Hameln"
+        src="https://www.google.com/maps?q=S%C3%BCntelhang+9%2C+31787+Hameln%2C+Germany&output=embed"
+        className="w-full h-full border-0"
+        loading="lazy"
+        referrerPolicy="no-referrer-when-downgrade"
+      />
+    );
+  }
+  return (
+    <div className="w-full h-full bg-gradient-to-br from-[#DFF7F8] via-[#F8FEFF] to-[#BFEAF2]/40 flex flex-col items-center justify-center text-center px-6">
+      <Lock size={28} className="text-[#6FD3D1] mb-3" strokeWidth={1.5} />
+      <p className="text-sm text-[#111111] font-medium mb-1" style={jakarta}>
+        Karte ausgeblendet
+      </p>
+      <p className="text-xs text-[#5F6B73] font-light leading-relaxed mb-4 max-w-xs">
+        Beim Laden der Google-Maps-Karte werden Daten an Google übertragen.
+        Stimmen Sie der Einbettung externer Inhalte zu, um die Karte zu sehen.
+      </p>
+      <button
+        type="button"
+        onClick={() => requestReopenBanner()}
+        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#6FD3D1] hover:bg-[#5BC2C0] text-white text-xs font-medium transition-colors"
+      >
+        Karte zulassen
+      </button>
+    </div>
+  );
+}
 
 export function EinzugsgebietSection({ heading = true }: { heading?: boolean }) {
   return (
@@ -25,13 +67,7 @@ export function EinzugsgebietSection({ heading = true }: { heading?: boolean }) 
           {/* Hameln */}
           <div className="bg-white rounded-3xl border border-[#E5F4F5] overflow-hidden shadow-sm hover:shadow-md transition-shadow">
             <div className="aspect-[16/10] w-full overflow-hidden">
-              <iframe
-                title="Standort Hameln"
-                src="https://www.google.com/maps?q=S%C3%BCntelhang+9%2C+31787+Hameln%2C+Germany&output=embed"
-                className="w-full h-full border-0"
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
+              <HamelnMapEmbed />
             </div>
             <div className="p-7">
               <div className="flex items-center gap-2 mb-2">
