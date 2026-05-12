@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, Outlet, useLocation } from "react-router";
-import { Phone, Mail, Heart, Menu, X, MapPin, ChevronDown } from "lucide-react";
+import { Phone, Mail, Heart, Menu, X, MapPin, ChevronDown, Cookie } from "lucide-react";
 import { BackgroundScene } from "./BackgroundScene";
 import { CookieBanner } from "./CookieBanner";
 import { CuraDomaLogo } from "./CuraDomaLogo";
@@ -229,15 +229,17 @@ export function Layout() {
 
           <div className="pt-8 border-t border-[#E5F4F5] flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-xs text-[#5F6B73] font-light">© 2026 Cura Doma. Alle Rechte vorbehalten.</p>
-            <div className="flex flex-wrap gap-6 text-xs text-[#5F6B73] font-light">
+            <div className="flex flex-wrap items-center gap-6 text-xs text-[#5F6B73] font-light">
               <Link to="/impressum" className="hover:text-[#6FD3D1] transition-colors">Impressum</Link>
               <Link to="/datenschutz" className="hover:text-[#6FD3D1] transition-colors">Datenschutz</Link>
               <button
                 type="button"
                 onClick={() => requestReopenBanner()}
-                className="hover:text-[#6FD3D1] transition-colors cursor-pointer"
+                aria-label="Cookie-Einstellungen öffnen"
+                title="Cookie-Einstellungen"
+                className="inline-flex items-center justify-center w-8 h-8 rounded-full text-[#5F6B73] hover:text-[#6FD3D1] hover:bg-[#F8FEFF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6FD3D1] transition-colors"
               >
-                Cookie-Einstellungen
+                <Cookie size={16} strokeWidth={1.7} />
               </button>
             </div>
           </div>
