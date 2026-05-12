@@ -27,22 +27,23 @@ type Orb = {
   dy: number;
 };
 
-// Desktop layer: more orbs, fuller depth field.
+// Desktop layer: more orbs, fuller depth field. Sizes pumped up so the
+// colour survives the 80%-opaque section overlays above.
 const DESKTOP_ORBS: Orb[] = [
-  { x: 12, y: 18, z: -400, size: 520, duration: 26, delay: -3,  hue: "teal", dx: 60,  dy: -40 },
-  { x: 82, y: 22, z: -250, size: 380, duration: 32, delay: -10, hue: "mint", dx: -50, dy: 35  },
-  { x: 30, y: 70, z: -180, size: 460, duration: 38, delay: -16, hue: "teal", dx: 45,  dy: -30 },
-  { x: 70, y: 78, z: -350, size: 420, duration: 34, delay: -22, hue: "mint", dx: -40, dy: -45 },
-  { x: 50, y: 45, z: -550, size: 600, duration: 44, delay: -8,  hue: "teal", dx: 30,  dy: 20  },
-  { x: 95, y: 55, z: -120, size: 280, duration: 28, delay: -14, hue: "mint", dx: -35, dy: -25 },
+  { x: 10, y: 20, z: -200, size: 620, duration: 26, delay: -3,  hue: "teal", dx: 80,  dy: -50 },
+  { x: 85, y: 18, z: -100, size: 540, duration: 32, delay: -10, hue: "mint", dx: -70, dy: 50  },
+  { x: 28, y: 72, z: -40,  size: 580, duration: 38, delay: -16, hue: "teal", dx: 60,  dy: -40 },
+  { x: 72, y: 80, z: -180, size: 520, duration: 34, delay: -22, hue: "mint", dx: -55, dy: -55 },
+  { x: 50, y: 45, z: -300, size: 720, duration: 44, delay: -8,  hue: "teal", dx: 40,  dy: 30  },
+  { x: 95, y: 55, z: 60,   size: 360, duration: 28, delay: -14, hue: "mint", dx: -45, dy: -35 },
 ];
 
 // Mobile layer: 3 orbs only, lower blur, smaller drift — keeps the GPU
 // budget low on phones (especially older Android).
 const MOBILE_ORBS: Orb[] = [
-  { x: 18, y: 22, z: -300, size: 340, duration: 28, delay: -5,  hue: "teal", dx: 35,  dy: -20 },
-  { x: 80, y: 60, z: -200, size: 300, duration: 34, delay: -14, hue: "mint", dx: -30, dy: 25  },
-  { x: 45, y: 88, z: -400, size: 380, duration: 40, delay: -22, hue: "teal", dx: 25,  dy: -15 },
+  { x: 15, y: 20, z: -100, size: 420, duration: 28, delay: -5,  hue: "teal", dx: 45,  dy: -25 },
+  { x: 82, y: 58, z: -50,  size: 380, duration: 34, delay: -14, hue: "mint", dx: -40, dy: 30  },
+  { x: 45, y: 88, z: -200, size: 460, duration: 40, delay: -22, hue: "teal", dx: 30,  dy: -20 },
 ];
 
 function orbStyle(o: Orb): CSSProperties {
@@ -137,23 +138,25 @@ export function BackgroundScene() {
           /* z-depth is the only thing the 3D scene needs from each orb;
              the keyframe rotates + drifts it gently. */
           transform: translateZ(var(--z));
-          filter: blur(70px);
-          opacity: 0.55;
+          filter: blur(48px);
+          opacity: 0.92;
           will-change: transform;
           animation: cura-orb-drift var(--dur) ease-in-out infinite alternate;
           animation-delay: var(--delay);
         }
         .cura-orb-teal {
           background: radial-gradient(circle at 30% 30%,
-            rgba(111, 211, 209, 0.55) 0%,
-            rgba(111, 211, 209, 0.10) 55%,
-            rgba(111, 211, 209, 0) 75%);
+            rgba(111, 211, 209, 0.95) 0%,
+            rgba(111, 211, 209, 0.50) 35%,
+            rgba(111, 211, 209, 0.10) 65%,
+            rgba(111, 211, 209, 0) 80%);
         }
         .cura-orb-mint {
           background: radial-gradient(circle at 40% 35%,
-            rgba(191, 234, 242, 0.65) 0%,
-            rgba(191, 234, 242, 0.10) 55%,
-            rgba(191, 234, 242, 0) 75%);
+            rgba(120, 200, 220, 0.85) 0%,
+            rgba(191, 234, 242, 0.60) 35%,
+            rgba(191, 234, 242, 0.10) 65%,
+            rgba(191, 234, 242, 0) 80%);
         }
 
         @keyframes cura-orb-drift {
@@ -176,9 +179,9 @@ export function BackgroundScene() {
           .cura-scene-orbs-mobile { display: none; }
           .cura-scene-orbs-desktop { display: block; }
         }
-        /* Mobile orbs: lower blur radius (cheaper) */
+        /* Mobile orbs: smaller blur (cheaper) — still very visible */
         @media (max-width: 767px) {
-          .cura-orb { filter: blur(50px); opacity: 0.5; }
+          .cura-orb { filter: blur(36px); opacity: 0.85; }
         }
 
         @media (prefers-reduced-motion: reduce) {
