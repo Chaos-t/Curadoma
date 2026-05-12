@@ -11,10 +11,10 @@ dist/
 .idea/
 Thumbs.db
 
-# Playwright MCP test artifacts
+# Playwright MCP test artifacts (visual QA screenshots)
 .playwright-mcp/
-curadoma-home-fullpage.png
-homepage-top.png
+/*.png
+/*.jpeg
 
 # Supabase CLI scratch
 supabase/.temp/

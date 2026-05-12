@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import { Phone, Mail, Heart, Menu, X, MapPin, ChevronDown } from "lucide-react";
-import { WaveBackground } from "./WaveBackground";
+import { BackgroundScene } from "./BackgroundScene";
 import { CuraDomaLogo } from "./CuraDomaLogo";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
@@ -62,7 +62,7 @@ export function Layout() {
       className="min-h-screen bg-[#F8FEFF] text-[#111111] antialiased selection:bg-[#BFEAF2] selection:text-[#111111]"
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
-      <WaveBackground />
+      <BackgroundScene />
 
       {/* Top Utility Bar */}
       <div className="relative z-10 w-full bg-[#DFF7F8]/90 backdrop-blur-sm border-b border-[#BFEAF2]/50 py-2 hidden sm:block">

@@ -1,0 +1,382 @@
+// Scroll-driven roadmap. Two hand-drawn serpentine SVG paths (one per
+// operational hub: Hameln + Paderborn) snake through their respective
+// cities. A Car icon follows the path as the user scrolls past the
+// section — when the section reaches the top of the viewport, the car
+// is at the start; when the section's bottom passes the top of the
+// viewport, the car is at the last city.
+//
+// Mobile (< 768px): the SVG paths are replaced by a clean vertical
+// timeline. Curving snake-paths look great on desktop and unreadable
+// on a narrow phone, so we deliberately ship two layouts.
+
+import { useEffect, useRef, useState } from "react";
+import { Car, MapPin } from "lucide-react";
+
+const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+
+type Route = {
+  /** Localised label */
+  label: string;
+  /** Hub city, displayed as the anchor */
+  hub: string;
+  /** SVG viewBox dimensions */
+  vbWidth: number;
+  vbHeight: number;
+  /** Serpentine path commands, drawn in viewBox coords */
+  pathD: string;
+  /** Ordered list of city names placed along the path */
+  cities: string[];
+};
+
+const HAMELN_ROUTE: Route = {
+  label: "Tour Hameln",
+  hub: "Hameln",
+  vbWidth: 800,
+  vbHeight: 1400,
+  // S-curve cascading down the column. Five "loops" so 8 cities sit
+  // along an aesthetically curving spine.
+  pathD: [
+    "M 400,60",
+    "C 640,180 160,310 400,440",
+    "C 640,570 160,700 400,830",
+    "C 640,960 160,1090 400,1220",
+    "C 540,1290 400,1340 400,1340",
+  ].join(" "),
+  cities: [
+    "Hameln",
+    "Bad Münder",
+    "Springe",
+    "Bad Pyrmont",
+    "Coppenbrügge",
+    "Aerzen",
+    "Salzhemmendorf",
+    "Emmerthal",
+    "Hessisch Oldendorf",
+  ],
+};
+
+const PADERBORN_ROUTE: Route = {
+  label: "Tour Paderborn",
+  hub: "Paderborn",
+  vbWidth: 800,
+  vbHeight: 900,
+  pathD: [
+    "M 400,60",
+    "C 660,200 140,340 400,480",
+    "C 660,620 140,760 400,840",
+  ].join(" "),
+  cities: ["Paderborn", "Detmold", "Höxter", "Umgebung"],
+};
+
+const ROUTES: Route[] = [HAMELN_ROUTE, PADERBORN_ROUTE];
+
+/** Hook: returns scroll progress 0..1 of the element through the viewport.
+ *  0 = element's top is at the viewport bottom (about to enter)
+ *  1 = element's bottom is at the viewport top (just left)
+ *  Uses passive scroll listener + rAF to coalesce updates. */
+function useScrollProgress<T extends HTMLElement>() {
+  const ref = useRef<T | null>(null);
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let raf = 0;
+    const compute = () => {
+      const rect = el.getBoundingClientRect();
+      const vh = window.innerHeight || 800;
+      // Total scroll distance from "just entering" to "just left"
+      const total = rect.height + vh;
+      // How far we've traveled along that range
+      const traveled = vh - rect.top;
+      const p = Math.max(0, Math.min(1, traveled / total));
+      setProgress(p);
+    };
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(compute);
+    };
+    compute();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
+  return { ref, progress };
+}
+
+/** Hook: tracks whether viewport width < breakpoint. */
+function useIsMobile(breakpoint = 768) {
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window === "undefined" ? false : window.innerWidth < breakpoint,
+  );
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < breakpoint);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [breakpoint]);
+  return isMobile;
+}
+
+/** Desktop variant: an SVG serpentine path with the car following it
+ *  based on scroll progress. */
+function RouteSnake({ route, progress }: { route: Route; progress: number }) {
+  const pathRef = useRef<SVGPathElement | null>(null);
+  // Stop positions, computed once the path is in the DOM.
+  const [stops, setStops] = useState<{ x: number; y: number }[]>([]);
+  const [carPt, setCarPt] = useState<{ x: number; y: number; angle: number }>({
+    x: 400, y: 60, angle: 0,
+  });
+
+  // Re-sample the path on mount (and on route change). Stops are
+  // evenly spaced along the curve so even an asymmetric path stays
+  // readable.
+  useEffect(() => {
+    const path = pathRef.current;
+    if (!path) return;
+    const total = path.getTotalLength();
+    const n = route.cities.length;
+    const pts = Array.from({ length: n }, (_, i) => {
+      const len = ((i + 0.5) / n) * total;
+      const p = path.getPointAtLength(len);
+      return { x: p.x, y: p.y };
+    });
+    setStops(pts);
+  }, [route]);
+
+  // Update the car position whenever scroll progress changes.
+  useEffect(() => {
+    const path = pathRef.current;
+    if (!path) return;
+    const total = path.getTotalLength();
+    // Car travels through 80% of the path window (10% lead-in, 10% lead-out)
+    // so the entire animation reads while the section is comfortably in view.
+    const eased = Math.max(0, Math.min(1, (progress - 0.1) / 0.8));
+    const len = eased * total;
+    const pt = path.getPointAtLength(len);
+    // Heading = angle from a small sample before to a small sample after
+    const eps = Math.max(2, total * 0.005);
+    const before = path.getPointAtLength(Math.max(0, len - eps));
+    const after = path.getPointAtLength(Math.min(total, len + eps));
+    const angle = (Math.atan2(after.y - before.y, after.x - before.x) * 180) / Math.PI;
+    setCarPt({ x: pt.x, y: pt.y, angle });
+  }, [progress, route]);
+
+  const { vbWidth, vbHeight, pathD, cities } = route;
+
+  return (
+    <div className="relative w-full max-w-[460px] mx-auto" style={{ aspectRatio: `${vbWidth} / ${vbHeight}` }}>
+      <svg
+        viewBox={`0 0 ${vbWidth} ${vbHeight}`}
+        className="absolute inset-0 w-full h-full"
+        aria-hidden="true"
+      >
+        {/* The road: dashed teal line */}
+        <path
+          ref={pathRef}
+          d={pathD}
+          fill="none"
+          stroke="#BFEAF2"
+          strokeWidth={3}
+          strokeDasharray="6 10"
+          strokeLinecap="round"
+        />
+
+        {/* Stops along the road. Each stop "lights up" when the car is
+            past it (progress threshold reached). */}
+        {stops.map((s, i) => {
+          const stopProgress = (i + 0.5) / cities.length;
+          const eased = Math.max(0, Math.min(1, (progress - 0.1) / 0.8));
+          const visited = eased >= stopProgress - 0.02;
+          return (
+            <g key={cities[i]}>
+              {/* Outer ring */}
+              <circle
+                cx={s.x}
+                cy={s.y}
+                r={visited ? 14 : 10}
+                fill={visited ? "rgba(111,211,209,0.25)" : "rgba(191,234,242,0.4)"}
+                style={{ transition: "all 220ms ease-out" }}
+              />
+              {/* Inner dot */}
+              <circle
+                cx={s.x}
+                cy={s.y}
+                r={6}
+                fill={visited ? "#6FD3D1" : "#ffffff"}
+                stroke={visited ? "#6FD3D1" : "#BFEAF2"}
+                strokeWidth={2}
+                style={{ transition: "all 220ms ease-out" }}
+              />
+            </g>
+          );
+        })}
+      </svg>
+
+      {/* City labels — positioned absolutely in CSS to allow real text
+          shaping. SVG <text> would also work but HTML keeps font
+          inheritance and accessibility simple. */}
+      {stops.map((s, i) => {
+        const stopProgress = (i + 0.5) / cities.length;
+        const eased = Math.max(0, Math.min(1, (progress - 0.1) / 0.8));
+        const visited = eased >= stopProgress - 0.02;
+        // Place label on the opposite side of the path centerline (400)
+        const onLeft = s.x < vbWidth / 2;
+        return (
+          <div
+            key={cities[i]}
+            className="absolute pointer-events-none flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border text-[12px] font-medium tabular-nums shadow-sm whitespace-nowrap transition-all duration-300"
+            style={{
+              left: `${(s.x / vbWidth) * 100}%`,
+              top: `${(s.y / vbHeight) * 100}%`,
+              transform: onLeft
+                ? "translate(calc(-100% - 16px), -50%)"
+                : "translate(16px, -50%)",
+              borderColor: visited ? "#6FD3D1" : "#E5F4F5",
+              color: visited ? "#111111" : "#5F6B73",
+              boxShadow: visited
+                ? "0 10px 22px rgba(111,211,209,0.28)"
+                : "0 1px 2px rgba(0,0,0,0.04)",
+            }}
+          >
+            <span className="text-[10px] text-[#9AA3A8]">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            <span className="w-px h-3 bg-[#E5F4F5]" />
+            <MapPin size={12} className={visited ? "text-[#6FD3D1]" : "text-[#9AA3A8]"} />
+            <span>{cities[i]}</span>
+          </div>
+        );
+      })}
+
+      {/* The car — positioned by converting SVG coords to % of the
+          wrapper. CSS transform handles centring + rotation. */}
+      <div
+        className="absolute pointer-events-none flex items-center justify-center w-10 h-10 rounded-full bg-[#6FD3D1] text-white shadow-[0_10px_28px_rgb(111,211,209,0.45)] transition-transform duration-100 ease-linear"
+        style={{
+          left: `${(carPt.x / vbWidth) * 100}%`,
+          top: `${(carPt.y / vbHeight) * 100}%`,
+          transform: `translate(-50%, -50%) rotate(${carPt.angle}deg)`,
+        }}
+        aria-hidden="true"
+      >
+        <Car size={18} strokeWidth={1.8} />
+      </div>
+    </div>
+  );
+}
+
+/** Mobile variant: a plain vertical timeline with the cities listed
+ *  down the page. Car progress is mapped to which stop is "active". */
+function RouteTimelineMobile({ route, progress }: { route: Route; progress: number }) {
+  const eased = Math.max(0, Math.min(1, (progress - 0.1) / 0.8));
+  const activeIdx = Math.floor(eased * route.cities.length);
+
+  return (
+    <ol className="relative max-w-md mx-auto pl-12">
+      {/* Road line */}
+      <span
+        className="absolute top-2 bottom-2 left-[18px] w-0 border-l-2 border-dashed border-[#BFEAF2]"
+        aria-hidden="true"
+      />
+      {/* Car: vertical position tied to eased progress */}
+      <span
+        className="absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-9 h-9 rounded-full bg-[#6FD3D1] text-white shadow-[0_8px_20px_rgb(111,211,209,0.4)] transition-all duration-150 ease-linear z-10"
+        style={{
+          left: "18px",
+          top: `calc(${eased * 100}% + ${(1 - eased) * 8 - eased * 8}px)`,
+        }}
+        aria-hidden="true"
+      >
+        <Car size={16} strokeWidth={1.8} />
+      </span>
+
+      {route.cities.map((c, i) => {
+        const visited = i <= activeIdx;
+        return (
+          <li
+            key={c}
+            className="relative py-3 flex items-center gap-3"
+            style={{ minHeight: 48 }}
+          >
+            <span
+              className="absolute -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full transition-colors"
+              style={{
+                left: "-30px",
+                top: "50%",
+                background: visited ? "#6FD3D1" : "#ffffff",
+                boxShadow: visited
+                  ? "0 0 0 3px rgba(111,211,209,0.3)"
+                  : "0 0 0 3px #BFEAF2",
+              }}
+              aria-hidden="true"
+            />
+            <span
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border text-[13px] font-medium transition-all ${
+                visited
+                  ? "border-[#6FD3D1] text-[#111111] shadow-[0_8px_18px_rgb(111,211,209,0.22)]"
+                  : "border-[#E5F4F5] text-[#5F6B73]"
+              }`}
+            >
+              <span className="text-[10px] text-[#9AA3A8] tabular-nums">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <MapPin
+                size={12}
+                className={visited ? "text-[#6FD3D1]" : "text-[#9AA3A8]"}
+              />
+              {c}
+            </span>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
+function SingleRoute({ route }: { route: Route }) {
+  const { ref, progress } = useScrollProgress<HTMLDivElement>();
+  const isMobile = useIsMobile();
+
+  return (
+    <div ref={ref} className="relative">
+      <div className="text-center mb-8">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-[11px] font-medium text-[#6FD3D1] uppercase tracking-wider mb-3">
+          <Car size={14} strokeWidth={1.7} />
+          {route.label}
+        </div>
+        <h3
+          className="text-2xl font-medium tracking-tight text-[#111111]"
+          style={jakarta}
+        >
+          Strecke ab Station <span className="text-[#6FD3D1]">{route.hub}</span>
+        </h3>
+        <p className="text-sm text-[#5F6B73] font-light mt-1">
+          {route.cities.length} Orte werden regelmäßig angefahren
+        </p>
+      </div>
+
+      {isMobile ? (
+        <RouteTimelineMobile route={route} progress={progress} />
+      ) : (
+        <RouteSnake route={route} progress={progress} />
+      )}
+    </div>
+  );
+}
+
+export function CityRoadmap() {
+  return (
+    <section className="relative w-full">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-10">
+        {ROUTES.map((r) => (
+          <SingleRoute key={r.hub} route={r} />
+        ))}
+      </div>
+    </section>
+  );
+}

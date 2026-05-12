@@ -5,6 +5,7 @@ import {
   ArrowRight, HandHeart, Phone, Mail, Sparkles, Repeat, Calendar,
 } from "lucide-react";
 import { EinzugsgebietSection } from "./EinzugsgebietSection";
+import { GoogleReviews } from "./GoogleReviews";
 
 const partners = [
   { name: "Pflegekasse Niedersachsen", short: "PN" },
@@ -323,6 +324,8 @@ export function HomePage() {
       </section>
 
       <PartnerSection />
+
+      <GoogleReviews />
 
       <EinzugsgebietSection />
 

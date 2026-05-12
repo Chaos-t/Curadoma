@@ -39,10 +39,12 @@ src/app/App.tsx         RouterProvider wrapper
 src/app/routes.tsx      single source of truth for routes; Layout wraps all pages
 src/app/components/
   Layout.tsx              top utility bar + sticky nav + footer + <Outlet/>
-  WaveBackground.tsx      misnamed — it's a fixed gradient div, no SVG waves
+  BackgroundScene.tsx     fixed-position pseudo-3D background (replaces old WaveBackground): blurred orbs drifting in CSS 3D depth, mobile-trimmed variant
+  CityRoadmap.tsx         the Einzugsgebiet animation — two serpentine SVG paths (Hameln hub, Paderborn hub), car follows path on scroll, mobile gets a stacked vertical timeline
+  GoogleReviews.tsx       right-to-left marquee of review cards on the homepage; data source = src/lib/reviews-data.ts (currently placeholder — see below)
   CuraDomaLogo.tsx        logo: <img> monogram + "Cura Doma" wordmark in Lora
   HomePage.tsx, LeistungenPage.tsx, …  one file per route
-  EinzugsgebietSection.tsx  reused on / and /einzugsgebiet
+  EinzugsgebietSection.tsx  reused on / and /einzugsgebiet; now just frames a header + CityRoadmap
   figma/ImageWithFallback.tsx  used? grep before assuming
   ui/                     shadcn/ui — see below, mostly dead code
 src/imports/            Figma Make raw assets (PNG/JPEG/TXT) imported via relative paths
@@ -160,6 +162,10 @@ The form pages submit `fetch(...)` directly. They show a success state on `2xx`,
 
 ## Editing rules I should hold myself to
 
+- **Mobile-first is a hard requirement, not a nice-to-have.** The user explicitly asked me to "beachte auch in Zukunft diese Funktion". For every new UI feature (animation, layout, carousel, 3D scene) ship the mobile variant in the SAME commit, not as a follow-up. Use the existing 768px breakpoint. Patterns established in the codebase: CityRoadmap collapses the SVG snake into a vertical timeline below 768px; BackgroundScene reduces orb count + blur radius on mobile; GoogleReviews falls back to native swipe scrolling on mobile. Match these.
+- **Curved/serpentine motion, not straight lines.** When animating movement (cars, paths, timelines), use Bezier curves. The current EinzugsgebietSection / CityRoadmap is the established pattern.
+- **Scroll-driven > time-driven** for movement that tells a story. The car-on-roadmap is tied to scroll progress via the `useScrollProgress` hook in CityRoadmap. Time-based marquees are still fine for ambient looping (PartnerSection, GoogleReviews).
+- **Google reviews:** the home-page review section reads from [src/lib/reviews-data.ts](src/lib/reviews-data.ts), which currently ships placeholder data flagged with `isPlaceholder: true`. A warning banner shows in the UI as long as any review carries that flag. Real reviews must be pasted into that file (or hooked up via Places API + a new `/reviews` Edge Function route — see the file's top comment).
 - **Stay terse and German on user-facing copy.** Form labels, error messages, button text, headings, alt text — all German. The German copy already exists in `src/imports/Website_Texte.txt` for reference. Ask before adding English UI strings.
 - **Don't introduce shadcn `<Button>`/`<Card>`/etc. into existing pages** without converting the surrounding section coherently. Mixed styling reads as a regression.
 - **Don't migrate inline `style={jakarta}` to Tailwind classes** (`font-jakarta`) unless I'm also wiring `font-jakarta` through `@theme`/Tailwind config. Mid-migration code is worse than either end state.
@@ -172,11 +178,12 @@ The form pages submit `fetch(...)` directly. They show a success state on `2xx`,
 
 The dev server is at `http://localhost:5173`. Quick smoke-test path covering the failure-prone surface:
 
-1. `/` — hero loads, partner marquee animates, "Einzugsgebiet" section renders.
-2. `/leistungen` and at least one sub-page (`/entlastung`).
-3. `/kontakt` — fill form, submit. With no backend env: expect a server error toast; verify the form re-enables.
-4. `/karriere` — same.
-5. Mobile-width (DevTools 375×812) — burger menu opens, dropdowns work, footer collapses.
+1. `/` — hero loads, partner marquee animates, GoogleReviews scrolls (placeholder banner shows), Einzugsgebiet section's two snake routes render with cars at the start of each route.
+2. Scroll slowly through `/` past the Einzugsgebiet section: both cars should advance along their serpentine paths, lighting up stops as they pass.
+3. `/leistungen` and at least one sub-page (`/entlastung`).
+4. `/kontakt` — fill form, submit. Validation catches bad inputs; submit with valid input goes to the Edge Function (with no backend env: expect an error toast, verify the form re-enables).
+5. `/karriere` — same.
+6. Mobile-width (DevTools 375×812) — burger menu opens, dropdowns work, footer collapses, **CityRoadmap shows as vertical timeline (not the SVG snake)**, **GoogleReviews scrolls horizontally with swipe**.
 
 Console should be clean except for the `favicon.ico` 404.
 
