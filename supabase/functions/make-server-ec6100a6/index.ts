@@ -657,7 +657,19 @@ app.post("/make-server-ec6100a6/contact-messages", async (c) => {
     });
     if (!emailRes.ok) console.log("Contact email send failed:", emailRes.error);
 
-    return c.json({ ok: true, id, created_at, email_sent: emailRes.ok }, 201);
+    return c.json(
+      {
+        ok: true,
+        id,
+        created_at,
+        email_sent: emailRes.ok,
+        // Surface the upstream error so the operator can see *why* an
+        // email didn't go out (e.g. Resend domain-not-verified) without
+        // having to dig through Supabase function logs.
+        email_error: emailRes.ok ? undefined : emailRes.error,
+      },
+      201,
+    );
   } catch (error) {
     console.log("Error while storing contact message:", error);
     return c.json({ error: `Serverfehler beim Speichern der Anfrage: ${error}` }, 500);
@@ -758,7 +770,16 @@ app.post("/make-server-ec6100a6/job-applications", async (c) => {
     });
     if (!emailRes.ok) console.log("Job application email send failed:", emailRes.error);
 
-    return c.json({ ok: true, id, created_at, email_sent: emailRes.ok }, 201);
+    return c.json(
+      {
+        ok: true,
+        id,
+        created_at,
+        email_sent: emailRes.ok,
+        email_error: emailRes.ok ? undefined : emailRes.error,
+      },
+      201,
+    );
   } catch (error) {
     console.log("Error while storing job application:", error);
     return c.json({ error: `Serverfehler beim Speichern der Bewerbung: ${error}` }, 500);
