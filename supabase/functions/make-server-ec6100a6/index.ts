@@ -647,9 +647,12 @@ app.post("/make-server-ec6100a6/contact-messages", async (c) => {
     await kv.set(`contact_message:${id}`, record);
 
     const emailRes = await sendEmail({
-      // Temporarily routed to Tolunay's personal inbox; switch back to
-      // info@curadoma.de once that mailbox is being monitored regularly.
-      to: "Tolunay.u@outlook.de",
+      // Temporarily routed to the operator's Gmail because Resend's
+      // free tier only allows delivery to the address the account was
+      // signed up with. Switch back to info@curadoma.de (or any other
+      // recipient) once a sending domain is verified at
+      // resend.com/domains and the RESEND_FROM secret is updated.
+      to: "tolunayusul@gmail.com",
       reply_to: email,
       subject: `Neue Anfrage von ${name}${subject ? ` — ${subject}` : ""}`,
       text: `Neue Kontaktanfrage über curadoma.de\n\nName: ${name}\nE-Mail: ${email}\nTelefon: ${phone ?? "—"}\nBetreff: ${subject ?? "—"}\nSeite: ${page_source ?? "—"}\nEingegangen: ${created_at}\n\nNachricht:\n${message}`,
@@ -733,7 +736,7 @@ app.post("/make-server-ec6100a6/job-applications", async (c) => {
       cv_filename: body.cv_filename ?? null,
       consent_privacy,
       status: "new",
-      target_email: "Tolunay.u@outlook.de",
+      target_email: "tolunayusul@gmail.com",
     };
 
     await kv.set(`job_application:${id}`, record);
@@ -756,7 +759,9 @@ app.post("/make-server-ec6100a6/job-applications", async (c) => {
     ];
 
     const emailRes = await sendEmail({
-      to: "Tolunay.u@outlook.de",
+      // Same Resend-test-mode restriction as the contact endpoint —
+      // see comment there.
+      to: "tolunayusul@gmail.com",
       reply_to: email,
       subject: `Neue Bewerbung: ${record.job} — ${name}`,
       text: rows
