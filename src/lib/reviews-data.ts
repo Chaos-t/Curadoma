@@ -11,12 +11,15 @@
 //
 // To make live reviews work in production:
 //
-// 1) Find your Place ID: https://developers.google.com/maps/documentation/places/web-service/place-id
-// 2) In Supabase Dashboard → Edge Functions → server → Secrets, set
-//    `GOOGLE_PLACES_API_KEY` (Places API enabled) and `GOOGLE_PLACE_ID`.
-// 3) Redeploy the function (`supabase functions deploy server` or via
-//    the dashboard). The frontend will start showing live data on the
-//    next page load.
+// 1) Set `GOOGLE_PLACES_API_KEY` (Places API enabled) in Supabase
+//    Dashboard → Edge Functions → server → Secrets.
+// 2) Redeploy the function (`supabase functions deploy server` or via
+//    the dashboard). The Edge Function auto-discovers the Place ID by
+//    searching for the business address — no second secret needed.
+//
+// Optional: if Google's text search returns the wrong listing (e.g.
+// you have multiple matching names), set `GOOGLE_PLACE_ID` as a secret
+// to override the discovery.
 //
 // Note: Google Places Details API caps reviews at 5 per call. That's
 // an upstream limit, not a bug here.

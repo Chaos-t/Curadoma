@@ -64,12 +64,18 @@ async function cachedFetch<T>(
 }
 
 // --- Google Places: real reviews -------------------------------------------
-// Requires two Edge Function secrets:
-//   GOOGLE_PLACES_API_KEY  — server-side API key with Places API enabled
-//   GOOGLE_PLACE_ID        — the Place ID of the Cura Doma Google Business
-//                            listing (find via the Place ID Finder tool)
-// The Places Details API returns up to 5 reviews per call — that's a hard
-// Google limit. Cache TTL: 6 hours (reviews don't change often).
+// Only one required secret: GOOGLE_PLACES_API_KEY.
+// The Place ID is discovered automatically from the business address using
+// the Find Place from Text API, then cached for 7 days so we don't burn a
+// quota call on every request. If you ever want to override the discovered
+// ID (e.g. there are multiple matches and we picked the wrong one), set
+// the GOOGLE_PLACE_ID env var and it wins.
+//
+// Google Places Details API returns up to 5 reviews per call — Google's
+// hard cap, not ours. Reviews are cached for 6 hours.
+
+const PLACE_DISCOVERY_QUERY = "Cura Doma Süntelhang 9 31787 Hameln";
+const PLACE_DISCOVERY_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 type GoogleReview = {
   author_name: string;
@@ -89,24 +95,62 @@ type ReviewsResponse = {
   placeUrl?: string;
 };
 
+/** Resolve a place_id by searching for the business by text. Caches the
+ *  result in KV for 7 days under `discovered_place_id`. */
+async function resolvePlaceId(apiKey: string): Promise<string> {
+  // 1. Manual override wins
+  const override = Deno.env.get("GOOGLE_PLACE_ID");
+  if (override) return override;
+
+  // 2. Check KV cache
+  type Cached = { id: string; fetchedAt: number };
+  let cached: Cached | undefined;
+  try {
+    cached = (await kv.get("discovered_place_id")) as Cached | undefined;
+  } catch (e) {
+    console.log("place-id cache read failed:", e);
+  }
+  if (cached && Date.now() - cached.fetchedAt < PLACE_DISCOVERY_TTL_MS) {
+    return cached.id;
+  }
+
+  // 3. Discover via Find Place from Text API
+  const url = new URL("https://maps.googleapis.com/maps/api/place/findplacefromtext/json");
+  url.searchParams.set("input", PLACE_DISCOVERY_QUERY);
+  url.searchParams.set("inputtype", "textquery");
+  url.searchParams.set("fields", "place_id,name,formatted_address");
+  url.searchParams.set("language", "de");
+  url.searchParams.set("key", apiKey);
+
+  const res = await fetch(url.toString());
+  const json = await res.json();
+  if (json.status !== "OK" || !json.candidates?.[0]?.place_id) {
+    throw new Error(
+      `Find Place lookup for "${PLACE_DISCOVERY_QUERY}" failed: ${json.status}` +
+        (json.error_message ? ` (${json.error_message})` : ""),
+    );
+  }
+  const id = json.candidates[0].place_id as string;
+  try {
+    await kv.set("discovered_place_id", { id, fetchedAt: Date.now() });
+  } catch (e) {
+    console.log("place-id cache write failed:", e);
+  }
+  return id;
+}
+
 app.get("/make-server-ec6100a6/reviews", async (c) => {
   const apiKey = Deno.env.get("GOOGLE_PLACES_API_KEY");
-  const placeId = Deno.env.get("GOOGLE_PLACE_ID");
-
   if (!apiKey) {
     return c.json(
       { error: "GOOGLE_PLACES_API_KEY is not set as a Supabase secret.", missing: ["GOOGLE_PLACES_API_KEY"] },
       503,
     );
   }
-  if (!placeId) {
-    return c.json(
-      { error: "GOOGLE_PLACE_ID is not set as a Supabase secret. Find it via the Google Place ID Finder.", missing: ["GOOGLE_PLACE_ID"] },
-      503,
-    );
-  }
 
   try {
+    const placeId = await resolvePlaceId(apiKey);
+
     const { data, cached, stale } = await cachedFetch<ReviewsResponse>(
       `reviews:${placeId}`,
       6 * 60 * 60 * 1000, // 6 hours

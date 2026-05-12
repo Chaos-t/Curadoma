@@ -140,7 +140,7 @@ Routes:
 - `GET  /health` → `{status:"ok"}`
 - `POST /contact-messages` — body: `{name, email, phone?, subject?, message, page_source?, consent_privacy}`. Stores under `contact_message:<uuid>` in `kv_store_ec6100a6`, then emails `info@curadoma.de` via Resend. Validation returns `422 {error, fields}` with German field-level messages.
 - `POST /job-applications` — body: career form fields. Stores under `job_application:<uuid>`, emails `Tolunay.u@outlook.de`. **Note:** the CV file is *not* uploaded — only its filename is sent. The user-facing form lets the applicant pick a file, but the bytes are dropped client-side. Both the email body and the autoreply mention this. If asked to "make CV upload work," that's a real feature request, not a bug.
-- `GET  /reviews` — returns `{reviews, rating, total, placeUrl, cached, stale}`. Calls Google Places Details API server-side; cached 6h in `kv_store_ec6100a6` under `cache:reviews:<placeId>`. Returns `503 {missing: [...]}` when `GOOGLE_PLACES_API_KEY` or `GOOGLE_PLACE_ID` secret is absent. Google caps reviews at 5 per call — this is an upstream limit, not our bug.
+- `GET  /reviews` — returns `{reviews, rating, total, placeUrl, cached, stale}`. Two-stage Google Places call: first `findplacefromtext` to resolve the Place ID from the hardcoded business address (`PLACE_DISCOVERY_QUERY = "Cura Doma Süntelhang 9 31787 Hameln"`), cached 7 days under `discovered_place_id`; then `place/details` for reviews, cached 6h under `cache:reviews:<placeId>`. Returns `503 {missing: [...]}` only when `GOOGLE_PLACES_API_KEY` is absent. `GOOGLE_PLACE_ID` is supported as an optional override if auto-discovery picks the wrong listing. Google caps reviews at 5 per call — upstream limit, not ours.
 - `GET  /instagram-posts` — returns `{posts, cached, stale}`. Calls Instagram Graph API `v18.0/{ig-id}/media`; cached 30 min in KV. Returns `503 {missing: [...]}` when `INSTAGRAM_ACCESS_TOKEN` or `INSTAGRAM_BUSINESS_ACCOUNT_ID` secret is absent. Long-lived tokens last 60 days — refresh via the Graph API before expiry.
 
 Cache pattern (`cachedFetch<T>` helper in [index.ts](supabase/functions/server/index.ts)): get from KV → if fresh return → else hit upstream → write to KV → return. On upstream failure with a stale cache: serve the stale cache and flag `stale: true`. On failure with no cache: return 502.
@@ -154,8 +154,8 @@ Email sender:
 Required Supabase Edge Function secrets (set in Supabase Dashboard → Edge Functions → server → Secrets):
 - `RESEND_API_KEY` — transactional email (contact + job application notifications)
 - `RESEND_FROM` *(optional)* — verified sender address, defaults to Resend's shared dev sender
-- `GOOGLE_PLACES_API_KEY` — server-side API key with Places API enabled
-- `GOOGLE_PLACE_ID` — Place ID of the Cura Doma Google Business listing
+- `GOOGLE_PLACES_API_KEY` — server-side API key with Places API enabled (Find Place + Place Details)
+- `GOOGLE_PLACE_ID` *(optional)* — Place ID override; only set if auto-discovery picks the wrong listing
 - `INSTAGRAM_ACCESS_TOKEN` — long-lived Page access token (Meta Graph API; 60-day TTL)
 - `INSTAGRAM_BUSINESS_ACCOUNT_ID` — numeric IG Business/Creator account ID
 
