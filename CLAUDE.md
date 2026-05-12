@@ -186,7 +186,7 @@ The form pages submit `fetch(...)` directly. They show a success state on `2xx`,
 - **Don't migrate inline `style={jakarta}` to Tailwind classes** (`font-jakarta`) unless I'm also wiring `font-jakarta` through `@theme`/Tailwind config. Mid-migration code is worse than either end state.
 - **Don't move the Supabase URL/anonKey** to env vars without coordinating with the user — Figma Make regenerates `utils/supabase/info.tsx`.
 - **Phone number consistency:** `05151 7107093` displayed, `tel:+4951517107093` for the link, "Süntelhang 9, 31787 Hameln" for address. These appear in multiple files; if changing, grep for all of them.
-- **Two operator emails are different on purpose:** contact form → `info@curadoma.de`, job applications → `Tolunay.u@outlook.de`. Don't unify them.
+- **Both operator notifications currently go to `Tolunay.u@outlook.de`** (contact form + job applications). The contact form was temporarily switched from `info@curadoma.de` to the personal inbox until that mailbox is monitored regularly — the displayed business-contact info in the email body still references `info@curadoma.de` because that's the public contact channel. Don't unify the comment in the code that explains why these can drift apart.
 - **For UI changes, verify in the running browser**, not just by reading the diff. There's no test suite to catch visual regressions.
 
 ## Verifying changes locally

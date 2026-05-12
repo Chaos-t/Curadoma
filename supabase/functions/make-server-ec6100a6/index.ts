@@ -647,7 +647,9 @@ app.post("/make-server-ec6100a6/contact-messages", async (c) => {
     await kv.set(`contact_message:${id}`, record);
 
     const emailRes = await sendEmail({
-      to: "info@curadoma.de",
+      // Temporarily routed to Tolunay's personal inbox; switch back to
+      // info@curadoma.de once that mailbox is being monitored regularly.
+      to: "Tolunay.u@outlook.de",
       reply_to: email,
       subject: `Neue Anfrage von ${name}${subject ? ` — ${subject}` : ""}`,
       text: `Neue Kontaktanfrage über curadoma.de\n\nName: ${name}\nE-Mail: ${email}\nTelefon: ${phone ?? "—"}\nBetreff: ${subject ?? "—"}\nSeite: ${page_source ?? "—"}\nEingegangen: ${created_at}\n\nNachricht:\n${message}`,
