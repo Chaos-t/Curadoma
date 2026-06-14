@@ -13,10 +13,10 @@ type Props = {
 const TEAL = "#6FBDB8";
 const TAGLINE = "#9AA3A8";
 
-// Flowing calligraphic script for the wordmark — elegant, hand-written
-// feel. Loaded via Google Fonts in src/styles/fonts.css. Connected
-// scripts must NOT have letter-spacing (it breaks the joining strokes).
-const WORDMARK_FONT = "'Great Vibes', 'Pinyon Script', cursive";
+// Cormorant — a high-contrast, spiky-serif display face (OFL, free for
+// commercial use; loaded via Google Fonts in src/styles/fonts.css). A close,
+// freely-usable stand-in for Khalos. Used only for the logo wordmark.
+const WORDMARK_FONT = "'Cormorant', 'Cormorant Garamond', 'Times New Roman', serif";
 
 export function CuraDomaLogo({
   className,
@@ -51,10 +51,10 @@ export function CuraDomaLogo({
           className="cura-logo__wordmark"
           style={{
             fontFamily: WORDMARK_FONT,
-            fontWeight: 400,
+            fontWeight: 600,
             color: TEAL,
-            fontSize: "2.3em",
-            letterSpacing: "normal",
+            fontSize: "2em",
+            letterSpacing: "0.02em",
             lineHeight: 1.05,
           }}
         >
