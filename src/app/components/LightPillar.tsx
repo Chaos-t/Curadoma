@@ -21,7 +21,8 @@ const LightPillar = ({
   noiseIntensity = 0.5,
   mixBlendMode = 'screen',
   pillarRotation = 0,
-  quality = 'high'
+  quality = 'high',
+  lightMode = false
 }) => {
   const containerRef = useRef(null);
   const rafRef = useRef(null);
@@ -119,6 +120,7 @@ const LightPillar = ({
       uniform vec3 uBottomColor;
       uniform float uIntensity;
       uniform bool uInteractive;
+      uniform bool uLightMode;
       uniform float uGlowAmount;
       uniform float uPillarWidth;
       uniform float uPillarHeight;
@@ -188,7 +190,14 @@ const LightPillar = ({
 
         col -= fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) / 15.0 * uNoiseIntensity;
 
-        gl_FragColor = vec4(col * uIntensity, 1.0);
+        if (uLightMode) {
+          // Light mode: light base (uTopColor) with coloured (uBottomColor)
+          // streaks where the pillar glows — reads on a bright background.
+          float g = clamp(max(col.r, max(col.g, col.b)) * uIntensity, 0.0, 1.0);
+          gl_FragColor = vec4(mix(uTopColor, uBottomColor, g), 1.0);
+        } else {
+          gl_FragColor = vec4(col * uIntensity, 1.0);
+        }
       }
     `;
 
@@ -207,6 +216,7 @@ const LightPillar = ({
         uBottomColor: { value: parseColor(bottomColor) },
         uIntensity: { value: intensity },
         uInteractive: { value: interactive },
+        uLightMode: { value: lightMode },
         uGlowAmount: { value: glowAmount },
         uPillarWidth: { value: pillarWidth },
         uPillarHeight: { value: pillarHeight },
@@ -344,6 +354,11 @@ const LightPillar = ({
     if (!materialRef.current) return;
     materialRef.current.uniforms.uInteractive.value = interactive;
   }, [interactive]);
+
+  useEffect(() => {
+    if (!materialRef.current) return;
+    materialRef.current.uniforms.uLightMode.value = lightMode;
+  }, [lightMode]);
 
   useEffect(() => {
     if (!materialRef.current) return;
