@@ -1,6 +1,7 @@
 import { Hono } from "npm:hono";
 import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 import * as kv from "./kv_store.ts";
 
 const app = new Hono();
@@ -294,12 +295,13 @@ app.get("/make-server-ec6100a6/instagram-posts", async (c) => {
   }
 });
 
-// --- Resend email helper ----------------------------------------------------
-// Sends transactional emails via the Resend API using the RESEND_API_KEY
-// secret configured on the Edge Function. The sender address must be a
-// verified domain in Resend; until a custom domain is verified we fall back
-// to the shared `onboarding@resend.dev` address that Resend ships for
-// development. Override via the RESEND_FROM secret once the domain is set up.
+// --- Email helper (Strato SMTP) ---------------------------------------------
+// Sends transactional emails via Strato's SMTP server (denomailer). The
+// mailbox login comes from the SMTP_USER / SMTP_PASS secrets; host/port
+// default to smtp.strato.de:465 (implicit TLS) and can be overridden via
+// SMTP_HOST / SMTP_PORT. The From address must be the authenticated mailbox
+// (Strato rejects foreign senders) — defaults to "Cura Doma <SMTP_USER>",
+// override via MAIL_FROM.
 
 async function sendEmail(opts: {
   to: string | string[];
@@ -308,39 +310,91 @@ async function sendEmail(opts: {
   text: string;
   reply_to?: string;
 }): Promise<{ ok: true; id?: string } | { ok: false; error: string }> {
-  const apiKey = Deno.env.get("RESEND_API_KEY");
-  if (!apiKey) {
-    return { ok: false, error: "RESEND_API_KEY is not configured." };
+  const user = Deno.env.get("SMTP_USER");
+  const pass = Deno.env.get("SMTP_PASS");
+  if (!user || !pass) {
+    return { ok: false, error: "SMTP_USER/SMTP_PASS sind nicht konfiguriert." };
   }
-  const from = Deno.env.get("RESEND_FROM") ?? "Cura Doma <onboarding@resend.dev>";
+  const to = Array.isArray(opts.to) ? opts.to.filter(Boolean) : opts.to;
+  if (!to || (Array.isArray(to) && to.length === 0)) {
+    return { ok: false, error: "Kein Empfänger konfiguriert (CONTACT_TO/MAIL_TO/SMTP_USER)." };
+  }
+  const hostname = Deno.env.get("SMTP_HOST") ?? "smtp.strato.de";
+  const port = Number(Deno.env.get("SMTP_PORT") ?? "465");
+  const from = Deno.env.get("MAIL_FROM") ?? `Cura Doma <${user}>`;
+
+  const client = new SMTPClient({
+    connection: {
+      hostname,
+      port,
+      tls: port === 465, // implicit TLS on 465; denomailer upgrades via STARTTLS on 587
+      auth: { username: user, password: pass },
+    },
+  });
 
   try {
-    const res = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from,
-        to: Array.isArray(opts.to) ? opts.to : [opts.to],
-        subject: opts.subject,
-        html: opts.html,
-        text: opts.text,
-        reply_to: opts.reply_to,
-      }),
+    await client.send({
+      from,
+      to,
+      replyTo: opts.reply_to,
+      subject: opts.subject,
+      content: opts.text,
+      html: opts.html,
     });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      console.log("Resend API rejected request:", res.status, data);
-      return { ok: false, error: `Resend status ${res.status}: ${JSON.stringify(data)}` };
-    }
-    return { ok: true, id: data?.id };
+    await client.close();
+    return { ok: true };
   } catch (err) {
-    console.log("Resend network error:", err);
-    return { ok: false, error: `Resend network error: ${err}` };
+    try { await client.close(); } catch (_) { /* ignore */ }
+    console.log("SMTP send error:", err);
+    return { ok: false, error: `SMTP-Fehler: ${(err as Error)?.message ?? err}` };
   }
 }
+
+// --- Anti-spam: honeypot + per-IP rate limit --------------------------------
+// The public form endpoints have no auth beyond the anon key, so we add two
+// cheap guards: a hidden "website" honeypot field (real users never fill it)
+// and a per-IP rate limit backed by the KV store. Both fail OPEN on KV errors
+// so a storage hiccup never blocks a genuine submission.
+
+const RL_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+const RL_MAX = 5; // max stored submissions per IP per window
+
+function clientIp(c: { req: { header: (k: string) => string | undefined } }): string {
+  const fwd = c.req.header("x-forwarded-for");
+  if (fwd) return fwd.split(",")[0].trim();
+  return c.req.header("cf-connecting-ip") ?? c.req.header("x-real-ip") ?? "unknown";
+}
+
+function isHoneypotTripped(body: Record<string, unknown>): boolean {
+  return typeof body.website === "string" && body.website.trim() !== "";
+}
+
+async function rateLimitState(key: string): Promise<{ count: number; resetAt: number }> {
+  const now = Date.now();
+  try {
+    const rec = (await kv.get(key)) as { count: number; resetAt: number } | undefined;
+    if (rec && now <= rec.resetAt) return rec;
+  } catch (e) {
+    console.log("rate-limit read failed (failing open):", e);
+  }
+  return { count: 0, resetAt: now + RL_WINDOW_MS };
+}
+
+async function bumpRateLimit(key: string, state: { count: number; resetAt: number }): Promise<void> {
+  try {
+    await kv.set(key, { count: state.count + 1, resetAt: state.resetAt });
+  } catch (e) {
+    console.log("rate-limit write failed:", e);
+  }
+}
+
+const envRecipient = (...keys: string[]): string => {
+  for (const k of keys) {
+    const v = Deno.env.get(k);
+    if (v && v.trim()) return v.trim();
+  }
+  return "";
+};
 
 const escapeHtml = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -605,6 +659,19 @@ app.post("/make-server-ec6100a6/contact-messages", async (c) => {
       return c.json({ error: "Ungültige Anfrage: Body fehlt oder ist kein JSON." }, 400);
     }
 
+    // Honeypot: pretend success so bots don't retry, but do nothing.
+    if (isHoneypotTripped(body)) {
+      console.log("Honeypot tripped on contact endpoint");
+      return c.json({ ok: true, id: crypto.randomUUID(), created_at: new Date().toISOString(), email_sent: true }, 201);
+    }
+
+    // Per-IP rate limit (checked here, incremented only once we store a row).
+    const rlKey = `ratelimit:contact:${clientIp(c)}`;
+    const rl = await rateLimitState(rlKey);
+    if (rl.count >= RL_MAX) {
+      return c.json({ error: "Zu viele Anfragen. Bitte versuchen Sie es in einigen Minuten erneut." }, 429);
+    }
+
     const name = String(body.name ?? "").trim();
     const email = String(body.email ?? "").trim();
     const phone = body.phone ? String(body.phone).trim() : null;
@@ -647,18 +714,16 @@ app.post("/make-server-ec6100a6/contact-messages", async (c) => {
     await kv.set(`contact_message:${id}`, record);
 
     const emailRes = await sendEmail({
-      // Temporarily routed to the operator's Gmail because Resend's
-      // free tier only allows delivery to the address the account was
-      // signed up with. Switch back to info@curadoma.de (or any other
-      // recipient) once a sending domain is verified at
-      // resend.com/domains and the RESEND_FROM secret is updated.
-      to: "tolunayusul@gmail.com",
+      // Recipient via secret: CONTACT_TO → MAIL_TO → the SMTP mailbox itself.
+      to: envRecipient("CONTACT_TO", "MAIL_TO", "SMTP_USER"),
       reply_to: email,
       subject: `Neue Anfrage von ${name}${subject ? ` — ${subject}` : ""}`,
       text: `Neue Kontaktanfrage über curadoma.de\n\nName: ${name}\nE-Mail: ${email}\nTelefon: ${phone ?? "—"}\nBetreff: ${subject ?? "—"}\nSeite: ${page_source ?? "—"}\nEingegangen: ${created_at}\n\nNachricht:\n${message}`,
       html: contactNotificationEmail({ name, phone, email, subject, message }),
     });
     if (!emailRes.ok) console.log("Contact email send failed:", emailRes.error);
+
+    await bumpRateLimit(rlKey, rl);
 
     return c.json(
       {
@@ -692,6 +757,18 @@ app.post("/make-server-ec6100a6/job-applications", async (c) => {
     if (!body || typeof body !== "object") {
       return c.json({ error: "Ungültige Anfrage: Body fehlt oder ist kein JSON." }, 400);
     }
+
+    if (isHoneypotTripped(body)) {
+      console.log("Honeypot tripped on job-applications endpoint");
+      return c.json({ ok: true, id: crypto.randomUUID(), created_at: new Date().toISOString(), email_sent: true }, 201);
+    }
+
+    const rlKey = `ratelimit:job:${clientIp(c)}`;
+    const rl = await rateLimitState(rlKey);
+    if (rl.count >= RL_MAX) {
+      return c.json({ error: "Zu viele Anfragen. Bitte versuchen Sie es in einigen Minuten erneut." }, 429);
+    }
+    const jobRecipient = envRecipient("JOB_TO", "MAIL_TO", "SMTP_USER");
 
     const errors: Record<string, string> = {};
     const name = String(body.name ?? "").trim();
@@ -736,7 +813,7 @@ app.post("/make-server-ec6100a6/job-applications", async (c) => {
       cv_filename: body.cv_filename ?? null,
       consent_privacy,
       status: "new",
-      target_email: "tolunayusul@gmail.com",
+      target_email: jobRecipient,
     };
 
     await kv.set(`job_application:${id}`, record);
@@ -759,9 +836,7 @@ app.post("/make-server-ec6100a6/job-applications", async (c) => {
     ];
 
     const emailRes = await sendEmail({
-      // Same Resend-test-mode restriction as the contact endpoint —
-      // see comment there.
-      to: "tolunayusul@gmail.com",
+      to: jobRecipient,
       reply_to: email,
       subject: `Neue Bewerbung: ${record.job} — ${name}`,
       text: rows
@@ -774,6 +849,8 @@ app.post("/make-server-ec6100a6/job-applications", async (c) => {
       ),
     });
     if (!emailRes.ok) console.log("Job application email send failed:", emailRes.error);
+
+    await bumpRateLimit(rlKey, rl);
 
     return c.json(
       {
