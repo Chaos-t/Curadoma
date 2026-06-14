@@ -32,26 +32,30 @@ const HAMELN_ROUTE: Route = {
   label: "Tour Hameln",
   hub: "Hameln",
   vbWidth: 800,
-  vbHeight: 1400,
-  // S-curve cascading down the column. Five "loops" so 8 cities sit
-  // along an aesthetically curving spine.
+  vbHeight: 1900,
+  // S-curve cascading down the column. Four full swings so the 12
+  // angefahrene Orte sit along an aesthetically curving spine.
   pathD: [
     "M 400,60",
-    "C 640,180 160,310 400,440",
-    "C 640,570 160,700 400,830",
-    "C 640,960 160,1090 400,1220",
-    "C 540,1290 400,1340 400,1340",
+    "C 660,180 140,320 400,460",
+    "C 660,600 140,740 400,880",
+    "C 660,1020 140,1160 400,1300",
+    "C 660,1440 140,1580 400,1720",
+    "C 540,1800 400,1860 400,1860",
   ].join(" "),
   cities: [
     "Hameln",
-    "Bad Münder",
-    "Springe",
-    "Bad Pyrmont",
-    "Coppenbrügge",
+    "Afferde/Hastenbeck",
+    "Tündern/Emmerthal",
+    "Hessisch Oldendorf/Fischbeck",
+    "Klein Berkel/Groß Berkel",
     "Aerzen",
-    "Salzhemmendorf",
-    "Emmerthal",
-    "Hessisch Oldendorf",
+    "Sünteltal",
+    "Bad Münder/Altenhagen",
+    "Springe",
+    "Völksen",
+    "Bennigsen",
+    "Gehrden",
   ],
 };
 
@@ -229,7 +233,7 @@ function RouteSnake({ route, progress }: { route: Route; progress: number }) {
         return (
           <div
             key={cities[i]}
-            className="absolute pointer-events-none flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border text-[12px] font-medium tabular-nums shadow-sm whitespace-nowrap transition-all duration-300"
+            className="absolute pointer-events-none flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white border text-[12px] font-medium tabular-nums shadow-sm max-w-[170px] leading-snug transition-all duration-300"
             style={{
               left: `${(s.x / vbWidth) * 100}%`,
               top: `${(s.y / vbHeight) * 100}%`,

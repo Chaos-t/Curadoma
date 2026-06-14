@@ -52,17 +52,13 @@ export function ImpressumPage() {
 
           <Block title="Unternehmensangaben">
             <ul className="space-y-2 text-[#5F6B73]">
-              <li><span className="text-[#111111]">Vertreten durch:</span> <Placeholder>Name der verantwortlichen Person eintragen</Placeholder></li>
-              <li><span className="text-[#111111]">Rechtsform:</span> <Placeholder>Rechtsform eintragen</Placeholder></li>
-              <li><span className="text-[#111111]">Umsatzsteuer-ID:</span> <Placeholder>falls vorhanden eintragen</Placeholder></li>
-              <li><span className="text-[#111111]">Aufsichtsbehörde / zuständige Stelle:</span> <Placeholder>falls erforderlich eintragen</Placeholder></li>
-              <li><span className="text-[#111111]">Berufsrechtliche Angaben:</span> <Placeholder>falls erforderlich eintragen</Placeholder></li>
+              <li><span className="text-[#111111]">Vertreten durch:</span> Marilena Linde</li>
+              <li><span className="text-[#111111]">Rechtsform:</span> Einzelunternehmen</li>
+              <li><span className="text-[#111111]">Steuernummer:</span> 22/127/01564</li>
+              <li><span className="text-[#111111]">Aufsichtsbehörde / zuständige Stelle:</span> Niedersächsisches Landesamt für Soziales, Jugend und Familie (LS), Regionalstelle Hildesheim</li>
+              <li><span className="text-[#111111]">Berufsrechtliche Angaben:</span> Anerkanntes Angebot zur Unterstützung im Alltag gemäß § 45a SGB XI nach den Vorschriften des Landes Niedersachsen.</li>
             </ul>
           </Block>
-
-          <p className="text-xs text-[#9AA3A8] font-light italic pt-4 border-t border-[#E5F4F5]">
-            Hinweis (intern): Bitte alle Platzhalter vor Veröffentlichung rechtlich prüfen und vervollständigen.
-          </p>
         </div>
       </section>
 
@@ -78,8 +74,4 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
       <div className="text-[15px] text-[#5F6B73] font-light leading-relaxed space-y-1">{children}</div>
     </div>
   );
-}
-
-function Placeholder({ children }: { children: React.ReactNode }) {
-  return <span className="px-2 py-0.5 rounded bg-[#FFF5E5] text-[#9A6B1F] text-xs">[{children}]</span>;
 }

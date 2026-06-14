@@ -3,6 +3,7 @@ import { Link, Outlet, useLocation } from "react-router";
 import { Phone, Mail, Heart, Menu, X, MapPin, ChevronDown, Cookie } from "lucide-react";
 import { BackgroundScene } from "./BackgroundScene";
 import { CookieBanner } from "./CookieBanner";
+import { WhatsAppButton } from "./WhatsAppButton";
 import { CuraDomaLogo } from "./CuraDomaLogo";
 import { requestReopenBanner } from "../../lib/consent";
 
@@ -90,7 +91,7 @@ export function Layout() {
       <nav className={`sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-[#E5F4F5] shadow-[0_4px_20px_rgb(191,234,242,0.15)] transition-all duration-300 ${scrolled ? "py-2" : "py-0"}`}>
         <div className={`max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between gap-6 transition-all duration-300 ${scrolled ? "h-20" : "h-24"}`}>
           <Link to="/" className="flex items-center transition-opacity hover:opacity-85 py-2 shrink-0" aria-label="Cura Doma — zur Startseite">
-            <CuraDomaLogo className={`w-auto transition-all duration-300 ${scrolled ? "h-14 sm:h-16" : "h-16 sm:h-18 md:h-20"}`} />
+            <CuraDomaLogo animate className={`w-auto transition-all duration-300 ${scrolled ? "h-14 sm:h-16" : "h-16 sm:h-18 md:h-20"}`} />
           </Link>
 
           <div className="hidden lg:flex items-center gap-6 xl:gap-8">
@@ -246,6 +247,7 @@ export function Layout() {
         </div>
       </footer>
 
+      <WhatsAppButton />
       <CookieBanner />
     </div>
   );

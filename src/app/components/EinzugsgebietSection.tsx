@@ -138,6 +138,18 @@ export function EinzugsgebietSection({ heading = true }: { heading?: boolean }) 
         {/* Two scroll-driven serpentine routes (Hameln + Paderborn) —
             desktop: SVG snake paths; mobile: vertical timelines. */}
         <CityRoadmap />
+
+        {/* Einladung: nachfragen, falls der eigene Ort nicht gelistet ist */}
+        <p className="text-center text-[15px] text-[#5F6B73] font-light mt-14 max-w-2xl mx-auto">
+          Ihr Ort ist nicht dabei?{" "}
+          <a
+            href="/kontakt"
+            className="text-[#6FD3D1] hover:text-[#5BC2C0] font-medium underline-offset-2 hover:underline transition-colors"
+          >
+            Fragen Sie uns gerne
+          </a>{" "}
+          – wir prüfen, ob wir auch zu Ihnen kommen können.
+        </p>
       </div>
     </section>
   );

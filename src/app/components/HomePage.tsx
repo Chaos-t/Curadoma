@@ -1,12 +1,13 @@
 import { Link } from "react-router";
 import {
   Home, Brain, Users, Info, CheckCircle,
-  MapPin, Clock, Sun, MessageCircle, Shield, ShieldCheck, Heart, Handshake,
+  MapPin, Clock, Sun, MessageCircle, ShieldCheck, Heart, Handshake,
   ArrowRight, HandHeart, Phone, Mail, Sparkles, Repeat, Calendar, ExternalLink,
 } from "lucide-react";
 import { EinzugsgebietSection } from "./EinzugsgebietSection";
 import { GoogleReviews } from "./GoogleReviews";
 import { InstagramFeed } from "./InstagramFeed";
+import LightPillar from "./LightPillar";
 
 type Partner = {
   name: string;
@@ -130,33 +131,52 @@ const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 export function HomePage() {
   return (
     <>
-      {/* Hero Section */}
-      <section className="relative pt-16 pb-24 lg:pt-28 lg:pb-32 overflow-hidden bg-gradient-to-b from-white/80 to-[#F8FEFF]/80">
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#BFEAF2] opacity-20 rounded-full blur-3xl pointer-events-none translate-x-1/3 -translate-y-1/3"></div>
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-[#DFF7F8] opacity-40 rounded-full blur-3xl pointer-events-none -translate-x-1/3 translate-y-1/3"></div>
+      {/* Hero Section — dark, with the animated LightPillar backdrop */}
+      <section className="relative pt-16 pb-28 lg:pt-28 lg:pb-36 overflow-hidden bg-[#0A1018]">
+        {/* Animated light pillar (React Bits). Screen-blended over the dark bg. */}
+        <LightPillar
+          className="pointer-events-none z-0"
+          topColor="#f0f0f0"
+          bottomColor="#00daff"
+          intensity={1}
+          rotationSpeed={0.3}
+          glowAmount={0.002}
+          pillarWidth={3}
+          pillarHeight={0.4}
+          noiseIntensity={0.5}
+          pillarRotation={25}
+          interactive={false}
+          mixBlendMode="screen"
+          quality="high"
+        />
+        {/* Readability scrim — keeps text legible over the bright pillar
+            (stronger top/bottom, lighter in the middle to preserve the glow) */}
+        <div className="absolute inset-0 z-[1] pointer-events-none bg-gradient-to-b from-[#0A1018]/55 via-[#0A1018]/25 to-[#0A1018]/45" />
+        {/* Soft fade so the dark hero melts into the light page below */}
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-b from-transparent to-[#F8FEFF] z-[2] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col lg:flex-row items-center gap-16 relative z-10">
           <div className="cura-hero-text flex-1 text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#E5F4F5] shadow-sm text-xs font-normal text-[#5F6B73] mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/15 backdrop-blur-sm text-xs font-normal text-white/85 mb-8">
               <HandHeart size={18} strokeWidth={1.5} className="text-[#6FD3D1]" />
               Vertrauensvolle Betreuung im eigenen Zuhause
             </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-[#111111] leading-[1.15] mb-6" style={jakarta}>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-white leading-[1.15] mb-6" style={jakarta}>
               Sie können nicht immer da sein. <br className="hidden lg:block" />
               <span className="text-[#6FD3D1]">Wir können es.</span>
             </h1>
-            <p className="text-lg lg:text-xl text-[#5F6B73] leading-relaxed max-w-2xl mx-auto lg:mx-0 mb-10 font-light">
+            <p className="text-lg lg:text-xl text-white/70 leading-relaxed max-w-2xl mx-auto lg:mx-0 mb-10 font-light">
               Liebevolle und individuelle Unterstützung für pflegebedürftige Menschen in ihrer gewohnten Umgebung. Wir entlasten Angehörige und fördern ein würdevolles, selbstbestimmtes Leben.
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-10">
               <Link to="/kontakt" className="w-full sm:w-auto bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)] flex items-center justify-center gap-2">
                 Kostenlos beraten lassen
               </Link>
-              <Link to="/leistungen" className="w-full sm:w-auto bg-white text-[#5F6B73] border border-[#E5F4F5] hover:bg-[#F8FEFF] hover:text-[#111111] px-8 py-3.5 rounded-full text-base font-normal transition-all flex items-center justify-center">
+              <Link to="/leistungen" className="w-full sm:w-auto bg-white/10 text-white border border-white/20 hover:bg-white/20 backdrop-blur-sm px-8 py-3.5 rounded-full text-base font-normal transition-all flex items-center justify-center">
                 Unsere Leistungen
               </Link>
             </div>
-            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2 text-xs text-[#5F6B73] font-light">
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2 text-xs text-white/60 font-light">
               <span className="inline-flex items-center gap-1.5"><CheckCircle size={14} className="text-[#6FD3D1]" /> Anerkannter Anbieter</span>
               <span className="inline-flex items-center gap-1.5"><CheckCircle size={14} className="text-[#6FD3D1]" /> Abrechnung über Pflegekasse möglich</span>
               <span className="inline-flex items-center gap-1.5"><CheckCircle size={14} className="text-[#6FD3D1]" /> Persönliche Betreuung</span>
@@ -271,7 +291,7 @@ export function HomePage() {
                 Ihre Ansprüche bei der Pflegekasse
               </h2>
               <p className="text-lg text-[#5F6B73] leading-relaxed font-light mb-8">
-                Wussten Sie schon? Ab Pflegegrad 1 steht Ihnen ein monatlicher <strong>Entlastungsbetrag von 125 Euro (§ 45b SGB XI)</strong> zur Verfügung. Dieser kann für unsere haushaltsnahen Dienstleistungen und die Alltagsbegleitung genutzt werden.
+                Wussten Sie schon? Ab Pflegegrad 1 steht Ihnen ein monatlicher <strong>Entlastungsbetrag von 131 Euro (§ 45b SGB XI)</strong> zur Verfügung. Dieser kann für unsere haushaltsnahen Dienstleistungen und die Alltagsbegleitung genutzt werden.
               </p>
               <div className="bg-[#F8FEFF] p-6 rounded-2xl border border-[#E5F4F5] mb-8">
                 <h4 className="text-base font-medium text-[#111111] mb-2 flex items-center gap-2">
@@ -347,7 +367,6 @@ export function HomePage() {
               {[
                 { icon: <Sun size={24} className="text-[#6FD3D1] mt-0.5" />, title: "Tagesstruktur & Orientierung", desc: "Feste Rhythmen und vertraute Rituale geben Sicherheit im Alltag." },
                 { icon: <MessageCircle size={24} className="text-[#6FD3D1] mt-0.5" />, title: "Biografiearbeit & Gespräche", desc: "Wir knüpfen an Lebensgeschichten an und aktivieren positive Erinnerungen." },
-                { icon: <Shield size={24} className="text-[#6FD3D1] mt-0.5" />, title: "Schulung für Angehörige", desc: "Wir beraten Sie im Umgang mit der Erkrankung und bieten emotionale Entlastung." },
               ].map((item, i) => (
                 <li key={i} className="flex items-start gap-4 p-4 rounded-2xl bg-white border border-[#E5F4F5]">
                   {item.icon}
