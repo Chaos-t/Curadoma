@@ -341,8 +341,11 @@ async function sendEmail(opts: {
       to,
       replyTo: opts.reply_to ? headerSafe(opts.reply_to) : undefined,
       subject: headerSafe(opts.subject),
-      content: opts.text,
-      html: opts.html,
+      // Send the HTML body base64-encoded (not quoted-printable) so no "=20"
+      // / "=" artefacts can leak into mail clients or inbox previews.
+      mimeContent: [
+        { mimeType: "text/html; charset=utf-8", content: opts.html, transferEncoding: "base64" },
+      ],
     });
     await client.close();
     return { ok: true };
