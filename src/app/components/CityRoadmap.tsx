@@ -63,13 +63,25 @@ const PADERBORN_ROUTE: Route = {
   label: "Tour Paderborn",
   hub: "Paderborn",
   vbWidth: 800,
-  vbHeight: 900,
+  vbHeight: 1440,
+  // Three full swings down the column for the 8 angefahrene Orte.
   pathD: [
     "M 400,60",
-    "C 660,200 140,340 400,480",
-    "C 660,620 140,760 400,840",
+    "C 660,180 140,320 400,460",
+    "C 660,600 140,740 400,880",
+    "C 660,1020 140,1160 400,1300",
+    "C 540,1370 400,1420 400,1420",
   ].join(" "),
-  cities: ["Paderborn", "Detmold", "Höxter", "Umgebung"],
+  cities: [
+    "Paderborn",
+    "Delbrück",
+    "Geseke",
+    "Salzkotten",
+    "Thüle",
+    "Wewer",
+    "Borchen",
+    "Wewelsburg",
+  ],
 };
 
 const ROUTES: Route[] = [HAMELN_ROUTE, PADERBORN_ROUTE];
