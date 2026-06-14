@@ -303,6 +303,9 @@ app.get("/make-server-ec6100a6/instagram-posts", async (c) => {
 // (Strato rejects foreign senders) — defaults to "Cura Doma <SMTP_USER>",
 // override via MAIL_FROM.
 
+// Strip CR/LF/null so user-controlled values can't inject extra SMTP headers.
+const headerSafe = (s: string): string => String(s ?? "").replace(/[\r\n\0]/g, " ").trim();
+
 async function sendEmail(opts: {
   to: string | string[];
   subject: string;
@@ -334,10 +337,10 @@ async function sendEmail(opts: {
 
   try {
     await client.send({
-      from,
+      from: headerSafe(from),
       to,
-      replyTo: opts.reply_to,
-      subject: opts.subject,
+      replyTo: opts.reply_to ? headerSafe(opts.reply_to) : undefined,
+      subject: headerSafe(opts.subject),
       content: opts.text,
       html: opts.html,
     });
@@ -357,11 +360,17 @@ async function sendEmail(opts: {
 // so a storage hiccup never blocks a genuine submission.
 
 const RL_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
-const RL_MAX = 5; // max stored submissions per IP per window
+const RL_MAX = 8; // per-IP cap per window (best-effort; X-Forwarded-For is spoofable)
+const GLOBAL_DAILY_MAX = Number(Deno.env.get("MAIL_DAILY_MAX") ?? "200"); // hard daily send cap
 
+// X-Forwarded-For can be forged by a direct caller; the trusted Supabase edge
+// APPENDS the real client IP, so the RIGHTMOST entry is the least spoofable.
 function clientIp(c: { req: { header: (k: string) => string | undefined } }): string {
   const fwd = c.req.header("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0].trim();
+  if (fwd) {
+    const parts = fwd.split(",").map((s) => s.trim()).filter(Boolean);
+    if (parts.length) return parts[parts.length - 1];
+  }
   return c.req.header("cf-connecting-ip") ?? c.req.header("x-real-ip") ?? "unknown";
 }
 
@@ -386,6 +395,29 @@ async function bumpRateLimit(key: string, state: { count: number; resetAt: numbe
   } catch (e) {
     console.log("rate-limit write failed:", e);
   }
+}
+
+// Un-spoofable backstop: a global per-day send counter that bounds total
+// outbound mail regardless of source IP, protecting the SMTP quota. Returns
+// true (cap reached) WITHOUT incrementing; otherwise increments and returns
+// false. The KV has no atomic increment, so under heavy concurrency this may
+// overshoot slightly — acceptable for a coarse safety cap.
+async function globalMailCapReached(): Promise<boolean> {
+  const day = new Date().toISOString().slice(0, 10);
+  const key = `ratelimit:global:mail:${day}`;
+  let count = 0;
+  try {
+    count = ((await kv.get(key)) as number | undefined) ?? 0;
+  } catch (e) {
+    console.log("global cap read failed (failing open):", e);
+  }
+  if (count >= GLOBAL_DAILY_MAX) return true;
+  try {
+    await kv.set(key, count + 1);
+  } catch (e) {
+    console.log("global cap write failed:", e);
+  }
+  return false;
 }
 
 const envRecipient = (...keys: string[]): string => {
@@ -671,6 +703,7 @@ app.post("/make-server-ec6100a6/contact-messages", async (c) => {
     if (rl.count >= RL_MAX) {
       return c.json({ error: "Zu viele Anfragen. Bitte versuchen Sie es in einigen Minuten erneut." }, 429);
     }
+    await bumpRateLimit(rlKey, rl); // count up-front so bursts/invalid payloads also throttle
 
     const name = String(body.name ?? "").trim();
     const email = String(body.email ?? "").trim();
@@ -713,7 +746,9 @@ app.post("/make-server-ec6100a6/contact-messages", async (c) => {
 
     await kv.set(`contact_message:${id}`, record);
 
-    const emailRes = await sendEmail({
+    const emailRes = (await globalMailCapReached())
+      ? { ok: false as const, error: "Tägliches Mail-Limit erreicht." }
+      : await sendEmail({
       // Recipient via secret: CONTACT_TO → MAIL_TO → the SMTP mailbox itself.
       to: envRecipient("CONTACT_TO", "MAIL_TO", "SMTP_USER"),
       reply_to: email,
@@ -722,8 +757,6 @@ app.post("/make-server-ec6100a6/contact-messages", async (c) => {
       html: contactNotificationEmail({ name, phone, email, subject, message }),
     });
     if (!emailRes.ok) console.log("Contact email send failed:", emailRes.error);
-
-    await bumpRateLimit(rlKey, rl);
 
     return c.json(
       {
@@ -768,6 +801,7 @@ app.post("/make-server-ec6100a6/job-applications", async (c) => {
     if (rl.count >= RL_MAX) {
       return c.json({ error: "Zu viele Anfragen. Bitte versuchen Sie es in einigen Minuten erneut." }, 429);
     }
+    await bumpRateLimit(rlKey, rl); // count up-front so bursts/invalid payloads also throttle
     const jobRecipient = envRecipient("JOB_TO", "MAIL_TO", "SMTP_USER");
 
     const errors: Record<string, string> = {};
@@ -835,7 +869,9 @@ app.post("/make-server-ec6100a6/job-applications", async (c) => {
       ["Eingegangen", created_at],
     ];
 
-    const emailRes = await sendEmail({
+    const emailRes = (await globalMailCapReached())
+      ? { ok: false as const, error: "Tägliches Mail-Limit erreicht." }
+      : await sendEmail({
       to: jobRecipient,
       reply_to: email,
       subject: `Neue Bewerbung: ${record.job} — ${name}`,
@@ -849,8 +885,6 @@ app.post("/make-server-ec6100a6/job-applications", async (c) => {
       ),
     });
     if (!emailRes.ok) console.log("Job application email send failed:", emailRes.error);
-
-    await bumpRateLimit(rlKey, rl);
 
     return c.json(
       {
