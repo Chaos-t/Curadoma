@@ -16,12 +16,12 @@ function figmaAssetResolver() {
   }
 }
 
-// On GitHub Pages the site is served from /Curadoma/ (project page).
-// In `vite dev` we want the app at /. `mode` is 'production' for both
-// `vite build` and `vite preview`, so the prod base path applies to local
-// preview too — `command` would not, because preview uses command 'serve'.
-export default defineConfig(({ mode }) => ({
-  base: mode === 'production' ? '/Curadoma/' : '/',
+// Served at the ROOT of the custom domain curadoma.de (GitHub Pages + a
+// CNAME file in public/), so the base path is '/' for dev and prod alike.
+// (It was '/Curadoma/' while the site lived at the
+// chaos20140.github.io/Curadoma/ project URL.)
+export default defineConfig(() => ({
+  base: '/',
   plugins: [
     figmaAssetResolver(),
     // The React and Tailwind plugins are both required for Make, even if
