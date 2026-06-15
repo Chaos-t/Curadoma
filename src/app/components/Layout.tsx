@@ -27,11 +27,37 @@ const topNav = [
 
 export function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileMenuMounted, setMobileMenuMounted] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileSubOpen, setMobileSubOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const closeTimer = useRef<number | undefined>(undefined);
+
+  const prefersReducedMotion = () =>
+    typeof window !== "undefined" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const openMobileMenu = () => {
+    window.clearTimeout(closeTimer.current);
+    setMobileMenuMounted(true);
+    setMobileMenuOpen(true);
+  };
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+    setMobileSubOpen(false);
+    window.clearTimeout(closeTimer.current);
+    if (prefersReducedMotion()) {
+      setMobileMenuMounted(false);
+    } else {
+      // keep the panel mounted until the slide-up/fade-out finishes
+      closeTimer.current = window.setTimeout(() => setMobileMenuMounted(false), 240);
+    }
+  };
+
+  const toggleMobileMenu = () => (mobileMenuOpen ? closeMobileMenu() : openMobileMenu());
 
   useEffect(() => {
     const handleScroll = () => {
@@ -43,9 +69,14 @@ export function Layout() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    window.clearTimeout(closeTimer.current);
     setMobileMenuOpen(false);
+    setMobileMenuMounted(false);
+    setMobileSubOpen(false);
     setDropdownOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => () => window.clearTimeout(closeTimer.current), []);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -59,6 +90,9 @@ export function Layout() {
 
   const isActive = (path: string) => location.pathname === path;
   const isLeistungenActive = leistungenLinks.some((l) => location.pathname === l.path);
+
+  // Each row in the mobile menu cascades in; delay is set per-item via inline style.
+  const itemAnim = "motion-safe:animate-[curaMenuItem_300ms_cubic-bezier(0.22,1,0.36,1)_both]";
 
   return (
     <div
@@ -142,42 +176,63 @@ export function Layout() {
 
           <button
             className="lg:hidden p-2 text-[#5F6B73]"
-            aria-label="Menü öffnen"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? "Menü schließen" : "Menü öffnen"}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-menu"
+            onClick={toggleMobileMenu}
           >
-            {mobileMenuOpen ? <X size={24} strokeWidth={1.5} /> : <Menu size={24} strokeWidth={1.5} />}
+            <span className="relative block h-6 w-6">
+              <Menu
+                size={24}
+                strokeWidth={1.5}
+                className={`absolute inset-0 transition-all duration-300 ${mobileMenuOpen ? "opacity-0 rotate-90 scale-75" : "opacity-100 rotate-0 scale-100"}`}
+              />
+              <X
+                size={24}
+                strokeWidth={1.5}
+                className={`absolute inset-0 transition-all duration-300 ${mobileMenuOpen ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-75"}`}
+              />
+            </span>
           </button>
         </div>
 
-        {mobileMenuOpen && (
-          <div className="lg:hidden bg-white border-t border-[#E5F4F5] px-6 py-4 space-y-2 max-h-[80vh] overflow-y-auto">
+        {mobileMenuMounted && (
+          <div
+            id="mobile-menu"
+            className={`lg:hidden bg-white border-t border-[#E5F4F5] px-6 py-4 space-y-2 max-h-[80vh] overflow-y-auto overflow-x-hidden origin-top ${
+              mobileMenuOpen
+                ? "motion-safe:animate-[curaMenuOpen_280ms_cubic-bezier(0.22,1,0.36,1)_both]"
+                : "motion-safe:animate-[curaMenuClose_220ms_ease-in_both]"
+            }`}
+          >
             {topNav.slice(0, 1).map((link) => (
-              <Link key={link.path} to={link.path} className={`block py-2 text-sm font-light ${isActive(link.path) ? "text-[#6FD3D1]" : "text-[#5F6B73]"}`}>
+              <Link key={link.path} to={link.path} style={{ animationDelay: "40ms" }} className={`block py-2 text-sm font-light ${itemAnim} ${isActive(link.path) ? "text-[#6FD3D1]" : "text-[#5F6B73]"}`}>
                 {link.label}
               </Link>
             ))}
             <button
               onClick={() => setMobileSubOpen(!mobileSubOpen)}
-              className={`flex items-center justify-between w-full py-2 text-sm font-light ${isLeistungenActive ? "text-[#6FD3D1]" : "text-[#5F6B73]"}`}
+              style={{ animationDelay: "90ms" }}
+              className={`flex items-center justify-between w-full py-2 text-sm font-light ${itemAnim} ${isLeistungenActive ? "text-[#6FD3D1]" : "text-[#5F6B73]"}`}
             >
               Leistungen
               <ChevronDown size={16} className={`transition-transform ${mobileSubOpen ? "rotate-180" : ""}`} />
             </button>
             {mobileSubOpen && (
-              <div className="pl-4 space-y-1 border-l border-[#E5F4F5]">
-                {leistungenLinks.map((l) => (
-                  <Link key={l.path} to={l.path} className={`block py-2 text-sm font-light ${isActive(l.path) ? "text-[#6FD3D1]" : "text-[#5F6B73]"}`}>
+              <div className="pl-4 space-y-1 border-l border-[#E5F4F5] overflow-hidden motion-safe:animate-[curaSubIn_240ms_cubic-bezier(0.22,1,0.36,1)_both]">
+                {leistungenLinks.map((l, i) => (
+                  <Link key={l.path} to={l.path} style={{ animationDelay: `${i * 35}ms` }} className={`block py-2 text-sm font-light ${itemAnim} ${isActive(l.path) ? "text-[#6FD3D1]" : "text-[#5F6B73]"}`}>
                     {l.label}
                   </Link>
                 ))}
               </div>
             )}
-            {topNav.slice(1).map((link) => (
-              <Link key={link.path} to={link.path} className={`block py-2 text-sm font-light ${isActive(link.path) ? "text-[#6FD3D1]" : "text-[#5F6B73]"}`}>
+            {topNav.slice(1).map((link, i) => (
+              <Link key={link.path} to={link.path} style={{ animationDelay: `${140 + i * 50}ms` }} className={`block py-2 text-sm font-light ${itemAnim} ${isActive(link.path) ? "text-[#6FD3D1]" : "text-[#5F6B73]"}`}>
                 {link.label}
               </Link>
             ))}
-            <Link to="/kontakt" className="block mt-3 text-sm font-light text-white bg-[#6FD3D1] rounded-full py-2.5 px-6 text-center">
+            <Link to="/kontakt" style={{ animationDelay: "290ms" }} className={`block mt-3 text-sm font-light text-white bg-[#6FD3D1] rounded-full py-2.5 px-6 text-center ${itemAnim}`}>
               Kostenlos beraten lassen
             </Link>
           </div>
@@ -249,6 +304,25 @@ export function Layout() {
 
       <WhatsAppButton />
       <CookieBanner />
+
+      <style>{`
+        @keyframes curaMenuOpen {
+          from { opacity: 0; transform: translateY(-10px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes curaMenuClose {
+          from { opacity: 1; transform: translateY(0); }
+          to   { opacity: 0; transform: translateY(-8px); }
+        }
+        @keyframes curaMenuItem {
+          from { opacity: 0; transform: translateY(-6px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes curaSubIn {
+          from { opacity: 0; transform: translateY(-4px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }
