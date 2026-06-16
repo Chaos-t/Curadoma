@@ -54,7 +54,7 @@ export function EntlastungPage() {
               "Betreuung von Menschen mit Demenz",
               "Entlastung pflegender Angehöriger",
             ].map((v, i) => (
-              <div key={i} className="bg-white p-5 rounded-2xl border border-[#E5F4F5] flex items-start gap-3">
+              <div key={i} className="cura-card-glow bg-white p-5 rounded-2xl border border-[#E5F4F5] flex items-start gap-3">
                 <CheckCircle size={20} className="text-[#6FD3D1] mt-0.5 shrink-0" />
                 <span className="text-[#5F6B73] font-light">{v}</span>
               </div>
@@ -65,7 +65,7 @@ export function EntlastungPage() {
 
       <section className="py-20 bg-white/80">
         <div className="max-w-4xl mx-auto px-6">
-          <div className="bg-[#F8FEFF] p-8 lg:p-10 rounded-3xl border border-[#E5F4F5]">
+          <div className="cura-card-glow bg-[#F8FEFF] p-8 lg:p-10 rounded-3xl border border-[#E5F4F5]">
             <h3 className="text-2xl font-medium text-[#111111] mb-6" style={jakarta}>Das bedeutet für Sie:</h3>
             <ul className="space-y-3 text-[#5F6B73] font-light">
               {[
@@ -142,7 +142,7 @@ export function EntlastungPage() {
 
       <section className="py-20 bg-white/80">
         <div className="max-w-4xl mx-auto px-6">
-          <div className="bg-[#F8FEFF] p-8 lg:p-10 rounded-3xl border border-[#E5F4F5]">
+          <div className="cura-card-glow bg-[#F8FEFF] p-8 lg:p-10 rounded-3xl border border-[#E5F4F5]">
             <h2 className="text-2xl font-medium tracking-tight text-[#111111] mb-4" style={jakarta}>
               Unser Angebot – individuelle Entlastung im Alltag
             </h2>
@@ -158,7 +158,7 @@ export function EntlastungPage() {
 
       <section className="py-20 bg-[#F8FEFF]/80">
         <div className="max-w-4xl mx-auto px-6">
-          <div className="bg-white p-8 lg:p-10 rounded-3xl border border-[#E5F4F5] text-center">
+          <div className="cura-card-glow bg-white p-8 lg:p-10 rounded-3xl border border-[#E5F4F5] text-center">
             <ShieldCheck size={40} strokeWidth={1.2} className="text-[#6FD3D1] mx-auto mb-4" />
             <h2 className="text-2xl font-medium tracking-tight text-[#111111] mb-4" style={jakarta}>Unser Service für Sie</h2>
             <p className="text-[#5F6B73] font-light leading-relaxed max-w-2xl mx-auto">

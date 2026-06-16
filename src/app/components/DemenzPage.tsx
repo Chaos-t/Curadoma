@@ -60,7 +60,7 @@ export function DemenzPage() {
               { t: "Entlastung für Angehörige", d: "Wir schaffen Freiräume für pflegende Angehörige durch verlässliche und flexible Betreuungszeiten." },
               { t: "Förderung sozialer Kontakte", d: "Durch gemeinsame Aktivitäten und Gespräche helfen wir, Isolation zu vermeiden und Lebensfreude zu erhalten." },
             ].map((item, i) => (
-              <li key={i} className="bg-white p-5 rounded-2xl border border-[#E5F4F5] flex gap-3">
+              <li key={i} className="cura-card-glow bg-white p-5 rounded-2xl border border-[#E5F4F5] flex gap-3">
                 <CheckCircle size={20} className="text-[#6FD3D1] mt-0.5 shrink-0" />
                 <div>
                   <div className="text-base font-medium text-[#111111]" style={jakarta}>{item.t}</div>
@@ -93,7 +93,7 @@ export function DemenzPage() {
               { icon: <HandHeart size={28} strokeWidth={1.5} />, title: "Emotionale Begleitung", desc: "Bei Ängsten, Unruhe oder Verwirrtheit sind wir da – ruhig, geduldig und mit einer beruhigenden Präsenz." },
               { icon: <Shield size={28} strokeWidth={1.5} />, title: "Sicherheit im Alltag", desc: "Wir achten auf potenzielle Gefahren und helfen, das Zuhause sicher zu gestalten, ohne die Selbstständigkeit einzuschränken." },
             ].map((item, i) => (
-              <div key={i} className="bg-[#F8FEFF]/80 backdrop-blur-sm p-8 rounded-3xl border border-[#E5F4F5] hover:shadow-md transition-shadow duration-300">
+              <div key={i} className="cura-card-glow bg-[#F8FEFF]/80 backdrop-blur-sm p-8 rounded-3xl border border-[#E5F4F5] hover:shadow-md transition-shadow duration-300">
                 <div className="w-14 h-14 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] mb-6">
                   {item.icon}
                 </div>
@@ -122,7 +122,7 @@ export function DemenzPage() {
                 { title: "Emotionaler Beistand", desc: "Manchmal braucht man jemanden, der zuhört und versteht. Wir sind dieser Ansprechpartner." },
                 { title: "Flexible Betreuungszeiten", desc: "Ob regelmäßig oder bei akutem Bedarf – wir passen uns Ihrem Rhythmus an." },
               ].map((item, i) => (
-                <li key={i} className="flex items-start gap-4 p-4 rounded-2xl bg-white border border-[#E5F4F5]">
+                <li key={i} className="cura-card-glow flex items-start gap-4 p-4 rounded-2xl bg-white border border-[#E5F4F5]">
                   <CheckCircle size={20} className="text-[#6FD3D1] mt-0.5 shrink-0" />
                   <div>
                     <div className="text-base font-medium text-[#111111]">{item.title}</div>
@@ -157,7 +157,7 @@ export function DemenzPage() {
               { num: "24h", label: "Erreichbarkeit bei Notfällen" },
               { num: "100%", label: "Herz bei jeder Begegnung" },
             ].map((stat, i) => (
-              <div key={i} className="bg-[#F8FEFF] p-6 rounded-2xl border border-[#E5F4F5]">
+              <div key={i} className="cura-card-glow bg-[#F8FEFF] p-6 rounded-2xl border border-[#E5F4F5]">
                 <div className="text-3xl font-medium text-[#6FD3D1] mb-2" style={jakarta}>{stat.num}</div>
                 <div className="text-sm text-[#5F6B73] font-light">{stat.label}</div>
               </div>

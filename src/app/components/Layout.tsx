@@ -142,12 +142,12 @@ export function Layout() {
                 <ChevronDown size={14} className={`transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
               </button>
               {dropdownOpen && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-72 bg-white rounded-2xl border border-[#E5F4F5] shadow-[0_10px_40px_rgb(191,234,242,0.4)] overflow-hidden">
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-72 bg-white rounded-2xl border border-[#E5F4F5] shadow-[0_10px_40px_rgb(191,234,242,0.4)] p-2 space-y-0.5">
                   {leistungenLinks.map((l) => (
                     <Link
                       key={l.path}
                       to={l.path}
-                      className={`block px-5 py-3 text-sm font-light transition-colors ${isActive(l.path) ? "bg-[#DFF7F8] text-[#6FD3D1]" : "text-[#5F6B73] hover:bg-[#F8FEFF] hover:text-[#6FD3D1]"}`}
+                      className={`cura-glow-item block px-4 py-2.5 rounded-xl text-sm font-light ${isActive(l.path) ? "bg-[#DFF7F8] text-[#6FD3D1]" : "text-[#5F6B73] hover:text-[#6FD3D1]"}`}
                     >
                       {l.label}
                     </Link>
@@ -321,6 +321,51 @@ export function Layout() {
         @keyframes curaSubIn {
           from { opacity: 0; transform: translateY(-4px); }
           to   { opacity: 1; transform: translateY(0); }
+        }
+        /* Menu item glow: on hover the field lights up with a flowing
+           teal→cyan brand gradient border + soft glow (same colour family
+           as the BorderGlow cards on /leistungen). Hover-only, so touch
+           devices are unaffected. */
+        @keyframes curaGlowFlow {
+          to { background-position: 200% 50%; }
+        }
+        .cura-glow-item,
+        .cura-card-glow {
+          position: relative;
+          isolation: isolate;
+          transition: color 0.25s ease, background-color 0.25s ease, box-shadow 0.35s ease;
+        }
+        .cura-glow-item::before,
+        .cura-card-glow::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          padding: 1.5px;
+          background: linear-gradient(110deg, #46CFCB, #84E3DD, #33C4D6, #84E3DD, #46CFCB);
+          background-size: 200% 100%;
+          -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+                  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+          -webkit-mask-composite: xor;
+                  mask-composite: exclude;
+          opacity: 0;
+          transition: opacity 0.3s ease;
+          pointer-events: none;
+        }
+        .cura-glow-item:hover::before,
+        .cura-card-glow:hover::before {
+          opacity: 1;
+          animation: curaGlowFlow 3s linear infinite;
+        }
+        .cura-glow-item:hover {
+          box-shadow: 0 0 18px -3px rgba(70, 207, 203, 0.5), 0 2px 10px rgba(111, 211, 209, 0.28);
+        }
+        .cura-card-glow:hover {
+          box-shadow: 0 0 26px -4px rgba(70, 207, 203, 0.42), 0 14px 34px rgba(191, 234, 242, 0.55);
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .cura-glow-item:hover::before,
+          .cura-card-glow:hover::before { animation: none; }
         }
       `}</style>
     </div>

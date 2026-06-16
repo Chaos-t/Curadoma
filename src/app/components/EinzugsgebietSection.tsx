@@ -65,7 +65,7 @@ export function EinzugsgebietSection({ heading = true }: { heading?: boolean }) 
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
           {/* Hameln */}
-          <div className="bg-white rounded-3xl border border-[#E5F4F5] overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+          <div className="cura-card-glow bg-white rounded-3xl border border-[#E5F4F5] overflow-hidden shadow-sm hover:shadow-md transition-shadow">
             <div className="aspect-[16/10] w-full overflow-hidden">
               <HamelnMapEmbed />
             </div>
@@ -99,7 +99,7 @@ export function EinzugsgebietSection({ heading = true }: { heading?: boolean }) 
           </div>
 
           {/* Paderborn */}
-          <div className="bg-white rounded-3xl border border-[#E5F4F5] overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+          <div className="cura-card-glow bg-white rounded-3xl border border-[#E5F4F5] overflow-hidden shadow-sm hover:shadow-md transition-shadow">
             <div className="aspect-[16/10] w-full overflow-hidden bg-gradient-to-br from-[#DFF7F8] via-[#F8FEFF] to-[#BFEAF2]/40 flex items-center justify-center">
               <div className="text-center px-6">
                 <MapPin size={36} className="text-[#6FD3D1] mx-auto mb-3" strokeWidth={1.3} />

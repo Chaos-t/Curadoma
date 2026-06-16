@@ -12,7 +12,7 @@ export function DatenschutzPage() {
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
             <Shield size={14} /> Datenschutz
           </div>
-          <h1 className="text-4xl sm:text-5xl font-medium tracking-tight text-[#111111] leading-[1.15] mb-4" style={jakarta}>
+          <h1 className="text-[clamp(1.5rem,8vw,3rem)] font-medium tracking-tight text-[#111111] leading-[1.15] mb-4 break-words" style={jakarta}>
             Datenschutzerklärung
           </h1>
           <p className="text-lg text-[#5F6B73] font-light">

@@ -192,7 +192,7 @@ export function KarrierePage() {
             </p>
           </div>
 
-          <div className="bg-white rounded-3xl border border-[#E5F4F5] shadow-[0_18px_50px_rgb(191,234,242,0.3)] p-8 sm:p-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+          <div className="cura-card-glow bg-white rounded-3xl border border-[#E5F4F5] shadow-[0_18px_50px_rgb(191,234,242,0.3)] p-8 sm:p-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
             <div>
               <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#DFF7F8] text-[11px] font-medium text-[#6FD3D1] mb-3 uppercase tracking-wider">
                 Festanstellung · Teilzeit · Minijob · flexibel
@@ -215,7 +215,7 @@ export function KarrierePage() {
           </div>
 
           {showDetail && (
-            <div className="mt-8 bg-white rounded-3xl border border-[#E5F4F5] p-8 sm:p-10">
+            <div className="cura-card-glow mt-8 bg-white rounded-3xl border border-[#E5F4F5] p-8 sm:p-10">
               <h3 className="text-xl font-medium text-[#111111] mb-5" style={jakarta}>
                 {JOB_TITLE} — Aufgaben & Profil
               </h3>
@@ -256,7 +256,7 @@ export function KarrierePage() {
           </div>
 
           {submitted ? (
-            <div className="bg-[#F8FEFF] p-8 rounded-3xl border border-[#E5F4F5] text-center">
+            <div className="cura-card-glow bg-[#F8FEFF] p-8 rounded-3xl border border-[#E5F4F5] text-center">
               <CheckCircle size={48} className="text-[#6FD3D1] mx-auto mb-4" />
               <h3 className="text-xl font-medium text-[#111111] mb-2" style={jakarta}>
                 Vielen Dank!

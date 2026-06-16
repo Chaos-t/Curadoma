@@ -42,7 +42,7 @@ export function UmwandlungPage() {
 
       <section className="py-20 bg-[#F8FEFF]/80">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-white p-8 rounded-3xl border border-[#E5F4F5]">
+          <div className="cura-card-glow bg-white p-8 rounded-3xl border border-[#E5F4F5]">
             <h3 className="text-xl font-medium text-[#111111] mb-4" style={jakarta}>Ihre Vorteile auf einen Blick</h3>
             <ul className="space-y-3 text-[15px] text-[#5F6B73] font-light">
               {[
@@ -59,7 +59,7 @@ export function UmwandlungPage() {
             </ul>
           </div>
 
-          <div className="bg-white p-8 rounded-3xl border border-[#E5F4F5]">
+          <div className="cura-card-glow bg-white p-8 rounded-3xl border border-[#E5F4F5]">
             <h3 className="text-xl font-medium text-[#111111] mb-4" style={jakarta}>Was wir Ihnen bieten können</h3>
             <ul className="space-y-3 text-[15px] text-[#5F6B73] font-light">
               {[
@@ -88,7 +88,7 @@ export function UmwandlungPage() {
           <p className="text-[#5F6B73] font-light leading-relaxed mb-4">
             Die Pflegekasse erlaubt es, bis zu 40 % des Pflegegeldes für anerkannte Betreuungsleistungen zu verwenden. Wir beraten Sie gerne persönlich, wie Sie diese Möglichkeit optimal für sich nutzen können – und übernehmen auf Wunsch auch die Abstimmung mit der Pflegekasse.
           </p>
-          <div className="bg-[#F8FEFF] p-5 rounded-2xl border border-[#E5F4F5] flex items-start gap-3">
+          <div className="cura-card-glow bg-[#F8FEFF] p-5 rounded-2xl border border-[#E5F4F5] flex items-start gap-3">
             <Info size={20} className="text-[#6FD3D1] mt-0.5 shrink-0" />
             <p className="text-[15px] text-[#5F6B73] font-light">
               <strong>Fazit:</strong> Sie kombinieren finanzielle Unterstützung mit konkreter Entlastung – genau dort, wo Hilfe gebraucht wird.
@@ -107,7 +107,7 @@ export function UmwandlungPage() {
           </p>
 
           {/* Desktop table */}
-          <div className="hidden md:block bg-white rounded-3xl border border-[#E5F4F5] overflow-hidden shadow-sm">
+          <div className="cura-card-glow hidden md:block bg-white rounded-3xl border border-[#E5F4F5] overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead className="bg-[#DFF7F8] text-[#111111]">
@@ -137,7 +137,7 @@ export function UmwandlungPage() {
           {/* Mobile cards */}
           <div className="md:hidden space-y-4">
             {tableRows.map((r, i) => (
-              <div key={i} className="bg-white p-6 rounded-2xl border border-[#E5F4F5]">
+              <div key={i} className="cura-card-glow bg-white p-6 rounded-2xl border border-[#E5F4F5]">
                 <div className="text-base font-medium text-[#111111] mb-3" style={jakarta}>{r.grad}</div>
                 <dl className="space-y-2 text-sm text-[#5F6B73] font-light">
                   <div className="flex justify-between gap-3"><dt>Pflegegeld / Monat</dt><dd className="text-right text-[#111111]">{r.geld}</dd></div>

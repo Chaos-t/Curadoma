@@ -34,7 +34,7 @@ export function VerhinderungspflegePage() {
 
       <section className="py-20 bg-[#F8FEFF]/80">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div className="bg-white p-8 rounded-3xl border border-[#E5F4F5]">
+          <div className="cura-card-glow bg-white p-8 rounded-3xl border border-[#E5F4F5]">
             <div className="w-12 h-12 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] mb-5">
               <CheckCircle size={22} strokeWidth={1.5} />
             </div>
@@ -53,7 +53,7 @@ export function VerhinderungspflegePage() {
             </ul>
           </div>
 
-          <div className="bg-white p-8 rounded-3xl border border-[#E5F4F5]">
+          <div className="cura-card-glow bg-white p-8 rounded-3xl border border-[#E5F4F5]">
             <div className="w-12 h-12 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] mb-5">
               <Users size={22} strokeWidth={1.5} />
             </div>
@@ -90,7 +90,7 @@ export function VerhinderungspflegePage() {
               { icon: <Euro size={24} strokeWidth={1.5} />, value: "+ 806 €", desc: "zusätzlich aus nicht genutzter Kurzzeitpflege (gesamt bis zu 2.418 €/Jahr)" },
               { icon: <Calendar size={24} strokeWidth={1.5} />, value: "42 Tage", desc: "Nutzung pro Jahr möglich" },
             ].map((s, i) => (
-              <div key={i} className="bg-[#F8FEFF] p-7 rounded-3xl border border-[#E5F4F5] text-center">
+              <div key={i} className="cura-card-glow bg-[#F8FEFF] p-7 rounded-3xl border border-[#E5F4F5] text-center">
                 <div className="w-12 h-12 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] mx-auto mb-4">
                   {s.icon}
                 </div>
@@ -104,7 +104,7 @@ export function VerhinderungspflegePage() {
 
       <section className="py-20 bg-[#F8FEFF]/80">
         <div className="max-w-4xl mx-auto px-6">
-          <div className="bg-white p-8 lg:p-10 rounded-3xl border border-[#E5F4F5]">
+          <div className="cura-card-glow bg-white p-8 lg:p-10 rounded-3xl border border-[#E5F4F5]">
             <div className="flex items-center gap-3 mb-4">
               <FileText size={24} className="text-[#6FD3D1]" />
               <h2 className="text-2xl font-medium tracking-tight text-[#111111]" style={jakarta}>

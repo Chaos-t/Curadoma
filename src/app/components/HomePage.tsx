@@ -92,7 +92,7 @@ function PartnerCard({ partner }: { partner: Partner }) {
       href={partner.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="group relative shrink-0 w-64 bg-white rounded-2xl border border-[#E5F4F5] shadow-[0_8px_24px_rgb(191,234,242,0.25)] hover:shadow-[0_14px_32px_rgb(191,234,242,0.45)] hover:border-[#BFEAF2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6FD3D1] transition-all duration-200 p-5 flex items-center gap-4 motion-safe:animate-[curaFadeIn_900ms_ease-out_both] no-underline"
+      className="cura-card-glow group relative shrink-0 w-64 bg-white rounded-2xl border border-[#E5F4F5] shadow-[0_8px_24px_rgb(191,234,242,0.25)] hover:shadow-[0_14px_32px_rgb(191,234,242,0.45)] hover:border-[#BFEAF2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6FD3D1] transition-all duration-200 p-5 flex items-center gap-4 motion-safe:animate-[curaFadeIn_900ms_ease-out_both] no-underline"
       aria-label={`${partner.name} — externe Website öffnen`}
     >
       {/* Logo with bg-mint tile so transparent-PNG logos read on white */}
@@ -167,7 +167,7 @@ export function HomePage() {
             <div className="relative rounded-3xl overflow-hidden shadow-[0_20px_60px_rgb(191,234,242,0.4)] border-4 border-white">
               <img src={heroImage} alt="Betreuerin hält die Hände einer älteren Dame" className="w-full h-auto aspect-[4/3] object-cover" />
             </div>
-            <div className="absolute -bottom-6 -left-4 lg:-left-12 bg-white p-5 rounded-2xl shadow-[0_10px_30px_rgb(0,0,0,0.05)] border border-[#E5F4F5] flex items-center gap-4">
+            <div className="cura-card-glow absolute -bottom-6 -left-4 lg:-left-12 bg-white p-5 rounded-2xl shadow-[0_10px_30px_rgb(0,0,0,0.05)] border border-[#E5F4F5] flex items-center gap-4">
               <div className="w-12 h-12 bg-[#DFF7F8] rounded-full flex items-center justify-center text-[#6FD3D1]">
                 <ShieldCheck size={24} strokeWidth={1.5} />
               </div>
@@ -240,7 +240,7 @@ export function HomePage() {
               <Link
                 key={i}
                 to={service.link}
-                className="group bg-white/90 backdrop-blur-sm p-8 rounded-3xl border border-[#E5F4F5] shadow-sm hover:shadow-md hover:border-[#BFEAF2] transition-all duration-300 flex flex-col"
+                className="cura-card-glow group bg-white/90 backdrop-blur-sm p-8 rounded-3xl border border-[#E5F4F5] shadow-sm hover:shadow-md hover:border-[#BFEAF2] transition-all duration-300 flex flex-col"
               >
                 <div className="w-14 h-14 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] mb-6">
                   {service.icon}
@@ -273,7 +273,7 @@ export function HomePage() {
               <p className="text-lg text-[#5F6B73] leading-relaxed font-light mb-8">
                 Wussten Sie schon? Ab Pflegegrad 1 steht Ihnen ein monatlicher <strong>Entlastungsbetrag von 131 Euro (§ 45b SGB XI)</strong> zur Verfügung. Dieser kann für unsere haushaltsnahen Dienstleistungen und die Alltagsbegleitung genutzt werden.
               </p>
-              <div className="bg-[#F8FEFF] p-6 rounded-2xl border border-[#E5F4F5] mb-8">
+              <div className="cura-card-glow bg-[#F8FEFF] p-6 rounded-2xl border border-[#E5F4F5] mb-8">
                 <h4 className="text-base font-medium text-[#111111] mb-2 flex items-center gap-2">
                   <Info size={18} className="text-[#6FD3D1]" /> Weitere Möglichkeiten
                 </h4>
@@ -293,7 +293,7 @@ export function HomePage() {
               </Link>
             </div>
 
-            <div className="flex-1 w-full bg-[#F8FEFF] rounded-3xl p-8 lg:p-10 border border-[#E5F4F5]">
+            <div className="cura-card-glow flex-1 w-full bg-[#F8FEFF] rounded-3xl p-8 lg:p-10 border border-[#E5F4F5]">
               <h3 className="text-2xl font-medium tracking-tight text-[#111111] mb-8 text-center" style={jakarta}>
                 Einfach und unkompliziert
               </h3>
@@ -348,7 +348,7 @@ export function HomePage() {
                 { icon: <Sun size={24} className="text-[#6FD3D1] mt-0.5" />, title: "Tagesstruktur & Orientierung", desc: "Feste Rhythmen und vertraute Rituale geben Sicherheit im Alltag." },
                 { icon: <MessageCircle size={24} className="text-[#6FD3D1] mt-0.5" />, title: "Biografiearbeit & Gespräche", desc: "Wir knüpfen an Lebensgeschichten an und aktivieren positive Erinnerungen." },
               ].map((item, i) => (
-                <li key={i} className="flex items-start gap-4 p-4 rounded-2xl bg-white border border-[#E5F4F5]">
+                <li key={i} className="cura-card-glow flex items-start gap-4 p-4 rounded-2xl bg-white border border-[#E5F4F5]">
                   {item.icon}
                   <div>
                     <div className="text-base font-medium text-[#111111]">{item.title}</div>

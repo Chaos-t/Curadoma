@@ -53,7 +53,7 @@ export function HaushaltPage() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {leistungen.map((l, i) => (
-              <div key={i} className="bg-white p-7 rounded-3xl border border-[#E5F4F5] shadow-sm">
+              <div key={i} className="cura-card-glow bg-white p-7 rounded-3xl border border-[#E5F4F5] shadow-sm">
                 <div className="w-12 h-12 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] mb-4">
                   <Home size={22} strokeWidth={1.5} />
                 </div>
@@ -67,7 +67,7 @@ export function HaushaltPage() {
 
       <section className="py-20 bg-white/80">
         <div className="max-w-4xl mx-auto px-6">
-          <div className="bg-[#F8FEFF] p-8 lg:p-10 rounded-3xl border border-[#E5F4F5]">
+          <div className="cura-card-glow bg-[#F8FEFF] p-8 lg:p-10 rounded-3xl border border-[#E5F4F5]">
             <div className="flex items-center gap-3 mb-6">
               <Sparkles size={24} className="text-[#6FD3D1]" />
               <h2 className="text-2xl font-medium tracking-tight text-[#111111]" style={jakarta}>

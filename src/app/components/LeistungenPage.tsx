@@ -3,6 +3,7 @@ import {
   Coffee, Home, Route, Brain, Users, ClipboardList, Heart, ShieldCheck,
   ArrowRight, Phone, CheckCircle, Sparkles, BookOpen, UtensilsCrossed,
 } from "lucide-react";
+import BorderGlow from "./BorderGlow";
 
 import carSide from "../../imports/WhatsApp_Image_2026-04-28_at_11.59.22-1.jpeg";
 import carRear from "../../imports/WhatsApp_Image_2026-04-28_at_11.59.22_(1)-1.jpeg";
@@ -113,25 +114,27 @@ export function LeistungenPage() {
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {services.map((service, i) => (
-              <div key={i} className="bg-[#F8FEFF]/80 backdrop-blur-sm p-8 rounded-3xl border border-[#E5F4F5] hover:shadow-md transition-shadow duration-300">
-                <div className="flex items-start gap-5 mb-5">
-                  <div className="w-14 h-14 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] shrink-0">
-                    {service.icon}
+              <BorderGlow key={i} className="h-full">
+                <div className="p-8">
+                  <div className="flex items-start gap-5 mb-5">
+                    <div className="w-14 h-14 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] shrink-0">
+                      {service.icon}
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-medium tracking-tight text-[#111111] mb-2" style={jakarta}>{service.title}</h3>
+                      <p className="text-[15px] text-[#5F6B73] leading-relaxed font-light">{service.desc}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="text-xl font-medium tracking-tight text-[#111111] mb-2" style={jakarta}>{service.title}</h3>
-                    <p className="text-[15px] text-[#5F6B73] leading-relaxed font-light">{service.desc}</p>
-                  </div>
+                  <ul className="space-y-2 ml-[4.75rem]">
+                    {service.details.map((detail, j) => (
+                      <li key={j} className="flex items-start gap-2 text-sm text-[#5F6B73] font-light">
+                        <CheckCircle size={16} className="text-[#6FD3D1] mt-0.5 shrink-0" />
+                        {detail}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <ul className="space-y-2 ml-[4.75rem]">
-                  {service.details.map((detail, j) => (
-                    <li key={j} className="flex items-start gap-2 text-sm text-[#5F6B73] font-light">
-                      <CheckCircle size={16} className="text-[#6FD3D1] mt-0.5 shrink-0" />
-                      {detail}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+              </BorderGlow>
             ))}
           </div>
         </div>

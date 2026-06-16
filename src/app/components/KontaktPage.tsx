@@ -324,7 +324,7 @@ export function KontaktPage() {
             <div className="space-y-4">
               <h3 className="text-xl font-medium tracking-tight text-[#111111]" style={jakarta}>Direkt erreichen</h3>
 
-              <a href={PHONE_LINK} className="flex items-center gap-4 p-4 rounded-2xl bg-[#F8FEFF] border border-[#E5F4F5] hover:shadow-md transition-shadow">
+              <a href={PHONE_LINK} className="cura-card-glow flex items-center gap-4 p-4 rounded-2xl bg-[#F8FEFF] border border-[#E5F4F5] hover:shadow-md transition-shadow">
                 <div className="w-12 h-12 bg-[#DFF7F8] rounded-full flex items-center justify-center text-[#6FD3D1] shrink-0">
                   <Phone size={20} />
                 </div>
@@ -334,7 +334,7 @@ export function KontaktPage() {
                 </div>
               </a>
 
-              <a href="mailto:info@curadoma.de" className="flex items-center gap-4 p-4 rounded-2xl bg-[#F8FEFF] border border-[#E5F4F5] hover:shadow-md transition-shadow">
+              <a href="mailto:info@curadoma.de" className="cura-card-glow flex items-center gap-4 p-4 rounded-2xl bg-[#F8FEFF] border border-[#E5F4F5] hover:shadow-md transition-shadow">
                 <div className="w-12 h-12 bg-[#DFF7F8] rounded-full flex items-center justify-center text-[#6FD3D1] shrink-0">
                   <Mail size={20} />
                 </div>
@@ -346,7 +346,7 @@ export function KontaktPage() {
 
               <button
                 onClick={handleOpenMaps}
-                className="w-full flex items-center gap-4 p-4 rounded-2xl bg-[#F8FEFF] border border-[#E5F4F5] hover:shadow-md transition-shadow text-left cursor-pointer"
+                className="cura-card-glow w-full flex items-center gap-4 p-4 rounded-2xl bg-[#F8FEFF] border border-[#E5F4F5] hover:shadow-md transition-shadow text-left cursor-pointer"
               >
                 <div className="w-12 h-12 bg-[#DFF7F8] rounded-full flex items-center justify-center text-[#6FD3D1] shrink-0">
                   <MapPin size={20} />
@@ -358,7 +358,7 @@ export function KontaktPage() {
                 <ExternalLink size={16} className="text-[#6FD3D1] shrink-0" />
               </button>
 
-              <div className="flex items-center gap-4 p-4 rounded-2xl bg-[#F8FEFF] border border-[#E5F4F5]">
+              <div className="cura-card-glow flex items-center gap-4 p-4 rounded-2xl bg-[#F8FEFF] border border-[#E5F4F5]">
                 <div className="w-12 h-12 bg-[#DFF7F8] rounded-full flex items-center justify-center text-[#6FD3D1] shrink-0">
                   <Clock size={20} />
                 </div>
@@ -416,7 +416,7 @@ export function KontaktPage() {
 
             {/* Contact block beside map */}
             <div className="flex flex-col gap-6">
-              <div className="bg-white/90 backdrop-blur-sm p-8 rounded-3xl border border-[#E5F4F5] shadow-sm flex-1">
+              <div className="cura-card-glow bg-white/90 backdrop-blur-sm p-8 rounded-3xl border border-[#E5F4F5] shadow-sm flex-1">
                 <h3 className="text-xl font-medium tracking-tight text-[#111111] mb-6" style={jakarta}>
                   Kontakt & Standort
                 </h3>
