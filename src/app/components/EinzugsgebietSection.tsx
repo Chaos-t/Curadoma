@@ -50,7 +50,7 @@ export function EinzugsgebietSection({ heading = true }: { heading?: boolean }) 
     <section className="py-24 bg-white/80 border-t border-[#E5F4F5]">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {heading && (
-          <div className="max-w-3xl mx-auto text-center mb-12">
+          <div className="cura-reveal cura-reveal-up max-w-3xl mx-auto text-center mb-12">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#DFF7F8] text-[#6FD3D1] mb-4">
               <MapPin size={22} />
             </div>
@@ -63,7 +63,7 @@ export function EinzugsgebietSection({ heading = true }: { heading?: boolean }) 
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+        <div className="cura-reveal cura-reveal-up grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
           {/* Hameln */}
           <div className="cura-card-glow bg-white rounded-3xl border border-[#E5F4F5] overflow-hidden shadow-sm hover:shadow-md transition-shadow">
             <div className="aspect-[16/10] w-full overflow-hidden">

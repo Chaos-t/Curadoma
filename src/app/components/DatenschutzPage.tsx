@@ -8,7 +8,7 @@ export function DatenschutzPage() {
   return (
     <>
       <section className="relative pt-16 pb-12 lg:pt-24 lg:pb-16 overflow-hidden bg-gradient-to-b from-white/80 to-[#F8FEFF]/80">
-        <div className="max-w-4xl mx-auto px-6 text-center">
+        <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
             <Shield size={14} /> Datenschutz
           </div>
@@ -99,7 +99,7 @@ export function DatenschutzPage() {
             <p className="flex items-center gap-2"><Mail size={16} className="text-[#6FD3D1]" /><a href="mailto:info@curadoma.de" className="hover:text-[#6FD3D1]">info@curadoma.de</a></p>
           </Section>
 
-          <p className="text-xs text-[#9AA3A8] font-light italic pt-4 border-t border-[#E5F4F5]">
+          <p className="cura-reveal cura-reveal-up text-xs text-[#9AA3A8] font-light italic pt-4 border-t border-[#E5F4F5]">
             Hinweis: Diese Datenschutzerklärung ist eine Vorlage und sollte vor Veröffentlichung rechtlich geprüft
             und an die tatsächlich eingesetzten Dienste angepasst werden.
           </p>
@@ -113,7 +113,7 @@ export function DatenschutzPage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="bg-[#F8FEFF] rounded-2xl border border-[#E5F4F5] p-6 sm:p-8">
+    <div className="cura-reveal cura-reveal-up bg-[#F8FEFF] rounded-2xl border border-[#E5F4F5] p-6 sm:p-8">
       <h2 className="text-lg font-medium text-[#111111] mb-3" style={jakarta}>{title}</h2>
       <div className="text-[15px] text-[#5F6B73] font-light leading-relaxed space-y-2">{children}</div>
     </div>

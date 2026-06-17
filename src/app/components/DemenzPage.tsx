@@ -15,7 +15,7 @@ export function DemenzPage() {
       <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28 overflow-hidden bg-gradient-to-b from-white/80 to-[#F8FEFF]/80">
         <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-[#BFEAF2] opacity-15 rounded-full blur-3xl pointer-events-none translate-x-1/4 translate-y-1/4"></div>
         <div className="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col lg:flex-row items-center gap-12 relative z-10">
-          <div className="flex-1 text-center lg:text-left">
+          <div className="cura-reveal cura-reveal-left flex-1 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
               Spezialisierte Betreuung
             </div>
@@ -27,7 +27,7 @@ export function DemenzPage() {
               Demenz verändert das Leben – für Betroffene und ihre Angehörigen. Wir begleiten Sie auf diesem Weg mit Fachkompetenz, Einfühlungsvermögen und tiefer Menschlichkeit.
             </p>
           </div>
-          <div className="flex-1 w-full max-w-md lg:max-w-none">
+          <div className="cura-reveal cura-reveal-right flex-1 w-full max-w-md lg:max-w-none">
             <div className="rounded-3xl overflow-hidden shadow-[0_20px_60px_rgb(191,234,242,0.3)] border-4 border-white">
               <img src={img1} alt="Betreuerin mit Seniorin" className="w-full aspect-[4/3] object-cover" />
             </div>
@@ -37,7 +37,7 @@ export function DemenzPage() {
 
       {/* Source Text */}
       <section className="py-20 bg-white/80">
-        <div className="max-w-4xl mx-auto px-6 space-y-6 text-[17px] text-[#5F6B73] font-light leading-relaxed">
+        <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 space-y-6 text-[17px] text-[#5F6B73] font-light leading-relaxed">
           <h2 className="text-3xl font-medium tracking-tight text-[#111111] mb-2" style={jakarta}>
             Demenz und Seniorenbetreuung – Mit Herz und Kompetenz an Ihrer Seite
           </h2>
@@ -51,7 +51,7 @@ export function DemenzPage() {
       </section>
 
       <section className="py-20 bg-[#F8FEFF]/80">
-        <div className="max-w-4xl mx-auto px-6">
+        <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6">
           <h2 className="text-2xl font-medium tracking-tight text-[#111111] mb-8" style={jakarta}>Unsere Leistungen im Überblick</h2>
           <ul className="space-y-4">
             {[
@@ -75,7 +75,7 @@ export function DemenzPage() {
       {/* Our Approach */}
       <section className="py-24 bg-white/80">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="max-w-3xl mx-auto text-center mb-16">
+          <div className="cura-reveal cura-reveal-up max-w-3xl mx-auto text-center mb-16">
             <h2 className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-6" style={jakarta}>
               Unser Ansatz in der Demenzbetreuung
             </h2>
@@ -84,7 +84,7 @@ export function DemenzPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="cura-reveal cura-reveal-up grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               { icon: <Sun size={28} strokeWidth={1.5} />, title: "Tagesstruktur & Orientierung", desc: "Feste Rhythmen und vertraute Rituale geben Sicherheit. Wir schaffen einen strukturierten Tagesablauf, der Halt bietet." },
               { icon: <MessageCircle size={28} strokeWidth={1.5} />, title: "Biografiearbeit", desc: "Wir knüpfen an Lebensgeschichten an, aktivieren positive Erinnerungen und schaffen Momente der Verbundenheit." },
@@ -108,7 +108,7 @@ export function DemenzPage() {
       {/* For Families */}
       <section className="py-24 bg-[#F8FEFF]/80">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div>
+          <div className="cura-reveal cura-reveal-left">
             <h2 className="text-3xl font-medium tracking-tight text-[#111111] mb-6" style={jakarta}>
               Unterstützung auch für Angehörige
             </h2>
@@ -132,7 +132,7 @@ export function DemenzPage() {
               ))}
             </ul>
           </div>
-          <div className="relative">
+          <div className="cura-reveal cura-reveal-right relative">
             <div className="rounded-3xl overflow-hidden">
               <img src={img2} alt="Demenzbetreuung" className="w-full aspect-square object-cover rounded-3xl" />
             </div>
@@ -151,7 +151,7 @@ export function DemenzPage() {
           <p className="text-lg text-[#5F6B73] leading-relaxed font-light mb-12">
             Unsere Betreuungskräfte sind speziell für die Arbeit mit demenziell veränderten Menschen geschult. Regelmäßige Fortbildungen stellen sicher, dass wir stets nach aktuellen Erkenntnissen arbeiten.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="cura-reveal cura-reveal-up grid grid-cols-1 sm:grid-cols-3 gap-6">
             {[
               { num: "100+", label: "Stunden Fachschulung pro Mitarbeiter" },
               { num: "24h", label: "Erreichbarkeit bei Notfällen" },
@@ -168,7 +168,7 @@ export function DemenzPage() {
 
       {/* CTA */}
       <section className="py-24 bg-[#F8FEFF]/80">
-        <div className="max-w-4xl mx-auto px-6 text-center">
+        <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-6" style={jakarta}>
             Wir sind für Sie und Ihre Liebsten da
           </h2>

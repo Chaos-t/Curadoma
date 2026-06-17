@@ -6,7 +6,7 @@ export function EinzugsgebietPage() {
   return (
     <>
       <section className="relative pt-16 pb-12 lg:pt-24 bg-gradient-to-b from-white/80 to-[#F8FEFF]/80">
-        <div className="max-w-4xl mx-auto px-6 text-center">
+        <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
             Einzugsgebiet
           </div>

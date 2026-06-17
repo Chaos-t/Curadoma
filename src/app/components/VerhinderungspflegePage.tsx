@@ -7,7 +7,7 @@ export function VerhinderungspflegePage() {
   return (
     <>
       <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28 bg-gradient-to-b from-white/80 to-[#F8FEFF]/80">
-        <div className="max-w-4xl mx-auto px-6 text-center">
+        <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
             § 39 SGB XI
           </div>
@@ -21,7 +21,7 @@ export function VerhinderungspflegePage() {
       </section>
 
       <section className="py-20 bg-white/80">
-        <div className="max-w-4xl mx-auto px-6 space-y-6 text-[17px] text-[#5F6B73] font-light leading-relaxed">
+        <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 space-y-6 text-[17px] text-[#5F6B73] font-light leading-relaxed">
           <p>
             Wenn pflegende Angehörige einmal eine Pause brauchen – sei es durch Urlaub, Krankheit oder andere Verpflichtungen – springt unser Betreuungsdienst im Rahmen der Verhinderungspflege zuverlässig ein. Wir sorgen dafür, dass Ihre Angehörigen weiterhin gut betreut sind – und helfen Ihnen dabei, die Kosten unkompliziert über die Pflegekasse abzurechnen.
           </p>
@@ -33,7 +33,7 @@ export function VerhinderungspflegePage() {
       </section>
 
       <section className="py-20 bg-[#F8FEFF]/80">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="cura-reveal cura-reveal-up max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="cura-card-glow bg-white p-8 rounded-3xl border border-[#E5F4F5]">
             <div className="w-12 h-12 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] mb-5">
               <CheckCircle size={22} strokeWidth={1.5} />
@@ -81,10 +81,10 @@ export function VerhinderungspflegePage() {
 
       <section className="py-20 bg-white/80">
         <div className="max-w-4xl mx-auto px-6">
-          <h2 className="text-3xl font-medium tracking-tight text-[#111111] mb-10 text-center" style={jakarta}>
+          <h2 className="cura-reveal cura-reveal-up text-3xl font-medium tracking-tight text-[#111111] mb-10 text-center" style={jakarta}>
             Wie viel übernimmt die Pflegekasse?
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="cura-reveal cura-reveal-up grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
               { icon: <Euro size={24} strokeWidth={1.5} />, value: "1.612 €", desc: "pro Kalenderjahr für Verhinderungspflege" },
               { icon: <Euro size={24} strokeWidth={1.5} />, value: "+ 806 €", desc: "zusätzlich aus nicht genutzter Kurzzeitpflege (gesamt bis zu 2.418 €/Jahr)" },
@@ -104,7 +104,7 @@ export function VerhinderungspflegePage() {
 
       <section className="py-20 bg-[#F8FEFF]/80">
         <div className="max-w-4xl mx-auto px-6">
-          <div className="cura-card-glow bg-white p-8 lg:p-10 rounded-3xl border border-[#E5F4F5]">
+          <div className="cura-reveal cura-reveal-up cura-card-glow bg-white p-8 lg:p-10 rounded-3xl border border-[#E5F4F5]">
             <div className="flex items-center gap-3 mb-4">
               <FileText size={24} className="text-[#6FD3D1]" />
               <h2 className="text-2xl font-medium tracking-tight text-[#111111]" style={jakarta}>
@@ -119,7 +119,7 @@ export function VerhinderungspflegePage() {
       </section>
 
       <section className="py-20 bg-white/80">
-        <div className="max-w-3xl mx-auto px-6 text-center">
+        <div className="cura-reveal cura-reveal-up max-w-3xl mx-auto px-6 text-center">
           <Link to="/kontakt" className="inline-flex items-center gap-2 bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-sm">
             <Phone size={18} /> Beratung vereinbaren
           </Link>

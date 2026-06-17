@@ -89,7 +89,7 @@ export function LeistungenPage() {
       <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28 overflow-hidden bg-gradient-to-b from-white/80 to-[#F8FEFF]/80">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#BFEAF2] opacity-15 rounded-full blur-3xl pointer-events-none translate-x-1/3 -translate-y-1/3"></div>
         <div className="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col lg:flex-row items-center gap-12 relative z-10">
-          <div className="flex-1 text-center lg:text-left">
+          <div className="cura-reveal cura-reveal-left flex-1 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
               Unsere Leistungen
             </div>
@@ -101,7 +101,7 @@ export function LeistungenPage() {
               Unser Angebot umfasst vielfältige Leistungen, die sich sanft und flexibel in den Alltag pflegebedürftiger Menschen einfügen. Jeder Mensch ist einzigartig – und genau so gestalten wir unsere Betreuung.
             </p>
           </div>
-          <div className="flex-1 w-full max-w-md lg:max-w-none">
+          <div className="cura-reveal cura-reveal-right flex-1 w-full max-w-md lg:max-w-none">
             <div className="rounded-3xl overflow-hidden shadow-[0_20px_60px_rgb(191,234,242,0.3)] border-4 border-white">
               <img src={img1} alt="Seniorenpaar im Garten" className="w-full aspect-[4/3] object-cover" />
             </div>
@@ -112,7 +112,7 @@ export function LeistungenPage() {
       {/* Services Detail */}
       <section className="py-24 bg-white/80">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="cura-reveal cura-reveal-up grid grid-cols-1 lg:grid-cols-2 gap-8">
             {services.map((service, i) => (
               <BorderGlow key={i} className="h-full">
                 <div className="p-8">
@@ -143,7 +143,7 @@ export function LeistungenPage() {
       {/* Fahrzeug-Galerie */}
       <section className="py-24 bg-white/70">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="text-center max-w-2xl mx-auto mb-12">
+          <div className="cura-reveal cura-reveal-up text-center max-w-2xl mx-auto mb-12">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-5 uppercase tracking-wider">
               Mobil für Sie unterwegs
             </div>
@@ -156,7 +156,7 @@ export function LeistungenPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="cura-reveal cura-reveal-up grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="md:col-span-2 lg:col-span-2 lg:row-span-1 rounded-3xl overflow-hidden shadow-[0_18px_50px_rgb(191,234,242,0.35)] border-4 border-white">
               <img src={carSide} alt="Cura Doma Fahrzeug — Seitenansicht mit Logo und Leistungen" className="w-full h-full aspect-[16/9] object-cover" />
             </div>
@@ -173,10 +173,10 @@ export function LeistungenPage() {
       {/* Image + Text */}
       <section className="py-24 bg-[#F8FEFF]/80">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div className="relative rounded-3xl overflow-hidden">
+          <div className="cura-reveal cura-reveal-left relative rounded-3xl overflow-hidden">
             <img src={img2} alt="Gepflegtes Zuhause" className="w-full aspect-[4/3] object-cover rounded-3xl" />
           </div>
-          <div>
+          <div className="cura-reveal cura-reveal-right">
             <h2 className="text-3xl font-medium tracking-tight text-[#111111] mb-6" style={jakarta}>
               Für ein Zuhause, das sich wie Zuhause anfühlt
             </h2>
@@ -200,7 +200,7 @@ export function LeistungenPage() {
 
       {/* Trust */}
       <section className="py-20 bg-white/80">
-        <div className="max-w-4xl mx-auto px-6 text-center">
+        <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center">
           <ShieldCheck size={48} strokeWidth={1} className="text-[#BFEAF2] mb-6 mx-auto" />
           <h2 className="text-2xl lg:text-3xl font-medium tracking-tight text-[#111111] mb-4" style={jakarta}>
             Anerkannt und vertrauensvoll

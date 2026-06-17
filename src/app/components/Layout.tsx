@@ -78,6 +78,45 @@ export function Layout() {
 
   useEffect(() => () => window.clearTimeout(closeTimer.current), []);
 
+  // Scroll-reveal: elements tagged `.cura-reveal` fade/slide into view once
+  // their top crosses into the lower viewport. A scroll-position sweep (rAF
+  // throttled) is used instead of IntersectionObserver because IO can skip an
+  // element during a fast fling or a programmatic jump and leave content
+  // permanently hidden — the sweep also catches anything already scrolled past
+  // and reveals everything once the page bottom is reached. Re-runs on route
+  // change; respects reduced-motion.
+  useEffect(() => {
+    const reduce =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) {
+      document.querySelectorAll(".cura-reveal").forEach((el) => el.classList.add("is-visible"));
+      return;
+    }
+    let raf = 0;
+    const reveal = () => {
+      raf = 0;
+      const vh = window.innerHeight;
+      const atBottom = window.scrollY + vh >= document.documentElement.scrollHeight - 2;
+      document.querySelectorAll<HTMLElement>(".cura-reveal:not(.is-visible)").forEach((el) => {
+        if (atBottom || el.getBoundingClientRect().top < vh * 0.88) {
+          el.classList.add("is-visible");
+        }
+      });
+    };
+    const onScroll = () => {
+      if (!raf) raf = window.requestAnimationFrame(reveal);
+    };
+    reveal(); // initial pass: reveal above-the-fold + anything already past
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      window.cancelAnimationFrame(raf);
+    };
+  }, [location.pathname]);
+
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -239,7 +278,7 @@ export function Layout() {
         )}
       </nav>
 
-      <main className="relative z-10">
+      <main className="relative z-10 overflow-x-clip">
         <Outlet />
       </main>
 
@@ -366,6 +405,28 @@ export function Layout() {
         @media (prefers-reduced-motion: reduce) {
           .cura-glow-item:hover::before,
           .cura-card-glow:hover::before { animation: none; }
+        }
+        /* Scroll-reveal: elements start at opacity 0 (in place — no transform,
+           so nothing can shift the layout). When the IntersectionObserver adds
+           .is-visible, a one-shot animation fades + slides them into view.
+           Direction picks the entry side (left/right for side-by-side layouts,
+           up for centered / full-width). Using an animation (not a transition)
+           keeps the element's own hover transitions untouched. On stacked
+           layouts (< lg) left/right fall back to a vertical slide so a
+           horizontal offset can never cause sideways scrolling. */
+        .cura-reveal { opacity: 0; }
+        .cura-reveal.is-visible { animation: curaRevealUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) both; }
+        .cura-reveal-left.is-visible  { animation-name: curaRevealLeft; }
+        .cura-reveal-right.is-visible { animation-name: curaRevealRight; }
+        @keyframes curaRevealUp    { from { opacity: 0; transform: translate3d(0, 34px, 0); }  to { opacity: 1; transform: none; } }
+        @keyframes curaRevealLeft  { from { opacity: 0; transform: translate3d(-42px, 0, 0); } to { opacity: 1; transform: none; } }
+        @keyframes curaRevealRight { from { opacity: 0; transform: translate3d(42px, 0, 0); }  to { opacity: 1; transform: none; } }
+        @media (max-width: 1023px) {
+          .cura-reveal-left.is-visible, .cura-reveal-right.is-visible { animation-name: curaRevealUp; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .cura-reveal { opacity: 1 !important; }
+          .cura-reveal.is-visible { animation: none !important; }
         }
       `}</style>
     </div>

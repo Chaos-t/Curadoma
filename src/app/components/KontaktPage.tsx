@@ -151,7 +151,7 @@ export function KontaktPage() {
       {/* Hero */}
       <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28 overflow-hidden bg-gradient-to-b from-white/80 to-[#F8FEFF]/80">
         <div className="absolute top-0 left-1/2 w-[600px] h-[600px] bg-[#BFEAF2] opacity-15 rounded-full blur-3xl pointer-events-none -translate-x-1/2 -translate-y-1/3"></div>
-        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+        <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
             Kontakt aufnehmen
           </div>
@@ -168,7 +168,7 @@ export function KontaktPage() {
       <section className="py-24 bg-white/80">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16">
           {/* Form */}
-          <div>
+          <div className="cura-reveal cura-reveal-left">
             <h2 className="text-2xl font-medium tracking-tight text-[#111111] mb-6" style={jakarta}>
               Schreiben Sie uns
             </h2>
@@ -316,7 +316,7 @@ export function KontaktPage() {
           </div>
 
           {/* Contact Info */}
-          <div>
+          <div className="cura-reveal cura-reveal-right">
             <div className="rounded-3xl overflow-hidden shadow-[0_20px_60px_rgb(191,234,242,0.3)] border-4 border-white mb-8">
               <img src={img} alt="Beratungsgespräch" className="w-full aspect-[4/3] object-cover" />
             </div>
@@ -363,7 +363,7 @@ export function KontaktPage() {
                   <Clock size={20} />
                 </div>
                 <div>
-                  <div className="text-base font-medium text-[#111111]">Mo–Fr: 8:00 – 18:00 Uhr</div>
+                  <div className="text-base font-medium text-[#111111]">Mo–Fr: 8:00 – 17:00 Uhr</div>
                   <div className="text-sm text-[#5F6B73] font-light">Antwort innerhalb von 24 Stunden</div>
                 </div>
               </div>
@@ -375,7 +375,7 @@ export function KontaktPage() {
       {/* Map & Location Section */}
       <section className="py-24 bg-[#F8FEFF]/80">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="text-center mb-12">
+          <div className="cura-reveal cura-reveal-up text-center mb-12">
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#DFF7F8] text-[#6FD3D1] mb-6">
               <MapPin size={24} />
             </div>
@@ -389,7 +389,7 @@ export function KontaktPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Map */}
-            <div className="lg:col-span-2">
+            <div className="cura-reveal cura-reveal-left lg:col-span-2">
               <div
                 className="rounded-3xl overflow-hidden border border-[#E5F4F5] shadow-[0_10px_40px_rgb(191,234,242,0.2)] cursor-pointer relative group"
                 onClick={handleOpenMaps}
@@ -415,7 +415,7 @@ export function KontaktPage() {
             </div>
 
             {/* Contact block beside map */}
-            <div className="flex flex-col gap-6">
+            <div className="cura-reveal cura-reveal-right flex flex-col gap-6">
               <div className="cura-card-glow bg-white/90 backdrop-blur-sm p-8 rounded-3xl border border-[#E5F4F5] shadow-sm flex-1">
                 <h3 className="text-xl font-medium tracking-tight text-[#111111] mb-6" style={jakarta}>
                   Kontakt & Standort
@@ -460,7 +460,7 @@ export function KontaktPage() {
                       <Clock size={18} />
                     </div>
                     <div>
-                      <div className="text-base font-medium text-[#111111]">Mo–Fr: 8:00 – 18:00</div>
+                      <div className="text-base font-medium text-[#111111]">Mo–Fr: 8:00 – 17:00</div>
                       <div className="text-sm text-[#5F6B73] font-light">Termine nach Vereinbarung</div>
                     </div>
                   </div>
@@ -492,7 +492,7 @@ export function KontaktPage() {
 
       {/* Promise */}
       <section className="py-20 bg-white/80">
-        <div className="max-w-4xl mx-auto px-6 text-center">
+        <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center">
           <Heart size={48} strokeWidth={1} className="text-[#BFEAF2] mb-6 mx-auto" />
           <h2 className="text-2xl lg:text-3xl font-medium tracking-tight text-[#111111] mb-4" style={jakarta}>
             Unser Versprechen an Sie

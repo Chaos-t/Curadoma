@@ -161,7 +161,7 @@ export function KarrierePage() {
       {/* Hero */}
       <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28 overflow-hidden bg-gradient-to-b from-white/80 to-[#F8FEFF]/80">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#BFEAF2] opacity-15 rounded-full blur-3xl pointer-events-none translate-x-1/3 -translate-y-1/3" />
-        <div className="max-w-4xl mx-auto px-6 text-center relative z-10">
+        <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
             <Briefcase size={14} /> Karriere
           </div>
@@ -183,7 +183,7 @@ export function KarrierePage() {
       {/* Job offers */}
       <section className="py-20 bg-[#EFFBFB]/70">
         <div className="max-w-5xl mx-auto px-6">
-          <div className="text-center mb-12">
+          <div className="cura-reveal cura-reveal-up text-center mb-12">
             <h2 className="text-3xl font-medium tracking-tight text-[#111111] mb-3" style={jakarta}>
               Offene Stellen
             </h2>
@@ -246,7 +246,7 @@ export function KarrierePage() {
       {/* Application form */}
       <section id="bewerben" className="py-20 bg-white/80 scroll-mt-24">
         <div className="max-w-3xl mx-auto px-6">
-          <div className="text-center mb-10">
+          <div className="cura-reveal cura-reveal-up text-center mb-10">
             <h2 className="text-3xl font-medium tracking-tight text-[#111111] mb-3" style={jakarta}>
               Ihre Bewerbung
             </h2>

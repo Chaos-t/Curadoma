@@ -10,7 +10,7 @@ export function EntlastungPage() {
       <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28 overflow-hidden bg-gradient-to-b from-white/80 to-[#F8FEFF]/80">
         <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-[#DFF7F8] opacity-20 rounded-full blur-3xl pointer-events-none -translate-x-1/3 -translate-y-1/3"></div>
         <div className="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col lg:flex-row items-center gap-12 relative z-10">
-          <div className="flex-1 text-center lg:text-left">
+          <div className="cura-reveal cura-reveal-left flex-1 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
               § 45a / § 45b SGB XI
             </div>
@@ -22,7 +22,7 @@ export function EntlastungPage() {
               Unterstützung im Alltag für Pflegebedürftige und Angehörige – finanziert über die Pflegekasse.
             </p>
           </div>
-          <div className="flex-1 w-full max-w-md lg:max-w-none">
+          <div className="cura-reveal cura-reveal-right flex-1 w-full max-w-md lg:max-w-none">
             <div className="rounded-3xl overflow-hidden shadow-[0_20px_60px_rgb(191,234,242,0.3)] border-4 border-white">
               <img src={img} alt="Dokumente und Unterlagen" className="w-full aspect-[4/3] object-cover" />
             </div>
@@ -31,7 +31,7 @@ export function EntlastungPage() {
       </section>
 
       <section className="py-20 bg-white/80">
-        <div className="max-w-4xl mx-auto px-6 space-y-6 text-[17px] text-[#5F6B73] font-light leading-relaxed">
+        <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 space-y-6 text-[17px] text-[#5F6B73] font-light leading-relaxed">
           <p>
             Pflegebedürftige Menschen und ihre Angehörigen stehen im Alltag oft vor großen Herausforderungen. Um sie gezielt zu entlasten, gibt es eine finanzielle Unterstützung der Pflegekasse – die sogenannten Entlastungsleistungen. Diese zusätzliche finanzielle Unterstützung soll die Lebensqualität verbessern und eine selbstbestimmte Lebensführung im häuslichen Umfeld fördern.
           </p>
@@ -40,13 +40,13 @@ export function EntlastungPage() {
 
       <section className="py-20 bg-[#F8FEFF]/80">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <h2 className="text-3xl font-medium tracking-tight text-[#111111] mb-4 text-center" style={jakarta}>
+          <h2 className="cura-reveal cura-reveal-up text-3xl font-medium tracking-tight text-[#111111] mb-4 text-center" style={jakarta}>
             Unser Betreuungsdienst – Ihr starker Partner im Alltag
           </h2>
           <p className="text-[#5F6B73] font-light text-center max-w-3xl mx-auto mb-12">
             Als anerkannter Anbieter bieten wir Ihnen eine Vielzahl an haushaltsnahen Dienstleistungen und Betreuungsangeboten, die über den Entlastungsbetrag finanziert werden können:
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
+          <div className="cura-reveal cura-reveal-up grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
             {[
               "Unterstützung im Haushalt (Reinigung, Wäsche, Einkäufe)",
               "Begleitung bei Arztbesuchen und Erledigungen",
@@ -65,7 +65,7 @@ export function EntlastungPage() {
 
       <section className="py-20 bg-white/80">
         <div className="max-w-4xl mx-auto px-6">
-          <div className="cura-card-glow bg-[#F8FEFF] p-8 lg:p-10 rounded-3xl border border-[#E5F4F5]">
+          <div className="cura-reveal cura-reveal-up cura-card-glow bg-[#F8FEFF] p-8 lg:p-10 rounded-3xl border border-[#E5F4F5]">
             <h3 className="text-2xl font-medium text-[#111111] mb-6" style={jakarta}>Das bedeutet für Sie:</h3>
             <ul className="space-y-3 text-[#5F6B73] font-light">
               {[
@@ -89,7 +89,7 @@ export function EntlastungPage() {
       </section>
 
       <section className="py-20 bg-[#F8FEFF]/80">
-        <div className="max-w-4xl mx-auto px-6 space-y-10">
+        <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 space-y-10">
           <div>
             <div className="flex items-center gap-3 mb-3">
               <HelpCircle size={24} className="text-[#6FD3D1]" />
@@ -142,7 +142,7 @@ export function EntlastungPage() {
 
       <section className="py-20 bg-white/80">
         <div className="max-w-4xl mx-auto px-6">
-          <div className="cura-card-glow bg-[#F8FEFF] p-8 lg:p-10 rounded-3xl border border-[#E5F4F5]">
+          <div className="cura-reveal cura-reveal-up cura-card-glow bg-[#F8FEFF] p-8 lg:p-10 rounded-3xl border border-[#E5F4F5]">
             <h2 className="text-2xl font-medium tracking-tight text-[#111111] mb-4" style={jakarta}>
               Unser Angebot – individuelle Entlastung im Alltag
             </h2>
@@ -158,7 +158,7 @@ export function EntlastungPage() {
 
       <section className="py-20 bg-[#F8FEFF]/80">
         <div className="max-w-4xl mx-auto px-6">
-          <div className="cura-card-glow bg-white p-8 lg:p-10 rounded-3xl border border-[#E5F4F5] text-center">
+          <div className="cura-reveal cura-reveal-up cura-card-glow bg-white p-8 lg:p-10 rounded-3xl border border-[#E5F4F5] text-center">
             <ShieldCheck size={40} strokeWidth={1.2} className="text-[#6FD3D1] mx-auto mb-4" />
             <h2 className="text-2xl font-medium tracking-tight text-[#111111] mb-4" style={jakarta}>Unser Service für Sie</h2>
             <p className="text-[#5F6B73] font-light leading-relaxed max-w-2xl mx-auto">
@@ -169,7 +169,7 @@ export function EntlastungPage() {
       </section>
 
       <section className="py-20 bg-white/80">
-        <div className="max-w-4xl mx-auto px-6 text-center">
+        <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center">
           <Link to="/kontakt" className="inline-flex items-center gap-2 bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-8 py-4 rounded-full text-base font-normal transition-all shadow-sm">
             <Phone size={20} /> Jetzt kostenlos beraten lassen
           </Link>

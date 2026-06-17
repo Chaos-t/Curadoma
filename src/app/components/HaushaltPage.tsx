@@ -22,7 +22,7 @@ export function HaushaltPage() {
   return (
     <>
       <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28 bg-gradient-to-b from-white/80 to-[#F8FEFF]/80">
-        <div className="max-w-4xl mx-auto px-6 text-center">
+        <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
             § 45a SGB XI
           </div>
@@ -36,7 +36,7 @@ export function HaushaltPage() {
       </section>
 
       <section className="py-20 bg-white/80">
-        <div className="max-w-4xl mx-auto px-6 space-y-6 text-[17px] text-[#5F6B73] font-light leading-relaxed">
+        <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 space-y-6 text-[17px] text-[#5F6B73] font-light leading-relaxed">
           <p>
             Der Alltag kann im Alter oder bei gesundheitlichen Einschränkungen schnell zur Herausforderung werden. Viele Aufgaben im Haushalt, die früher selbstverständlich waren, erfordern plötzlich Hilfe. Genau hier setzen unsere haushaltsnahen Dienstleistungen an – zuverlässig, individuell und mit Herz.
           </p>
@@ -48,10 +48,10 @@ export function HaushaltPage() {
 
       <section className="py-20 bg-[#F8FEFF]/80">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <h2 className="text-3xl font-medium tracking-tight text-[#111111] mb-12 text-center" style={jakarta}>
+          <h2 className="cura-reveal cura-reveal-up text-3xl font-medium tracking-tight text-[#111111] mb-12 text-center" style={jakarta}>
             Unsere haushaltsnahen Dienstleistungen im Überblick
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="cura-reveal cura-reveal-up grid grid-cols-1 md:grid-cols-2 gap-6">
             {leistungen.map((l, i) => (
               <div key={i} className="cura-card-glow bg-white p-7 rounded-3xl border border-[#E5F4F5] shadow-sm">
                 <div className="w-12 h-12 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] mb-4">
@@ -67,7 +67,7 @@ export function HaushaltPage() {
 
       <section className="py-20 bg-white/80">
         <div className="max-w-4xl mx-auto px-6">
-          <div className="cura-card-glow bg-[#F8FEFF] p-8 lg:p-10 rounded-3xl border border-[#E5F4F5]">
+          <div className="cura-reveal cura-reveal-up cura-card-glow bg-[#F8FEFF] p-8 lg:p-10 rounded-3xl border border-[#E5F4F5]">
             <div className="flex items-center gap-3 mb-6">
               <Sparkles size={24} className="text-[#6FD3D1]" />
               <h2 className="text-2xl font-medium tracking-tight text-[#111111]" style={jakarta}>
@@ -87,7 +87,7 @@ export function HaushaltPage() {
       </section>
 
       <section className="py-20 bg-[#F8FEFF]/80">
-        <div className="max-w-3xl mx-auto px-6 text-center">
+        <div className="cura-reveal cura-reveal-up max-w-3xl mx-auto px-6 text-center">
           <ShieldCheck size={48} strokeWidth={1} className="text-[#BFEAF2] mb-6 mx-auto" />
           <h2 className="text-2xl lg:text-3xl font-medium tracking-tight text-[#111111] mb-4" style={jakarta}>
             Lassen Sie sich kostenlos beraten

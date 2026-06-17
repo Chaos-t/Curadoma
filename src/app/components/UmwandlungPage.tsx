@@ -14,7 +14,7 @@ export function UmwandlungPage() {
   return (
     <>
       <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28 bg-gradient-to-b from-white/80 to-[#F8FEFF]/80">
-        <div className="max-w-4xl mx-auto px-6 text-center">
+        <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
             Pflegekasse
           </div>
@@ -29,7 +29,7 @@ export function UmwandlungPage() {
       </section>
 
       <section className="py-20 bg-white/80">
-        <div className="max-w-4xl mx-auto px-6 space-y-6 text-[17px] text-[#5F6B73] font-light leading-relaxed">
+        <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 space-y-6 text-[17px] text-[#5F6B73] font-light leading-relaxed">
           <p>
             Wer Pflegegrad 2 hat und zu Hause von Angehörigen gepflegt wird, erhält von der Pflegekasse ein sogenanntes Pflegegeld. Doch nicht immer reicht die Unterstützung im Alltag aus – besonders wenn die Belastung für Angehörige steigt oder zusätzliche Hilfe benötigt wird. In diesem Fall bietet sich eine sinnvolle Lösung an: die Umwandlung eines Teils des Pflegegeldes in sogenannte Sachleistungen.
           </p>
@@ -41,7 +41,7 @@ export function UmwandlungPage() {
       </section>
 
       <section className="py-20 bg-[#F8FEFF]/80">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="cura-reveal cura-reveal-up max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="cura-card-glow bg-white p-8 rounded-3xl border border-[#E5F4F5]">
             <h3 className="text-xl font-medium text-[#111111] mb-4" style={jakarta}>Ihre Vorteile auf einen Blick</h3>
             <ul className="space-y-3 text-[15px] text-[#5F6B73] font-light">
@@ -80,7 +80,7 @@ export function UmwandlungPage() {
       </section>
 
       <section className="py-20 bg-white/80">
-        <div className="max-w-4xl mx-auto px-6">
+        <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6">
           <div className="flex items-center gap-3 mb-4">
             <Repeat size={24} className="text-[#6FD3D1]" />
             <h2 className="text-2xl font-medium tracking-tight text-[#111111]" style={jakarta}>Wie funktioniert die Umwandlung?</h2>
@@ -99,7 +99,7 @@ export function UmwandlungPage() {
 
       <section className="py-20 bg-[#F8FEFF]/80">
         <div className="max-w-6xl mx-auto px-6 lg:px-12">
-          <h2 className="text-3xl font-medium tracking-tight text-[#111111] mb-3 text-center" style={jakarta}>
+          <h2 className="cura-reveal cura-reveal-up text-3xl font-medium tracking-tight text-[#111111] mb-3 text-center" style={jakarta}>
             Beispiele: Pflegegeld &amp; Umwandlung in Sachleistungen
           </h2>
           <p className="text-[#5F6B73] font-light text-center mb-10">
@@ -107,7 +107,7 @@ export function UmwandlungPage() {
           </p>
 
           {/* Desktop table */}
-          <div className="cura-card-glow hidden md:block bg-white rounded-3xl border border-[#E5F4F5] overflow-hidden shadow-sm">
+          <div className="cura-reveal cura-reveal-up cura-card-glow hidden md:block bg-white rounded-3xl border border-[#E5F4F5] overflow-hidden shadow-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead className="bg-[#DFF7F8] text-[#111111]">
@@ -135,7 +135,7 @@ export function UmwandlungPage() {
           </div>
 
           {/* Mobile cards */}
-          <div className="md:hidden space-y-4">
+          <div className="cura-reveal cura-reveal-up md:hidden space-y-4">
             {tableRows.map((r, i) => (
               <div key={i} className="cura-card-glow bg-white p-6 rounded-2xl border border-[#E5F4F5]">
                 <div className="text-base font-medium text-[#111111] mb-3" style={jakarta}>{r.grad}</div>
@@ -152,7 +152,7 @@ export function UmwandlungPage() {
       </section>
 
       <section className="py-20 bg-white/80">
-        <div className="max-w-3xl mx-auto px-6 text-center">
+        <div className="cura-reveal cura-reveal-up max-w-3xl mx-auto px-6 text-center">
           <Link to="/kontakt" className="inline-flex items-center gap-2 bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-sm">
             <Phone size={18} /> Persönlich beraten lassen
           </Link>

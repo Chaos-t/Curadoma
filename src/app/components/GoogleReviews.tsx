@@ -227,7 +227,7 @@ export function GoogleReviews() {
   return (
     <section className="relative py-24 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-12 mb-12">
-        <div className="text-center max-w-2xl mx-auto">
+        <div className="cura-reveal cura-reveal-up text-center max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-[#E5F4F5] text-xs font-medium text-[#5F6B73] mb-5 shadow-sm">
             <GoogleG size={14} /> Bewertungen auf Google
           </div>

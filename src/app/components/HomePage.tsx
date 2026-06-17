@@ -45,7 +45,7 @@ function PartnerSection() {
   return (
     <section className="py-24 bg-white/80 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <div className="text-center max-w-2xl mx-auto mb-12">
+        <div className="cura-reveal cura-reveal-up text-center max-w-2xl mx-auto mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-5 uppercase tracking-wider">
             <Handshake size={14} /> Unsere Partner
           </div>
@@ -205,7 +205,7 @@ export function HomePage() {
 
       {/* Introduction */}
       <section className="py-24 bg-white/80">
-        <div className="max-w-4xl mx-auto px-6 text-center">
+        <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center">
           <Users size={48} strokeWidth={1} className="text-[#BFEAF2] mb-6 mx-auto" />
           <h2 className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-6" style={jakarta}>
             Der Mensch im Mittelpunkt
@@ -219,7 +219,7 @@ export function HomePage() {
       {/* Services Overview */}
       <section className="py-24 bg-[#F8FEFF]/80">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
-          <div className="mb-16 text-center max-w-2xl mx-auto">
+          <div className="cura-reveal cura-reveal-up mb-16 text-center max-w-2xl mx-auto">
             <h2 className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-4" style={jakarta}>
               Wie wir Sie unterstützen können
             </h2>
@@ -228,7 +228,7 @@ export function HomePage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="cura-reveal cura-reveal-up grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               { icon: <Sparkles size={28} strokeWidth={1.5} />, title: "Entlastungsleistungen", desc: "Monatlich 131 € nach § 45a SGB XI für Alltagsbegleitung, Haushaltshilfe und Betreuung – direkt mit der Pflegekasse abgerechnet.", link: "/entlastung" },
               { icon: <Brain size={28} strokeWidth={1.5} />, title: "Demenz- & Seniorenbetreuung", desc: "Einfühlsame, strukturierte Begleitung mit Empathie, Geduld und fachlicher Kompetenz – für Würde und Lebensqualität zu Hause.", link: "/demenzbetreuung" },
@@ -266,7 +266,7 @@ export function HomePage() {
       <section className="py-24 bg-white/80">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="flex flex-col lg:flex-row gap-16 items-center">
-            <div className="flex-1">
+            <div className="cura-reveal cura-reveal-left flex-1">
               <h2 className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-6" style={jakarta}>
                 Ihre Ansprüche bei der Pflegekasse
               </h2>
@@ -293,7 +293,7 @@ export function HomePage() {
               </Link>
             </div>
 
-            <div className="cura-card-glow flex-1 w-full bg-[#F8FEFF] rounded-3xl p-8 lg:p-10 border border-[#E5F4F5]">
+            <div className="cura-reveal cura-reveal-right cura-card-glow flex-1 w-full bg-[#F8FEFF] rounded-3xl p-8 lg:p-10 border border-[#E5F4F5]">
               <h3 className="text-2xl font-medium tracking-tight text-[#111111] mb-8 text-center" style={jakarta}>
                 Einfach und unkompliziert
               </h3>
@@ -326,14 +326,14 @@ export function HomePage() {
       {/* Senioren & Demenzbetreuung */}
       <section className="py-24 bg-[#F8FEFF]/80">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-          <div className="order-2 lg:order-1 relative">
+          <div className="cura-reveal cura-reveal-left order-2 lg:order-1 relative">
             <div className="aspect-square rounded-3xl overflow-hidden">
               <img src={demenzImage} alt="Betreuerin liest Seniorin vor" className="w-full h-full object-cover" />
             </div>
             <div className="absolute inset-0 bg-[#BFEAF2] opacity-10 rounded-3xl mix-blend-multiply"></div>
           </div>
 
-          <div className="order-1 lg:order-2">
+          <div className="cura-reveal cura-reveal-right order-1 lg:order-2">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
               Spezialisierte Betreuung
             </div>
@@ -366,7 +366,7 @@ export function HomePage() {
 
       {/* Why Families Choose Us */}
       <section className="py-20 bg-white/80">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 text-center">
+        <div className="cura-reveal cura-reveal-up max-w-7xl mx-auto px-6 lg:px-12 text-center">
           <h2 className="text-2xl lg:text-3xl font-medium tracking-tight text-[#111111] mb-12" style={jakarta}>
             Warum sich Familien für uns entscheiden
           </h2>
@@ -398,7 +398,7 @@ export function HomePage() {
 
       {/* Contact CTA */}
       <section className="py-24 lg:py-32 bg-white/80">
-        <div className="max-w-4xl mx-auto px-6 text-center">
+        <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-3xl lg:text-5xl font-medium tracking-tight text-[#111111] mb-6" style={jakarta}>
             Interesse an einer kostenlosen <br className="hidden lg:block" />und unverbindlichen Beratung?
           </h2>
