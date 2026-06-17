@@ -197,10 +197,10 @@ export function KarrierePage() {
               <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#DFF7F8] text-[11px] font-medium text-[#6FD3D1] mb-3 uppercase tracking-wider">
                 Festanstellung · Teilzeit · Minijob · flexibel
               </div>
-              <h3 className="text-xl font-medium text-[#111111] mb-2" style={jakarta}>
+              <h3 className="cura-reveal cura-reveal-up text-xl font-medium text-[#111111] mb-2" style={jakarta}>
                 {JOB_TITLE}
               </h3>
-              <p className="text-[15px] text-[#5F6B73] font-light leading-relaxed max-w-lg">
+              <p className="cura-reveal cura-reveal-up text-[15px] text-[#5F6B73] font-light leading-relaxed max-w-lg">
                 Werden Sie Teil unseres Teams und unterstützen Sie pflegebedürftige Menschen in
                 ihrem Alltag — mit Empathie, Verlässlichkeit und Herz.
               </p>
@@ -216,7 +216,7 @@ export function KarrierePage() {
 
           {showDetail && (
             <div className="cura-card-glow mt-8 bg-white rounded-3xl border border-[#E5F4F5] p-8 sm:p-10">
-              <h3 className="text-xl font-medium text-[#111111] mb-5" style={jakarta}>
+              <h3 className="cura-reveal cura-reveal-up text-xl font-medium text-[#111111] mb-5" style={jakarta}>
                 {JOB_TITLE} — Aufgaben & Profil
               </h3>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">

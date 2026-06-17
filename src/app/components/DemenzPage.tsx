@@ -145,10 +145,10 @@ export function DemenzPage() {
       <section className="py-24 bg-white/80">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <Brain size={48} strokeWidth={1} className="text-[#BFEAF2] mb-6 mx-auto" />
-          <h2 className="text-3xl font-medium tracking-tight text-[#111111] mb-6" style={jakarta}>
+          <h2 className="cura-reveal cura-reveal-up text-3xl font-medium tracking-tight text-[#111111] mb-6" style={jakarta}>
             Fachlich geschult, menschlich überzeugt
           </h2>
-          <p className="text-lg text-[#5F6B73] leading-relaxed font-light mb-12">
+          <p className="cura-reveal cura-reveal-up text-lg text-[#5F6B73] leading-relaxed font-light mb-12">
             Unsere Betreuungskräfte sind speziell für die Arbeit mit demenziell veränderten Menschen geschult. Regelmäßige Fortbildungen stellen sicher, dass wir stets nach aktuellen Erkenntnissen arbeiten.
           </p>
           <div className="cura-reveal cura-reveal-up grid grid-cols-1 sm:grid-cols-3 gap-6">

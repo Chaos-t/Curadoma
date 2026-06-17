@@ -140,7 +140,7 @@ export function EinzugsgebietSection({ heading = true }: { heading?: boolean }) 
         <CityRoadmap />
 
         {/* Einladung: nachfragen, falls der eigene Ort nicht gelistet ist */}
-        <p className="text-center text-[15px] text-[#5F6B73] font-light mt-14 max-w-2xl mx-auto">
+        <p className="cura-reveal cura-reveal-up text-center text-[15px] text-[#5F6B73] font-light mt-14 max-w-2xl mx-auto">
           Ihr Ort ist nicht dabei?{" "}
           <a
             href="/kontakt"

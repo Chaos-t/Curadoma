@@ -102,7 +102,7 @@ export function UmwandlungPage() {
           <h2 className="cura-reveal cura-reveal-up text-3xl font-medium tracking-tight text-[#111111] mb-3 text-center" style={jakarta}>
             Beispiele: Pflegegeld &amp; Umwandlung in Sachleistungen
           </h2>
-          <p className="text-[#5F6B73] font-light text-center mb-10">
+          <p className="cura-reveal cura-reveal-up text-[#5F6B73] font-light text-center mb-10">
             Übersicht der maximalen Umwandlung von 40&nbsp;% des Pflegegeldes.
           </p>
 

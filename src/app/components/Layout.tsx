@@ -421,8 +421,12 @@ export function Layout() {
         @keyframes curaRevealUp    { from { opacity: 0; transform: translate3d(0, 34px, 0); }  to { opacity: 1; transform: none; } }
         @keyframes curaRevealLeft  { from { opacity: 0; transform: translate3d(-42px, 0, 0); } to { opacity: 1; transform: none; } }
         @keyframes curaRevealRight { from { opacity: 0; transform: translate3d(42px, 0, 0); }  to { opacity: 1; transform: none; } }
+        /* On phones the left/right slide is kept (just a shorter travel so it
+           stays gentle on a narrow screen). The horizontal offset is clipped by
+           overflow-x-clip on <main>, so it never causes sideways scrolling. */
         @media (max-width: 1023px) {
-          .cura-reveal-left.is-visible, .cura-reveal-right.is-visible { animation-name: curaRevealUp; }
+          @keyframes curaRevealLeft  { from { opacity: 0; transform: translate3d(-24px, 0, 0); } to { opacity: 1; transform: none; } }
+          @keyframes curaRevealRight { from { opacity: 0; transform: translate3d(24px, 0, 0); }  to { opacity: 1; transform: none; } }
         }
         @media (prefers-reduced-motion: reduce) {
           .cura-reveal { opacity: 1 !important; }

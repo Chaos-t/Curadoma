@@ -43,7 +43,7 @@ export function EntlastungPage() {
           <h2 className="cura-reveal cura-reveal-up text-3xl font-medium tracking-tight text-[#111111] mb-4 text-center" style={jakarta}>
             Unser Betreuungsdienst – Ihr starker Partner im Alltag
           </h2>
-          <p className="text-[#5F6B73] font-light text-center max-w-3xl mx-auto mb-12">
+          <p className="cura-reveal cura-reveal-up text-[#5F6B73] font-light text-center max-w-3xl mx-auto mb-12">
             Als anerkannter Anbieter bieten wir Ihnen eine Vielzahl an haushaltsnahen Dienstleistungen und Betreuungsangeboten, die über den Entlastungsbetrag finanziert werden können:
           </p>
           <div className="cura-reveal cura-reveal-up grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
