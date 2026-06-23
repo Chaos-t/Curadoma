@@ -1,7 +1,6 @@
 import { Hono } from "npm:hono";
 import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
-import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2.49.8";
 import * as kv from "./kv_store.ts";
 
@@ -296,16 +295,71 @@ app.get("/make-server-ec6100a6/instagram-posts", async (c) => {
   }
 });
 
-// --- Email helper (Strato SMTP) ---------------------------------------------
-// Sends transactional emails via Strato's SMTP server (denomailer). The
-// mailbox login comes from the SMTP_USER / SMTP_PASS secrets; host/port
-// default to smtp.strato.de:465 (implicit TLS) and can be overridden via
-// SMTP_HOST / SMTP_PORT. The From address must be the authenticated mailbox
-// (Strato rejects foreign senders) — defaults to "Cura Doma <SMTP_USER>",
-// override via MAIL_FROM.
+// --- Email helper (raw SMTP over TLS) ---------------------------------------
+// Sends a SINGLE-PART text/html email via Strato SMTP using a minimal
+// hand-rolled SMTP conversation. We deliberately DO NOT use a mailer library:
+// denomailer 1.6.0 ALWAYS wraps the body in multipart/mixed > multipart/
+// alternative (boundaries "attachment100"/"message100"), and that nested
+// structure renders as raw MIME source in Strato webmail. A single text/html
+// part (base64-encoded, no boundary) renders correctly in every client.
+//
+// Config via secrets: SMTP_USER / SMTP_PASS (login), SMTP_HOST (default
+// smtp.strato.de), SMTP_PORT (default 465 = implicit TLS; 587 = STARTTLS),
+// MAIL_FROM (default "Cura Doma <SMTP_USER>"; Strato rejects foreign senders).
 
 // Strip CR/LF/null so user-controlled values can't inject extra SMTP headers.
 const headerSafe = (s: string): string => String(s ?? "").replace(/[\r\n\0]/g, " ").trim();
+
+const base64Utf8 = (s: string): string => {
+  const bytes = new TextEncoder().encode(s);
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin);
+};
+
+// Split base64 into 76-char lines (RFC 2045) joined with CRLF.
+const chunk76 = (s: string): string => (s.match(/.{1,76}/g) ?? []).join("\r\n");
+
+const extractEmail = (addr: string): string => {
+  const m = String(addr).match(/<([^>]+)>/);
+  return (m ? m[1] : String(addr)).trim();
+};
+
+const rfc2822Date = (d: Date): string => {
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${days[d.getUTCDay()]}, ${p(d.getUTCDate())} ${months[d.getUTCMonth()]} ${d.getUTCFullYear()} ` +
+    `${p(d.getUTCHours())}:${p(d.getUTCMinutes())}:${p(d.getUTCSeconds())} +0000`;
+};
+
+// Build the full RFC822 message (headers + base64 body + terminating dot) for
+// the SMTP DATA command. SINGLE-PART text/html — no multipart, no boundary.
+function buildRawMessage(
+  fromHeader: string,
+  toList: string[],
+  replyTo: string,
+  subject: string,
+  html: string,
+): string {
+  const subjectHeader = `=?UTF-8?B?${base64Utf8(headerSafe(subject))}?=`;
+  const body = chunk76(base64Utf8(html))
+    .split("\r\n")
+    .map((l) => (l.startsWith(".") ? "." + l : l)) // SMTP dot-stuffing (guard)
+    .join("\r\n");
+  const headers = [
+    `From: ${fromHeader}`,
+    `To: ${toList.join(", ")}`,
+    replyTo ? `Reply-To: ${replyTo}` : null,
+    `Subject: ${subjectHeader}`,
+    `Date: ${rfc2822Date(new Date())}`,
+    `Message-ID: <${crypto.randomUUID()}@curadoma.de>`,
+    "MIME-Version: 1.0",
+    'Content-Type: text/html; charset="UTF-8"',
+    "Content-Transfer-Encoding: base64",
+  ].filter(Boolean).join("\r\n");
+  return `${headers}\r\n\r\n${body}\r\n.\r\n`;
+}
 
 async function sendEmail(opts: {
   to: string | string[];
@@ -316,45 +370,85 @@ async function sendEmail(opts: {
 }): Promise<{ ok: true; id?: string } | { ok: false; error: string }> {
   const user = Deno.env.get("SMTP_USER");
   const pass = Deno.env.get("SMTP_PASS");
-  if (!user || !pass) {
-    return { ok: false, error: "SMTP_USER/SMTP_PASS sind nicht konfiguriert." };
-  }
-  const to = Array.isArray(opts.to) ? opts.to.filter(Boolean) : opts.to;
-  if (!to || (Array.isArray(to) && to.length === 0)) {
-    return { ok: false, error: "Kein Empfänger konfiguriert (CONTACT_TO/MAIL_TO/SMTP_USER)." };
-  }
+  if (!user || !pass) return { ok: false, error: "SMTP_USER/SMTP_PASS sind nicht konfiguriert." };
+
+  const toList = (Array.isArray(opts.to) ? opts.to : [opts.to])
+    .filter(Boolean)
+    .map((a) => extractEmail(headerSafe(a)));
+  if (toList.length === 0) return { ok: false, error: "Kein Empfänger konfiguriert (CONTACT_TO/MAIL_TO/SMTP_USER)." };
+
   const hostname = Deno.env.get("SMTP_HOST") ?? "smtp.strato.de";
   const port = Number(Deno.env.get("SMTP_PORT") ?? "465");
-  const from = Deno.env.get("MAIL_FROM") ?? `Cura Doma <${user}>`;
+  const fromHeader = headerSafe(Deno.env.get("MAIL_FROM") ?? `Cura Doma <${user}>`);
+  const fromEmail = extractEmail(fromHeader);
+  const replyTo = opts.reply_to ? extractEmail(headerSafe(opts.reply_to)) : "";
 
-  const client = new SMTPClient({
-    connection: {
-      hostname,
-      port,
-      tls: port === 465, // implicit TLS on 465; denomailer upgrades via STARTTLS on 587
-      auth: { username: user, password: pass },
-    },
-  });
+  let conn: Deno.Conn | null = null;
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder();
+  const readBuf = new Uint8Array(8192);
+
+  // Read a full SMTP reply (handles multi-line replies: continuation lines use
+  // "250-", the final line uses "250 ").
+  const readResponse = async (): Promise<{ code: number; text: string }> => {
+    let data = "";
+    while (true) {
+      const n = await conn!.read(readBuf);
+      if (n === null) break;
+      data += decoder.decode(readBuf.subarray(0, n));
+      const lines = data.split("\n").map((l) => l.replace(/\r$/, "")).filter((l) => l.length > 0);
+      const last = lines[lines.length - 1] ?? "";
+      if (/^\d{3} /.test(last)) break;
+    }
+    const m = data.match(/(\d{3})/);
+    return { code: m ? Number(m[1]) : 0, text: data.trim() };
+  };
+  const write = (line: string) => conn!.write(encoder.encode(line + "\r\n"));
+  const expect = (res: { code: number; text: string }, ok: number[]) => {
+    if (!ok.includes(res.code)) throw new Error(`SMTP ${res.code}: ${res.text.slice(0, 200)}`);
+  };
 
   try {
-    // IMPORTANT: send a SINGLE-PART text/html message (html only, no `content`).
-    // denomailer 1.6.0 builds a multipart/alternative message when BOTH `content`
-    // (text) and `html` are given, and that multipart leaks raw MIME boundaries +
-    // undecoded quoted-printable into some webmail clients (e.g. Strato) — the
-    // recipient sees "--message100 … Fr=c3=bchester …" instead of the email.
-    // A single html part has no boundary, so the client decodes + renders it.
-    // `opts.text` is kept for callers/logging but intentionally not sent.
-    await client.send({
-      from: headerSafe(from),
-      to,
-      replyTo: opts.reply_to ? headerSafe(opts.reply_to) : undefined,
-      subject: headerSafe(opts.subject),
-      html: opts.html,
-    });
-    await client.close();
+    conn = port === 465
+      ? await Deno.connectTls({ hostname, port })
+      : await Deno.connect({ hostname, port });
+    expect(await readResponse(), [220]);
+    await write(`EHLO ${hostname}`);
+    expect(await readResponse(), [250]);
+
+    if (port !== 465) {
+      await write("STARTTLS");
+      expect(await readResponse(), [220]);
+      conn = await Deno.startTls(conn as Deno.TcpConn, { hostname });
+      await write(`EHLO ${hostname}`);
+      expect(await readResponse(), [250]);
+    }
+
+    await write("AUTH LOGIN");
+    expect(await readResponse(), [334]);
+    await write(base64Utf8(user));
+    expect(await readResponse(), [334]);
+    await write(base64Utf8(pass));
+    expect(await readResponse(), [235]);
+
+    await write(`MAIL FROM:<${fromEmail}>`);
+    expect(await readResponse(), [250]);
+    for (const rcpt of toList) {
+      await write(`RCPT TO:<${rcpt}>`);
+      expect(await readResponse(), [250, 251]);
+    }
+    await write("DATA");
+    expect(await readResponse(), [354]);
+
+    await conn.write(encoder.encode(buildRawMessage(fromHeader, toList, replyTo, opts.subject, opts.html)));
+    expect(await readResponse(), [250]);
+
+    await write("QUIT");
+    try { await readResponse(); } catch (_) { /* ignore */ }
+    try { conn.close(); } catch (_) { /* ignore */ }
     return { ok: true };
   } catch (err) {
-    try { await client.close(); } catch (_) { /* ignore */ }
+    try { conn?.close(); } catch (_) { /* ignore */ }
     console.log("SMTP send error:", err);
     return { ok: false, error: `SMTP-Fehler: ${(err as Error)?.message ?? err}` };
   }
