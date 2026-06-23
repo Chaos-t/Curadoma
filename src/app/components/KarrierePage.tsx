@@ -16,6 +16,20 @@ const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
 const JOB_TITLE = "Alltagsbegleiter/Haushaltshilfe (m/w/d)";
 
+// Keep in sync with MAX_CV_BYTES in the Edge Function (5 MB).
+const MAX_CV_BYTES = 5 * 1024 * 1024;
+const CV_ACCEPT = ".pdf,.doc,.docx,.png,.jpg,.jpeg";
+
+/** Read a File as a base64 data URL ("data:application/pdf;base64,…"). */
+function fileToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(reader.error ?? new Error("Datei konnte nicht gelesen werden."));
+    reader.readAsDataURL(file);
+  });
+}
+
 const jobBullets = [
   "Unterstützung im Alltag",
   "Hilfe im Haushalt",
@@ -71,6 +85,7 @@ export function KarrierePage() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [cvFile, setCvFile] = useState<File | null>(null);
   const openedAtRef = useRef<number>(Date.now());
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
@@ -117,6 +132,21 @@ export function KarrierePage() {
 
     setSubmitting(true);
     try {
+      // Read the selected CV as base64 so the backend can store it and link it
+      // in the notification email. Failure to read is non-fatal — the rest of
+      // the application is still submitted.
+      let cvPayload: { cv_base64?: string; cv_mimetype?: string } = {};
+      if (cvFile) {
+        try {
+          cvPayload = {
+            cv_base64: await fileToDataUrl(cvFile),
+            cv_mimetype: cvFile.type || "application/octet-stream",
+          };
+        } catch (readErr) {
+          console.log("Bewerbung: Lebenslauf konnte nicht gelesen werden:", readErr);
+        }
+      }
+
       const res = await fetch(
         `https://${projectId}.supabase.co/functions/v1/make-server-ec6100a6/job-applications`,
         {
@@ -128,6 +158,7 @@ export function KarrierePage() {
           body: JSON.stringify({
             // Strip honeypot — don't send "website" upstream.
             ...(({ website: _hp, ...rest }) => rest)(form),
+            ...cvPayload,
             experience_household: form.experience_household === "ja",
             experience_care: form.experience_care === "ja",
             drivers_license: form.drivers_license === "ja",
@@ -349,16 +380,32 @@ export function KarrierePage() {
                 />
               </Field>
 
-              <Field label="Lebenslauf / Unterlagen (optional)">
+              <Field label="Lebenslauf / Unterlagen (optional)" error={fieldErrors.cv}>
                 <input
                   type="file"
-                  accept=".pdf,.doc,.docx,.png,.jpg,.jpeg"
-                  onChange={(e) => set("cv_filename", e.target.files?.[0]?.name ?? "")}
+                  accept={CV_ACCEPT}
+                  onChange={(e) => {
+                    const f = e.target.files?.[0] ?? null;
+                    setFieldErrors((prev) => {
+                      const { cv: _cv, ...rest } = prev;
+                      return rest;
+                    });
+                    if (f && f.size > MAX_CV_BYTES) {
+                      e.target.value = "";
+                      setCvFile(null);
+                      set("cv_filename", "");
+                      setFieldErrors((prev) => ({ ...prev, cv: "Die Datei ist zu groß (max. 5 MB)." }));
+                      return;
+                    }
+                    setCvFile(f);
+                    set("cv_filename", f?.name ?? "");
+                  }}
                   className="block w-full text-sm text-[#5F6B73] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-[#DFF7F8] file:text-[#6FD3D1] hover:file:bg-[#BFEAF2] cursor-pointer"
                 />
-                {form.cv_filename && (
+                {form.cv_filename && !fieldErrors.cv && (
                   <p className="text-xs text-[#5F6B73] font-light mt-1">Ausgewählt: {form.cv_filename}</p>
                 )}
+                <p className="text-xs text-[#9AA3A8] font-light mt-1">PDF, Word oder Bild · max. 5&nbsp;MB</p>
               </Field>
 
               <label className="flex items-start gap-3 text-sm text-[#5F6B73] font-light leading-relaxed">

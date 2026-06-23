@@ -2,6 +2,7 @@ import { Hono } from "npm:hono";
 import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
 import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
+import { createClient } from "jsr:@supabase/supabase-js@2.49.8";
 import * as kv from "./kv_store.ts";
 
 const app = new Hono();
@@ -336,12 +337,18 @@ async function sendEmail(opts: {
   });
 
   try {
+    // IMPORTANT: send a SINGLE-PART text/html message (html only, no `content`).
+    // denomailer 1.6.0 builds a multipart/alternative message when BOTH `content`
+    // (text) and `html` are given, and that multipart leaks raw MIME boundaries +
+    // undecoded quoted-printable into some webmail clients (e.g. Strato) — the
+    // recipient sees "--message100 … Fr=c3=bchester …" instead of the email.
+    // A single html part has no boundary, so the client decodes + renders it.
+    // `opts.text` is kept for callers/logging but intentionally not sent.
     await client.send({
       from: headerSafe(from),
       to,
       replyTo: opts.reply_to ? headerSafe(opts.reply_to) : undefined,
       subject: headerSafe(opts.subject),
-      content: opts.text,
       html: opts.html,
     });
     await client.close();
@@ -777,12 +784,86 @@ app.post("/make-server-ec6100a6/contact-messages", async (c) => {
   }
 });
 
+// --- CV upload (Supabase Storage) -------------------------------------------
+// The applicant's CV is base64-encoded by the frontend and uploaded here to a
+// PRIVATE Storage bucket. The operator email then carries a signed download
+// link (private bucket → not publicly guessable, GDPR-friendly). Everything is
+// FAIL-SOFT: if the upload fails the application is still stored and the email
+// still goes out (with a note), so a CV problem never loses an application.
+
+const CV_BUCKET = "bewerbungen";
+const MAX_CV_BYTES = 5 * 1024 * 1024; // 5 MB (keeps the JSON payload well within limits)
+const ALLOWED_CV_TYPES = new Set([
+  "application/pdf",
+  "image/png",
+  "image/jpeg",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+]);
+const CV_SIGNED_URL_TTL_S = 60 * 60 * 24 * 90; // 90 days
+
+function sanitizeFilename(name: string): string {
+  const cleaned = String(name ?? "")
+    .replace(/[^\w.\-]+/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^[._]+/, "")
+    .slice(0, 120);
+  return cleaned || "lebenslauf";
+}
+
+function decodeBase64(b64: string): Uint8Array {
+  // Accept raw base64 or a data URL ("data:application/pdf;base64,....").
+  const payload = b64.includes(",") ? b64.slice(b64.indexOf(",") + 1) : b64;
+  const bin = atob(payload.trim());
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return bytes;
+}
+
+async function uploadCv(
+  id: string,
+  base64: string,
+  filename: string,
+  mimetype: string,
+): Promise<{ url: string; path: string } | { error: string }> {
+  try {
+    const url = Deno.env.get("SUPABASE_URL");
+    const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!url || !key) return { error: "Storage nicht konfiguriert (SUPABASE_URL/SERVICE_ROLE_KEY fehlt)." };
+    if (mimetype && !ALLOWED_CV_TYPES.has(mimetype)) return { error: `Dateityp nicht erlaubt: ${mimetype}` };
+    // Reject oversized payloads BEFORE decoding so a hostile client can't make
+    // us allocate a huge buffer (base64 is ~1.37× the binary size).
+    if (base64.length > Math.ceil(MAX_CV_BYTES * 1.4)) return { error: "Datei zu groß (max. 5 MB)." };
+
+    const bytes = decodeBase64(base64);
+    if (bytes.length === 0) return { error: "Leere Datei." };
+    if (bytes.length > MAX_CV_BYTES) return { error: "Datei zu groß (max. 5 MB)." };
+
+    const supabase = createClient(url, key);
+    // Ensure the private bucket exists (errors harmlessly if already present).
+    await supabase.storage.createBucket(CV_BUCKET, { public: false });
+
+    const path = `${id}/${sanitizeFilename(filename)}`;
+    const { error: upErr } = await supabase.storage
+      .from(CV_BUCKET)
+      .upload(path, bytes, { contentType: mimetype || "application/octet-stream", upsert: true });
+    if (upErr) return { error: upErr.message };
+
+    const { data: signed, error: sErr } = await supabase.storage
+      .from(CV_BUCKET)
+      .createSignedUrl(path, CV_SIGNED_URL_TTL_S);
+    if (sErr || !signed?.signedUrl) return { error: sErr?.message ?? "Signierte URL fehlgeschlagen." };
+
+    return { url: signed.signedUrl, path };
+  } catch (e) {
+    return { error: String((e as Error)?.message ?? e) };
+  }
+}
+
 // --- Job applications -------------------------------------------------------
-// Stored under key prefix `job_application:<id>`. Email notifications to
-// Tolunay.u@outlook.de require an external email provider (Resend / SendGrid /
-// Brevo / SMTP). The API key must be supplied via a Supabase Edge Function
-// environment variable, e.g. `RESEND_API_KEY`, and never shipped to the
-// frontend.
+// Stored under key prefix `job_application:<id>`. The operator notification is
+// sent via Strato SMTP (see sendEmail). The uploaded CV is stored in Supabase
+// Storage and linked from the email (see uploadCv above).
 
 app.post("/make-server-ec6100a6/job-applications", async (c) => {
   try {
@@ -827,6 +908,26 @@ app.post("/make-server-ec6100a6/job-applications", async (c) => {
 
     const id = crypto.randomUUID();
     const created_at = new Date().toISOString();
+
+    // CV upload (fail-soft): store the uploaded file in Storage and keep a
+    // signed download link. A failure here never blocks the application.
+    const cvFilename = String(body.cv_filename ?? "").trim() || null;
+    const cvBase64 = typeof body.cv_base64 === "string" ? body.cv_base64 : "";
+    const cvMimetype = String(body.cv_mimetype ?? "").trim();
+    let cvUrl: string | null = null;
+    let cvPath: string | null = null;
+    let cvError: string | null = null;
+    if (cvBase64) {
+      const up = await uploadCv(id, cvBase64, cvFilename ?? "lebenslauf", cvMimetype);
+      if ("url" in up) {
+        cvUrl = up.url;
+        cvPath = up.path;
+      } else {
+        cvError = up.error;
+        console.log("CV upload failed:", up.error);
+      }
+    }
+
     const record = {
       id,
       created_at,
@@ -844,7 +945,9 @@ app.post("/make-server-ec6100a6/job-applications", async (c) => {
       drivers_license: Boolean(body.drivers_license),
       has_car: Boolean(body.has_car),
       motivation: message,
-      cv_filename: body.cv_filename ?? null,
+      cv_filename: cvFilename,
+      cv_path: cvPath,
+      cv_mimetype: cvMimetype || null,
       consent_privacy,
       status: "new",
       target_email: jobRecipient,
@@ -869,6 +972,20 @@ app.post("/make-server-ec6100a6/job-applications", async (c) => {
       ["Eingegangen", created_at],
     ];
 
+    // CV section for the email — a real download button when the upload
+    // succeeded, otherwise an honest status line.
+    const cvHtml = cvUrl
+      ? `<p style="margin-top:18px;"><a href="${cvUrl}" style="display:inline-block;background:#6FBDB8;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 22px;border-radius:999px;font-size:14px;">Lebenslauf herunterladen</a></p>
+         <p style="margin-top:8px;font-size:12px;color:#9AA3A8;">Datei: ${escapeHtml(cvFilename ?? "Lebenslauf")} · Link 90&nbsp;Tage gültig.</p>`
+      : cvFilename
+        ? `<p style="margin-top:14px;font-size:13px;color:#9AA3A8;">Lebenslauf „${escapeHtml(cvFilename)}" wurde hochgeladen, konnte aber nicht gespeichert werden${cvError ? ` (${escapeHtml(cvError)})` : ""}. Bitte ggf. beim Bewerber anfordern.</p>`
+        : `<p style="margin-top:14px;font-size:13px;color:#9AA3A8;">Es wurde kein Lebenslauf hochgeladen.</p>`;
+    const cvText = cvUrl
+      ? `\n\nLebenslauf (${cvFilename ?? "Datei"}) herunterladen:\n${cvUrl}\n(Link 90 Tage gültig.)`
+      : cvFilename
+        ? `\n\nHinweis: Lebenslauf "${cvFilename}" konnte nicht gespeichert werden${cvError ? ` (${cvError})` : ""} — bitte beim Bewerber anfordern.`
+        : `\n\nHinweis: Es wurde kein Lebenslauf hochgeladen.`;
+
     const emailRes = (await globalMailCapReached())
       ? { ok: false as const, error: "Tägliches Mail-Limit erreicht." }
       : await sendEmail({
@@ -878,10 +995,10 @@ app.post("/make-server-ec6100a6/job-applications", async (c) => {
       text: rows
         .filter(([, v]) => v !== null && v !== undefined && String(v).length > 0)
         .map(([k, v]) => `${k}: ${v}`)
-        .join("\n") + `\n\nMotivation:\n${message || "—"}\n\nHinweis: Die hochgeladene Datei wurde nicht als Anhang übertragen — bitte ggf. beim Bewerber anfordern.`,
+        .join("\n") + `\n\nMotivation:\n${message || "—"}` + cvText,
       html: curaEmailLayout(
         "Neue Bewerbung",
-        `${rowsTable(rows)}<div style="margin-top:18px;padding:14px 16px;background:#F4FBFC;border-radius:12px;color:#2F3A40;white-space:pre-wrap;font-size:14px;line-height:1.55;"><strong style="display:block;margin-bottom:6px;color:#111111;">Motivation</strong>${escapeHtml(message || "—")}</div><p style="margin-top:14px;font-size:12px;color:#9AA3A8;">Hinweis: Die hochgeladene Datei wurde nicht als Anhang übertragen — bitte ggf. beim Bewerber anfordern.</p>`,
+        `${rowsTable(rows)}<div style="margin-top:18px;padding:14px 16px;background:#F4FBFC;border-radius:12px;color:#2F3A40;white-space:pre-wrap;font-size:14px;line-height:1.55;"><strong style="display:block;margin-bottom:6px;color:#111111;">Motivation</strong>${escapeHtml(message || "—")}</div>${cvHtml}`,
       ),
     });
     if (!emailRes.ok) console.log("Job application email send failed:", emailRes.error);
