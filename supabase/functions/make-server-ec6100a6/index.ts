@@ -945,7 +945,9 @@ async function uploadCv(
 
     const { data: signed, error: sErr } = await supabase.storage
       .from(CV_BUCKET)
-      .createSignedUrl(path, CV_SIGNED_URL_TTL_S);
+      // `download` makes the link save the file (Content-Disposition: attachment)
+      // with the original name, instead of rendering inline in the browser.
+      .createSignedUrl(path, CV_SIGNED_URL_TTL_S, { download: filename || true });
     if (sErr || !signed?.signedUrl) return { error: sErr?.message ?? "Signierte URL fehlgeschlagen." };
 
     return { url: signed.signedUrl, path };
