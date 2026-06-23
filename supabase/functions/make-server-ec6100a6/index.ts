@@ -536,20 +536,36 @@ function curaEmailLayout(title: string, bodyHtml: string) {
   // Generic fallback layout used by the job-application notification.
   // The contact-form notification has its own dedicated, full-design
   // template via contactNotificationEmail() below.
-  return `<!doctype html><html><body style="margin:0;padding:24px;background:#F4FBFC;font-family:Inter,Arial,sans-serif;color:#2F3A40;">
+  // Mobile: viewport meta + slim paddings so the card uses the full phone
+  // width; content tables wrap (see rowsTable) so nothing is clipped.
+  return `<!doctype html><html lang="de"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+  <body style="margin:0;padding:14px;background:#F4FBFC;font-family:Inter,Arial,sans-serif;color:#2F3A40;-webkit-text-size-adjust:100%;">
   <div style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid #E5F4F5;border-radius:20px;overflow:hidden;">
-    <div style="padding:24px 28px;border-bottom:1px solid #E5F4F5;background:#F4FBFC;" bgcolor="#F4FBFC">
+    <div style="padding:20px;border-bottom:1px solid #E5F4F5;background:#F4FBFC;" bgcolor="#F4FBFC">
       <div style="font-family:'Lora',Georgia,serif;font-size:22px;color:#6FBDB8;letter-spacing:0.4px;">Cura Doma</div>
       <div style="font-size:10px;letter-spacing:3px;color:#9AA3A8;margin-top:4px;">AMBULANTER BETREUUNGSDIENST</div>
     </div>
-    <div style="padding:24px 28px;">
+    <div style="padding:20px;">
       <h1 style="font-size:18px;margin:0 0 16px;color:#111111;font-weight:500;">${escapeHtml(title)}</h1>
       ${bodyHtml}
     </div>
-    <div style="padding:16px 28px;border-top:1px solid #E5F4F5;font-size:11px;color:#9AA3A8;">
+    <div style="padding:16px 20px;border-top:1px solid #E5F4F5;font-size:11px;color:#9AA3A8;">
       Diese Nachricht wurde automatisch über die Cura Doma Website gesendet.
     </div>
   </div></body></html>`;
+}
+
+// Format an ISO timestamp as a readable German date/time in Europe/Berlin.
+function fmtDateDe(iso: string): string {
+  try {
+    return new Intl.DateTimeFormat("de-DE", {
+      timeZone: "Europe/Berlin",
+      day: "2-digit", month: "2-digit", year: "numeric",
+      hour: "2-digit", minute: "2-digit",
+    }).format(new Date(iso)) + " Uhr";
+  } catch {
+    return iso;
+  }
 }
 
 // Logo URL hosted on a public Supabase Storage bucket. Stable, embeddable
@@ -729,12 +745,16 @@ function contactNotificationEmail(opts: {
 }
 
 function rowsTable(rows: Array<[string, string | null | undefined]>) {
-  return `<table style="width:100%;border-collapse:collapse;font-size:14px;">
+  // table-layout:fixed + word-break makes the table exactly as wide as the
+  // card and forces long values (phone, e-mail, timestamps, long titles) to
+  // wrap instead of overflowing off the right edge on small screens.
+  const cell = "padding:7px 0;vertical-align:top;word-break:break-word;overflow-wrap:anywhere;";
+  return `<table style="width:100%;border-collapse:collapse;font-size:14px;table-layout:fixed;">
     ${rows
       .filter(([, v]) => v !== null && v !== undefined && String(v).length > 0)
       .map(
         ([k, v]) =>
-          `<tr><td style="padding:6px 0;color:#5F6B73;width:40%;vertical-align:top;">${escapeHtml(k)}</td><td style="padding:6px 0;color:#111111;">${escapeHtml(String(v))}</td></tr>`,
+          `<tr><td style="${cell}padding-right:10px;width:42%;color:#5F6B73;">${escapeHtml(k)}</td><td style="${cell}color:#111111;">${escapeHtml(String(v))}</td></tr>`,
       )
       .join("")}
   </table>`;
@@ -1065,7 +1085,7 @@ app.post("/make-server-ec6100a6/job-applications", async (c) => {
       ["Führerschein", yn(record.drivers_license)],
       ["Eigener PKW", yn(record.has_car)],
       ["Lebenslauf (Dateiname)", record.cv_filename],
-      ["Eingegangen", created_at],
+      ["Eingegangen", fmtDateDe(created_at)],
     ];
 
     // CV section for the email — a real download button when the upload
@@ -1094,7 +1114,7 @@ app.post("/make-server-ec6100a6/job-applications", async (c) => {
         .join("\n") + `\n\nMotivation:\n${message || "—"}` + cvText,
       html: curaEmailLayout(
         "Neue Bewerbung",
-        `${rowsTable(rows)}<div style="margin-top:18px;padding:14px 16px;background:#F4FBFC;border-radius:12px;color:#2F3A40;white-space:pre-wrap;font-size:14px;line-height:1.55;"><strong style="display:block;margin-bottom:6px;color:#111111;">Motivation</strong>${escapeHtml(message || "—")}</div>${cvHtml}`,
+        `${rowsTable(rows)}<div style="margin-top:18px;padding:14px 16px;background:#F4FBFC;border-radius:12px;color:#2F3A40;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;font-size:14px;line-height:1.55;"><strong style="display:block;margin-bottom:6px;color:#111111;">Motivation</strong>${escapeHtml(message || "—")}</div>${cvHtml}`,
       ),
     });
     if (!emailRes.ok) console.log("Job application email send failed:", emailRes.error);
