@@ -1,0 +1,10 @@
+project_id = "gjcleedoysndaagtsqjb"
+
+# The Edge Function serves public form endpoints AND the appointment
+# confirm/decline links that are opened directly from an email (no auth
+# header). It must NOT verify the JWT, or those links 401. Pinned here so
+# every `supabase functions deploy` keeps the setting (no need to pass
+# --no-verify-jwt). Security rests on KV being service-role-only, the
+# per-row token for actions, plus honeypot + rate limits.
+[functions.make-server-ec6100a6]
+verify_jwt = false

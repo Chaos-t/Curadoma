@@ -12,6 +12,8 @@ import { KontaktPage } from "./components/KontaktPage";
 import { ImpressumPage } from "./components/ImpressumPage";
 import { DatenschutzPage } from "./components/DatenschutzPage";
 import { KarrierePage } from "./components/KarrierePage";
+import { TerminPage } from "./components/TerminPage";
+import { TerminStatusPage } from "./components/TerminStatusPage";
 
 // import.meta.env.BASE_URL is "/" (served at the custom-domain root). Strip
 // any trailing slash so React Router treats it as a basename.
@@ -34,6 +36,8 @@ export const router = createBrowserRouter([
       { path: "impressum", Component: ImpressumPage },
       { path: "datenschutz", Component: DatenschutzPage },
       { path: "karriere", Component: KarrierePage },
+      { path: "termin", Component: TerminPage },
+      { path: "termin-status", Component: TerminStatusPage },
       {
         path: "*",
         Component: () => (

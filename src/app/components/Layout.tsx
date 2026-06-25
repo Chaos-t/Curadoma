@@ -23,6 +23,7 @@ const topNav = [
   { path: "/einzugsgebiet", label: "Einzugsgebiet" },
   { path: "/karriere", label: "Karriere" },
   { path: "/kontakt", label: "Kontakt" },
+  { path: "/termin", label: "Termin vereinbaren" },
 ];
 
 export function Layout() {
@@ -203,6 +204,9 @@ export function Layout() {
             </Link>
             <Link to="/kontakt" className={`text-sm font-light transition-colors ${isActive("/kontakt") ? "text-[#6FD3D1]" : "text-[#5F6B73] hover:text-[#6FD3D1]"}`}>
               Kontakt
+            </Link>
+            <Link to="/termin" className={`text-sm font-light transition-colors ${isActive("/termin") ? "text-[#6FD3D1]" : "text-[#5F6B73] hover:text-[#6FD3D1]"}`}>
+              Termin
             </Link>
 
             <Link

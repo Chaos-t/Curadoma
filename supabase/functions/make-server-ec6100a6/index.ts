@@ -1135,4 +1135,273 @@ app.post("/make-server-ec6100a6/job-applications", async (c) => {
   }
 });
 
+// --- Appointment booking ----------------------------------------------------
+// Visitors request a slot (status 'pending'); the operator confirms/declines
+// via tokenized links in the notification email. Confirming locks the slot.
+// Stored as `appointment:<id>` in the KV store (same pattern as the other
+// forms). Slot availability is computed by scanning confirmed appointments.
+
+const APPT_SERVICES = [
+  "Kostenloses Erstgespräch",
+  "Entlastungsleistungen",
+  "Demenz- & Seniorenbetreuung",
+  "Haushaltsnahe Dienstleistungen",
+  "Verhinderungspflege",
+];
+const APPT_SLOTS = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"];
+const APPT_TZ = "Europe/Berlin";
+
+function todayBerlinISO(): string {
+  // en-CA formats as YYYY-MM-DD
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: APPT_TZ, year: "numeric", month: "2-digit", day: "2-digit",
+  }).format(new Date());
+}
+function isPastISO(d: string): boolean {
+  return d < todayBerlinISO();
+}
+function isWeekdayISO(d: string): boolean {
+  // noon UTC avoids any date shift; getUTCDay 1..5 = Mon..Fri
+  const dow = new Date(`${d}T12:00:00Z`).getUTCDay();
+  return dow >= 1 && dow <= 5;
+}
+function fmtApptDate(dateISO: string): string {
+  try {
+    return new Intl.DateTimeFormat("de-DE", {
+      timeZone: APPT_TZ, weekday: "short", day: "2-digit", month: "long", year: "numeric",
+    }).format(new Date(`${dateISO}T12:00:00`));
+  } catch {
+    return dateISO;
+  }
+}
+
+function apptOperatorEmail(o: {
+  service: string; dateDe: string; time: string; name: string; phone: string;
+  email: string; message: string; funcBase: string; token: string;
+}) {
+  const confirmUrl = `${o.funcBase}/appointment-action?token=${o.token}&action=confirm`;
+  const declineUrl = `${o.funcBase}/appointment-action?token=${o.token}&action=decline`;
+  const rows: Array<[string, string | null | undefined]> = [
+    ["Leistung", o.service],
+    ["Datum", o.dateDe],
+    ["Uhrzeit", `${o.time} Uhr`],
+    ["Name", o.name],
+    ["Telefon", o.phone],
+    ["E-Mail", o.email],
+    ["Nachricht", o.message || null],
+  ];
+  return curaEmailLayout(
+    "Neue Terminanfrage",
+    `${rowsTable(rows)}
+     <p style="margin:18px 0 10px;font-size:14px;line-height:1.55;color:#2F3A40;">Bitte bestätigen oder ablehnen — die anfragende Person wird automatisch per E-Mail informiert:</p>
+     <p style="margin:0 0 8px;"><a href="${confirmUrl}" style="display:inline-block;background:#6FBDB8;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 22px;border-radius:999px;font-size:14px;">Termin bestätigen</a></p>
+     <p style="margin:0;"><a href="${declineUrl}" style="display:inline-block;background:#ffffff;color:#5F6B73;border:1px solid #E5F4F5;text-decoration:none;font-weight:600;padding:11px 22px;border-radius:999px;font-size:14px;">Ablehnen</a></p>
+     <p style="margin-top:14px;font-size:12px;color:#9AA3A8;">Erst mit „Bestätigen" wird der Zeit-Slot gesperrt.</p>`,
+  );
+}
+function apptReceivedEmail(o: { service: string; dateDe: string; time: string; name: string }) {
+  const rows: Array<[string, string | null | undefined]> = [
+    ["Leistung", o.service],
+    ["Wunschtermin", `${o.dateDe}, ${o.time} Uhr`],
+  ];
+  return curaEmailLayout(
+    "Ihre Terminanfrage ist eingegangen",
+    `<p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2F3A40;">Hallo ${escapeHtml(o.name)},<br><br>vielen Dank für Ihre Terminanfrage. Wir prüfen Ihren Wunschtermin und bestätigen ihn in Kürze per E-Mail. <strong>Erst mit unserer Bestätigung ist der Termin verbindlich.</strong></p>
+     ${rowsTable(rows)}
+     <p style="margin-top:16px;font-size:13px;color:#5F6B73;">Falls es dringend ist, erreichen Sie uns telefonisch unter <a href="tel:+4951517107093" style="color:#6FBDB8;text-decoration:none;">05151 7107093</a>.</p>`,
+  );
+}
+function apptConfirmedEmail(o: { service: string; dateDe: string; time: string; name: string }) {
+  const rows: Array<[string, string | null | undefined]> = [
+    ["Leistung", o.service],
+    ["Termin", `${o.dateDe}, ${o.time} Uhr`],
+  ];
+  return curaEmailLayout(
+    "Ihr Termin ist bestätigt",
+    `<p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2F3A40;">Hallo ${escapeHtml(o.name)},<br><br>Ihr Termin ist <strong>bestätigt</strong>. Wir freuen uns auf das Gespräch mit Ihnen.</p>
+     ${rowsTable(rows)}
+     <p style="margin-top:16px;font-size:13px;color:#5F6B73;">Sollten Sie den Termin nicht wahrnehmen können, geben Sie uns bitte kurz Bescheid: <a href="tel:+4951517107093" style="color:#6FBDB8;text-decoration:none;">05151 7107093</a> oder <a href="mailto:info@curadoma.de" style="color:#6FBDB8;text-decoration:none;">info@curadoma.de</a>.</p>`,
+  );
+}
+function apptDeclinedEmail(o: { service: string; dateDe: string; time: string; name: string }) {
+  const rows: Array<[string, string | null | undefined]> = [
+    ["Leistung", o.service],
+    ["Angefragt", `${o.dateDe}, ${o.time} Uhr`],
+  ];
+  return curaEmailLayout(
+    "Zu Ihrer Terminanfrage",
+    `<p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2F3A40;">Hallo ${escapeHtml(o.name)},<br><br>leider können wir Ihren Wunschtermin nicht bestätigen. Bitte wählen Sie auf unserer Website einen anderen Termin oder rufen Sie uns an — wir finden gemeinsam eine passende Zeit.</p>
+     ${rowsTable(rows)}
+     <p style="margin-top:16px;"><a href="https://curadoma.de/termin" style="display:inline-block;background:#6FBDB8;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 22px;border-radius:999px;font-size:14px;">Neuen Termin wählen</a></p>
+     <p style="margin-top:12px;font-size:13px;color:#5F6B73;">Oder telefonisch: <a href="tel:+4951517107093" style="color:#6FBDB8;text-decoration:none;">05151 7107093</a>.</p>`,
+  );
+}
+
+// GET /booked-slots — confirmed slots only (date + time, NO personal data).
+app.get("/make-server-ec6100a6/booked-slots", async (c) => {
+  try {
+    const today = todayBerlinISO();
+    const all = (await kv.getByPrefix("appointment:")) as Array<Record<string, unknown>>;
+    const slots = all
+      .filter((a) => a?.status === "confirmed" && typeof a.appt_date === "string" && (a.appt_date as string) >= today)
+      .map((a) => ({ date: a.appt_date, time: a.appt_time }));
+    return c.json({ slots });
+  } catch (e) {
+    console.log("booked-slots error:", e);
+    return c.json({ slots: [] }); // fail-open
+  }
+});
+
+// POST /appointments — create a pending request, notify operator + visitor.
+app.post("/make-server-ec6100a6/appointments", async (c) => {
+  try {
+    const body = await c.req.json().catch(() => null);
+    if (!body || typeof body !== "object") {
+      return c.json({ error: "Ungültige Anfrage: Body fehlt oder ist kein JSON." }, 400);
+    }
+    if (isHoneypotTripped(body)) {
+      console.log("Honeypot tripped on appointments endpoint");
+      return c.json({ ok: true, id: crypto.randomUUID() }, 201);
+    }
+    const rlKey = `ratelimit:appt:${clientIp(c)}`;
+    const rl = await rateLimitState(rlKey);
+    if (rl.count >= RL_MAX) {
+      return c.json({ error: "Zu viele Anfragen. Bitte versuchen Sie es in einigen Minuten erneut." }, 429);
+    }
+    await bumpRateLimit(rlKey, rl);
+
+    const service = String(body.service ?? "").trim();
+    const dateISO = String(body.date_iso ?? "").trim();
+    const time = String(body.time ?? "").trim();
+    const name = String(body.name ?? "").trim();
+    const phone = String(body.phone ?? "").trim();
+    const email = String(body.email ?? "").trim();
+    const message = String(body.message ?? "").trim().slice(0, LIMITS.MESSAGE_MAX);
+    const consent_privacy = Boolean(body.consent_privacy);
+
+    const errors: Record<string, string> = {};
+    if (!APPT_SERVICES.includes(service)) errors.service = "Bitte wählen Sie eine Leistung.";
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateISO) || isPastISO(dateISO) || !isWeekdayISO(dateISO)) {
+      errors.date = "Bitte wählen Sie einen gültigen Werktag (Mo–Fr, nicht in der Vergangenheit).";
+    }
+    if (!APPT_SLOTS.includes(time)) errors.time = "Bitte wählen Sie eine gültige Uhrzeit.";
+    if (!name) errors.name = "Bitte geben Sie Ihren Namen an.";
+    else if (!isValidName(name)) errors.name = "Bitte geben Sie einen echten Namen ein.";
+    if (!phone) errors.phone = "Bitte geben Sie eine Telefonnummer an.";
+    else if (!isValidPhone(phone)) errors.phone = "Bitte geben Sie eine gültige Telefonnummer an.";
+    if (!email) errors.email = "Bitte geben Sie Ihre E-Mail-Adresse an.";
+    else if (!isValidEmail(email)) errors.email = "Bitte geben Sie eine gültige E-Mail-Adresse an.";
+    if (!consent_privacy) errors.consent_privacy = "Bitte stimmen Sie der Datenschutzerklärung zu.";
+    if (Object.keys(errors).length > 0) {
+      return c.json({ error: "Validierung fehlgeschlagen.", fields: errors }, 422);
+    }
+
+    // Double-booking: block only against CONFIRMED appointments (like de Vries).
+    const existing = (await kv.getByPrefix("appointment:")) as Array<Record<string, unknown>>;
+    const taken = existing.some(
+      (a) => a?.status === "confirmed" && a.appt_date === dateISO && a.appt_time === time,
+    );
+    if (taken) return c.json({ error: "slot_taken" }, 409);
+
+    const id = crypto.randomUUID();
+    const token = crypto.randomUUID();
+    const created_at = new Date().toISOString();
+    const record = {
+      id, created_at, service, appt_date: dateISO, appt_time: time,
+      name, phone, email, message: message || null, consent_privacy,
+      status: "pending", token, status_changed_at: null,
+    };
+    await kv.set(`appointment:${id}`, record);
+
+    const apptRecipient = envRecipient("APPT_TO", "JOB_TO", "MAIL_TO", "SMTP_USER");
+    const funcBase = `${Deno.env.get("SUPABASE_URL")}/functions/v1/make-server-ec6100a6`;
+    const dateDe = fmtApptDate(dateISO);
+
+    if (!(await globalMailCapReached())) {
+      // Operator notification (with confirm/decline links)
+      const opRes = await sendEmail({
+        to: apptRecipient,
+        reply_to: email,
+        subject: `Neue Terminanfrage: ${service} — ${dateDe} ${time} Uhr`,
+        text: "",
+        html: apptOperatorEmail({ service, dateDe, time, name, phone, email, message, funcBase, token }),
+      });
+      if (!opRes.ok) console.log("Appointment operator email failed:", opRes.error);
+      // Visitor "request received"
+      const visRes = await sendEmail({
+        to: email,
+        subject: `Ihre Terminanfrage bei Cura Doma — ${dateDe} ${time} Uhr`,
+        text: "",
+        html: apptReceivedEmail({ service, dateDe, time, name }),
+      });
+      if (!visRes.ok) console.log("Appointment visitor email failed:", visRes.error);
+    }
+
+    return c.json({ ok: true, id, created_at }, 201);
+  } catch (error) {
+    console.log("Error while storing appointment:", error);
+    return c.json({ error: `Serverfehler beim Speichern der Terminanfrage: ${error}` }, 500);
+  }
+});
+
+// GET /appointment-action — operator confirm/decline from the email link.
+// Opened directly from an email (no auth header), so the function must be
+// deployed with --no-verify-jwt. Always 302-redirects to the SPA status page.
+app.get("/make-server-ec6100a6/appointment-action", async (c) => {
+  const siteUrl = Deno.env.get("SITE_URL") ?? "https://curadoma.de";
+  const redirect = (s: string) => c.redirect(`${siteUrl}/termin-status?s=${s}`, 302);
+  const token = String(c.req.query("token") ?? "");
+  const action = String(c.req.query("action") ?? "");
+  if (!/^[0-9a-f-]{36}$/i.test(token) || (action !== "confirm" && action !== "decline")) {
+    return redirect("invalid");
+  }
+  try {
+    const all = (await kv.getByPrefix("appointment:")) as Array<Record<string, unknown>>;
+    const appt = all.find((a) => a?.token === token) as Record<string, unknown> | undefined;
+    if (!appt) return redirect("notfound");
+    if (appt.status === "confirmed") return redirect("already-confirmed");
+    if (appt.status === "declined") return redirect("already-declined");
+
+    const dateDe = fmtApptDate(String(appt.appt_date));
+    const mailArgs = {
+      service: String(appt.service), dateDe, time: String(appt.appt_time), name: String(appt.name),
+    };
+    if (action === "confirm") {
+      // Race guard: another booking may have just been confirmed for this slot.
+      const taken = all.some(
+        (a) => a?.status === "confirmed" && a.appt_date === appt.appt_date && a.appt_time === appt.appt_time,
+      );
+      if (taken) return redirect("taken");
+      appt.status = "confirmed";
+      appt.status_changed_at = new Date().toISOString();
+      await kv.set(`appointment:${appt.id}`, appt);
+      if (!(await globalMailCapReached())) {
+        await sendEmail({
+          to: String(appt.email),
+          subject: `Ihr Termin bei Cura Doma ist bestätigt — ${dateDe} ${appt.appt_time} Uhr`,
+          text: "",
+          html: apptConfirmedEmail(mailArgs),
+        });
+      }
+      return redirect("confirmed");
+    } else {
+      appt.status = "declined";
+      appt.status_changed_at = new Date().toISOString();
+      await kv.set(`appointment:${appt.id}`, appt);
+      if (!(await globalMailCapReached())) {
+        await sendEmail({
+          to: String(appt.email),
+          subject: "Zu Ihrer Terminanfrage bei Cura Doma",
+          text: "",
+          html: apptDeclinedEmail(mailArgs),
+        });
+      }
+      return redirect("declined");
+    }
+  } catch (error) {
+    console.log("appointment-action error:", error);
+    return redirect("invalid");
+  }
+});
+
 Deno.serve(app.fetch);
