@@ -342,6 +342,20 @@ export function Layout() {
               </button>
             </div>
           </div>
+
+          <div className="mt-6 pt-6 border-t border-[#E5F4F5] text-center">
+            <p className="text-xs text-[#9AA3A8] font-light">
+              Designed by{" "}
+              <a
+                href="https://axion-studio.de/index.html"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#6FD3D1] hover:text-[#5BC2C0] transition-colors font-normal"
+              >
+                Axion Studio
+              </a>
+            </p>
+          </div>
         </div>
       </footer>
 
