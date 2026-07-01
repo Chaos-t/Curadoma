@@ -1522,7 +1522,7 @@ app.post("/make-server-ec6100a6/site-content/image", async (c) => {
     await editBumpFail(ip); await new Promise((r) => setTimeout(r, 600));
     return c.json({ error: "unauthorized" }, 401);
   }
-  const id = body.id as string, data = body.dataBase64 as string, mimetype = (body.mimetype as string) || "";
+  const id = body.id as string, data = body.dataBase64 as string;
   if (!ID_RE.test(id || "")) return c.json({ error: "bad_id" }, 400);
   if (typeof data !== "string" || data.length > Math.ceil(MAX_IMG_BYTES * 1.4)) return c.json({ error: "image_too_big" }, 400);
 
@@ -1539,8 +1539,12 @@ app.post("/make-server-ec6100a6/site-content/image", async (c) => {
   const supabase = createClient(url, key);
   await supabase.storage.createBucket(CONTENT_BUCKET, { public: true }).catch(() => {});
   const path = `img/${sanitizeFilename(id)}-${Date.now()}.${ext}`;
+  // Content-Type aus den GESNIFFTEN Bytes ableiten, NICHT aus dem Client-Wert:
+  // sonst könnte ein Editor eine Bild/HTML-Polyglot-Datei (besteht den Magic-Byte-
+  // Check) mit mimetype "text/html" hochladen -> im public Bucket als HTML
+  // ausgeliefert = Stored XSS. `ext` stammt aus isJpg/isPng/isWebp.
   const { error: upErr } = await supabase.storage.from(CONTENT_BUCKET)
-    .upload(path, bytes, { contentType: mimetype || `image/${ext}`, upsert: true });
+    .upload(path, bytes, { contentType: `image/${ext}`, upsert: true });
   if (upErr) return c.json({ error: upErr.message }, 500);
   const { data: pub } = supabase.storage.from(CONTENT_BUCKET).getPublicUrl(path);
   return c.json({ ok: true, url: pub.publicUrl });
