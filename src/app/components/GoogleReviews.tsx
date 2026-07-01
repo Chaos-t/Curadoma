@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import { Star, Quote } from "lucide-react";
 import { reviews as fallbackReviews, reviewSummary as fallbackSummary } from "../../lib/reviews-data";
 import { projectId, publicAnonKey } from "/utils/supabase/info";
+import { Editable } from "./editor/Editable";
 
 type LiveReview = {
   author_name: string;
@@ -229,13 +230,13 @@ export function GoogleReviews() {
       <div className="max-w-7xl mx-auto px-6 lg:px-12 mb-12">
         <div className="cura-reveal cura-reveal-up text-center max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-[#E5F4F5] text-xs font-medium text-[#5F6B73] mb-5 shadow-sm">
-            <GoogleG size={14} /> Bewertungen auf Google
+            <GoogleG size={14} /> <Editable as="span" id="reviews.header.badge">Bewertungen auf Google</Editable>
           </div>
           <h2
             className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-4"
             style={jakarta}
           >
-            Stimmen unserer Kundinnen und Kunden
+            <Editable as="span" id="reviews.header.title" style={jakarta}>Stimmen unserer Kundinnen und Kunden</Editable>
           </h2>
           <div className="flex items-center justify-center gap-3 mb-2">
             <span
@@ -247,13 +248,12 @@ export function GoogleReviews() {
             <div className="flex flex-col items-start">
               <Stars value={Math.round(summary.average)} />
               <span className="text-xs text-[#5F6B73] font-light mt-0.5">
-                aus {summary.count} Bewertungen
+                <Editable as="span" id="reviews.header.count-suffix.prefix">aus</Editable> {summary.count} <Editable as="span" id="reviews.header.count-suffix.suffix">Bewertungen</Editable>
               </span>
             </div>
           </div>
           <p className="text-[15px] text-[#5F6B73] font-light leading-relaxed mt-4">
-            Was Angehörige und pflegebedürftige Menschen über unsere Arbeit
-            sagen.
+            <Editable as="span" id="reviews.header.intro">Was Angehörige und pflegebedürftige Menschen über unsere Arbeit sagen.</Editable>
           </p>
           {placeUrl && (
             <a
@@ -262,7 +262,7 @@ export function GoogleReviews() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 mt-4 text-sm font-medium text-[#6FD3D1] hover:text-[#5BC2C0]"
             >
-              Alle Bewertungen auf Google ansehen →
+              <Editable as="span" id="reviews.header.cta-all-reviews">Alle Bewertungen auf Google ansehen →</Editable>
             </a>
           )}
         </div>

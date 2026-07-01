@@ -15,6 +15,8 @@
 import { useEffect, useState } from "react";
 import { Instagram, ExternalLink } from "lucide-react";
 import { projectId, publicAnonKey } from "/utils/supabase/info";
+import { Editable } from "./editor/Editable";
+import { useContent } from "../../lib/content";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
@@ -53,6 +55,8 @@ function PostCard({ post }: { post: IGPost }) {
   // Videos: media_url is the .mp4 — we show thumbnail_url as a still.
   const previewUrl =
     post.media_type === "VIDEO" && post.thumbnail_url ? post.thumbnail_url : post.media_url;
+  const { get } = useContent();
+  const altFallback = get("instagram.card.img-alt-fallback") ?? "Instagram-Beitrag";
 
   return (
     <a
@@ -64,7 +68,7 @@ function PostCard({ post }: { post: IGPost }) {
     >
       <img
         src={previewUrl}
-        alt={captionExcerpt(post.caption, 60) || "Instagram-Beitrag"}
+        alt={captionExcerpt(post.caption, 60) || altFallback}
         loading="lazy"
         referrerPolicy="no-referrer"
         className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
@@ -73,11 +77,13 @@ function PostCard({ post }: { post: IGPost }) {
       {/* Type badge */}
       <span className="absolute top-3 left-3 inline-flex items-center gap-1 px-2 py-1 rounded-full bg-black/45 backdrop-blur-sm text-white text-[10px] font-medium uppercase tracking-wider">
         <Instagram size={11} />
-        {post.media_type === "VIDEO"
-          ? "Video"
-          : post.media_type === "CAROUSEL_ALBUM"
-          ? "Album"
-          : "Foto"}
+        {post.media_type === "VIDEO" ? (
+          <Editable as="span" id="instagram.card.type-video">Video</Editable>
+        ) : post.media_type === "CAROUSEL_ALBUM" ? (
+          <Editable as="span" id="instagram.card.type-album">Album</Editable>
+        ) : (
+          <Editable as="span" id="instagram.card.type-photo">Foto</Editable>
+        )}
       </span>
 
       {/* Click hint */}
@@ -150,18 +156,16 @@ export function InstagramFeed() {
       <div className="max-w-7xl mx-auto px-6 lg:px-12 mb-12">
         <div className="cura-reveal cura-reveal-up text-center max-w-2xl mx-auto">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-[#E5F4F5] text-xs font-medium text-[#5F6B73] mb-5 shadow-sm">
-            <Instagram size={14} className="text-[#6FD3D1]" /> Aktuelles aus dem
-            Alltag
+            <Instagram size={14} className="text-[#6FD3D1]" /> <Editable as="span" id="instagram.header.badge">Aktuelles aus dem Alltag</Editable>
           </div>
           <h2
             className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-4"
             style={jakarta}
           >
-            Folgen Sie uns auf Instagram
+            <Editable as="span" id="instagram.header.title" style={jakarta}>Folgen Sie uns auf Instagram</Editable>
           </h2>
           <p className="text-[15px] text-[#5F6B73] font-light leading-relaxed">
-            Einblicke in unsere Arbeit, Aktionen und das Leben in der
-            Cura-Doma-Familie.
+            <Editable as="span" id="instagram.header.subtitle">Einblicke in unsere Arbeit, Aktionen und das Leben in der Cura-Doma-Familie.</Editable>
           </p>
         </div>
       </div>
