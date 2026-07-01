@@ -1404,4 +1404,144 @@ app.get("/make-server-ec6100a6/appointment-action", async (c) => {
   }
 });
 
+// --- Inhalts-Editor -------------------------------------------------------
+const EDIT_PW = Deno.env.get("EDIT_PASSWORD") || "";
+const CONTENT_KEY = "site_content:current";
+const CONTENT_HISTORY_KEY = "site_content:history";
+const CONTENT_BUCKET = "site-content";
+const MAX_PLAIN = 3000, MAX_RICH = 8000, MAX_IDS_PER_SAVE = 300, MAX_IMG_BYTES = 3 * 1024 * 1024;
+const ID_RE = /^[a-z0-9.\-]{1,64}$/;
+
+// Passwortvergleich in konstanter Zeit (gegen Timing-Angriffe)
+function ctEq(a: string, b: string): boolean {
+  const ea = new TextEncoder().encode(a), eb = new TextEncoder().encode(b);
+  const n = Math.max(ea.length, eb.length);
+  let r = ea.length ^ eb.length;
+  for (let i = 0; i < n; i++) r |= (ea[i] || 0) ^ (eb[i] || 0);
+  return r === 0;
+}
+function safeHref(h: string): boolean {
+  h = (h || "").trim();
+  return /^https?:\/\//i.test(h) || /^mailto:/i.test(h) || /^tel:/i.test(h) || /^\/[\w./-]*$/.test(h) || /^#[\w-]+$/.test(h);
+}
+// Escape-First-Allowlist: erst ALLES neutralisieren, dann nur wenige sichere Inline-Tags zurück.
+function sanitizeRich(html: string): string {
+  let s = html
+    .replace(/&(?!(?:amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);)/g, "&amp;")
+    .replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  s = s.replace(/&lt;(\/?)(strong|b|em|i)&gt;/gi, "<$1$2>");
+  s = s.replace(/&lt;br\s*\/?&gt;/gi, "<br>");
+  s = s.replace(/&lt;a\b[\s\S]*?&gt;/gi, (m) => {
+    const hm = m.match(/href=(?:&quot;|&#39;)([\s\S]*?)(?:&quot;|&#39;)/i);
+    const href = hm ? hm[1] : "";
+    return safeHref(href) ? '<a href="' + href + '" target="_blank" rel="noopener noreferrer">' : "";
+  });
+  s = s.replace(/&lt;\/a&gt;/gi, "</a>");
+  s = s.replace(/&lt;\/?[a-z][\s\S]*?&gt;/gi, "");
+  return s;
+}
+// Editor-Rate-Limit: nur bei FEHLERN hochzählen (per IP + global), 15-Min-Fenster.
+async function editRateLimited(ip: string): Promise<boolean> {
+  const perIp = await rateLimitState(`edit_rl:ip:${ip}`);
+  const glob = await rateLimitState(`edit_rl:global`);
+  return perIp.count >= 10 || glob.count >= 60;
+}
+async function editBumpFail(ip: string): Promise<void> {
+  await bumpRateLimit(`edit_rl:ip:${ip}`, await rateLimitState(`edit_rl:ip:${ip}`));
+  await bumpRateLimit(`edit_rl:global`, await rateLimitState(`edit_rl:global`));
+}
+
+app.get("/make-server-ec6100a6/site-content", async (c) => {
+  try {
+    const content = (await kv.get(CONTENT_KEY)) as Record<string, string> | undefined;
+    return c.json({ content: content ?? {} });
+  } catch {
+    return c.json({ content: {} });
+  }
+});
+
+app.post("/make-server-ec6100a6/site-content/save", async (c) => {
+  if (!EDIT_PW) return c.json({ error: "not_configured" }, 503);
+  const ip = clientIp(c);
+  if (await editRateLimited(ip)) return c.json({ error: "rate_limited" }, 429);
+
+  let body: any;
+  try { body = await c.req.json(); } catch { return c.json({ error: "bad_json" }, 400); }
+
+  if (typeof body.password !== "string" || !ctEq(body.password, EDIT_PW)) {
+    await editBumpFail(ip);
+    await new Promise((r) => setTimeout(r, 600));
+    return c.json({ error: "unauthorized" }, 401);
+  }
+  if (body.action === "__check") return c.json({ ok: true });
+
+  if (body.action === "restore") {
+    const hist = ((await kv.get(CONTENT_HISTORY_KEY)) as Array<{ ts: number; data: Record<string, string> }> | undefined) ?? [];
+    if (!hist.length) return c.json({ error: "no_history" }, 400);
+    const prev = hist[hist.length - 1];
+    await kv.set(CONTENT_KEY, prev.data);
+    await kv.set(CONTENT_HISTORY_KEY, hist.slice(0, -1));
+    return c.json({ ok: true, restored: prev.ts });
+  }
+
+  const overrides = (body.overrides || {}) as Record<string, string>;
+  const richIds = new Set<string>(Array.isArray(body.rich) ? body.rich : []);
+  const ids = Object.keys(overrides);
+  if (!ids.length) return c.json({ error: "empty" }, 400);
+  if (ids.length > MAX_IDS_PER_SAVE) return c.json({ error: "too_many" }, 400);
+  for (const id of ids) {
+    if (!ID_RE.test(id)) return c.json({ error: "bad_id", id }, 400);
+    const v = overrides[id];
+    if (typeof v !== "string") return c.json({ error: "bad_value", id }, 400);
+    if (richIds.has(id)) { if (v.length > MAX_RICH) return c.json({ error: "too_long", id }, 400); }
+    else if (v.length > MAX_PLAIN) return c.json({ error: "too_long", id }, 400);
+  }
+
+  const current = ((await kv.get(CONTENT_KEY)) as Record<string, string> | undefined) ?? {};
+  // History-Snapshot des vorherigen Standes (Deckel 20)
+  const hist = ((await kv.get(CONTENT_HISTORY_KEY)) as Array<{ ts: number; data: Record<string, string> }> | undefined) ?? [];
+  hist.push({ ts: Date.now(), data: current });
+  await kv.set(CONTENT_HISTORY_KEY, hist.slice(-20));
+
+  const next = { ...current };
+  for (const id of ids) next[id] = richIds.has(id) ? sanitizeRich(overrides[id]) : overrides[id];
+  await kv.set(CONTENT_KEY, next);
+  return c.json({ ok: true, count: ids.length });
+});
+
+app.post("/make-server-ec6100a6/site-content/image", async (c) => {
+  if (!EDIT_PW) return c.json({ error: "not_configured" }, 503);
+  const ip = clientIp(c);
+  if (await editRateLimited(ip)) return c.json({ error: "rate_limited" }, 429);
+
+  let body: any;
+  try { body = await c.req.json(); } catch { return c.json({ error: "bad_json" }, 400); }
+  if (typeof body.password !== "string" || !ctEq(body.password, EDIT_PW)) {
+    await editBumpFail(ip); await new Promise((r) => setTimeout(r, 600));
+    return c.json({ error: "unauthorized" }, 401);
+  }
+  const id = body.id as string, data = body.dataBase64 as string, mimetype = (body.mimetype as string) || "";
+  if (!ID_RE.test(id || "")) return c.json({ error: "bad_id" }, 400);
+  if (typeof data !== "string" || data.length > Math.ceil(MAX_IMG_BYTES * 1.4)) return c.json({ error: "image_too_big" }, 400);
+
+  const bytes = decodeBase64(data);
+  if (bytes.length === 0 || bytes.length > MAX_IMG_BYTES) return c.json({ error: "image_too_big" }, 400);
+  const isJpg = bytes[0] === 0xff && bytes[1] === 0xd8;
+  const isPng = bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47;
+  const isWebp = bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50; // "WEBP"
+  if (!(isJpg || isPng || isWebp)) return c.json({ error: "not_image" }, 400);
+  const ext = isPng ? "png" : isWebp ? "webp" : "jpg";
+
+  const url = Deno.env.get("SUPABASE_URL"), key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !key) return c.json({ error: "storage_not_configured" }, 503);
+  const supabase = createClient(url, key);
+  await supabase.storage.createBucket(CONTENT_BUCKET, { public: true }).catch(() => {});
+  const path = `img/${sanitizeFilename(id)}-${Date.now()}.${ext}`;
+  const { error: upErr } = await supabase.storage.from(CONTENT_BUCKET)
+    .upload(path, bytes, { contentType: mimetype || `image/${ext}`, upsert: true });
+  if (upErr) return c.json({ error: upErr.message }, 500);
+  const { data: pub } = supabase.storage.from(CONTENT_BUCKET).getPublicUrl(path);
+  return c.json({ ok: true, url: pub.publicUrl });
+});
+
 Deno.serve(app.fetch);
