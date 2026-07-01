@@ -79,6 +79,7 @@ vite.config.ts            React + Tailwind plugins, `@` → `src`, plus a `figma
 /termin-status               TerminStatusPage    (landing for the operator's confirm/decline email links; reads ?s=…)
 /impressum                   ImpressumPage       (legally required: §5 TMG)
 /datenschutz                 DatenschutzPage     (GDPR notice)
+/admin                       AdminLoginPage      (content-editor login; noindex; see "Content editor" below)
 *                            inline 404
 ```
 
@@ -150,6 +151,10 @@ Routes:
   - `GET  /appointment-action?token=…&action=confirm|decline` — operator action opened **from an email with no auth header**. ⚠️ **The function MUST be deployed `--no-verify-jwt`** or this 401s. Token regex-validated; idempotent state machine (`pending`→`confirmed`/`declined`); on confirm re-checks the slot is still free (race guard); sends the visitor a confirmed/declined mail; **302-redirects** to `${SITE_URL}/termin-status?s=…` (works as an SPA deep link via the `404.html` fallback). Optional secrets: `APPT_TO` (recipient; falls back to `JOB_TO`/`MAIL_TO`/`SMTP_USER`), `SITE_URL` (default `https://curadoma.de`). Spec: [docs/superpowers/specs/2026-06-23-terminbuchung-design.md](docs/superpowers/specs/2026-06-23-terminbuchung-design.md).
 - `GET  /reviews` — returns `{reviews, rating, total, placeUrl, cached, stale}`. Two-stage Google Places call: first `findplacefromtext` to resolve the Place ID from the hardcoded business address (`PLACE_DISCOVERY_QUERY = "Cura Doma Süntelhang 9 31787 Hameln"`), cached 7 days under `discovered_place_id`; then `place/details` for reviews, cached 6h under `cache:reviews:<placeId>`. Returns `503 {missing: [...]}` only when `GOOGLE_PLACES_API_KEY` is absent. `GOOGLE_PLACE_ID` is supported as an optional override if auto-discovery picks the wrong listing. Google caps reviews at 5 per call — upstream limit, not ours.
 - `GET  /instagram-posts` — returns `{posts, cached, stale}`. Calls Instagram Graph API `v18.0/{ig-id}/media`; cached 30 min in KV. Returns `503 {missing: [...]}` when `INSTAGRAM_ACCESS_TOKEN` or `INSTAGRAM_BUSINESS_ACCOUNT_ID` secret is absent. Long-lived tokens last 60 days — refresh via the Graph API before expiry.
+- **Content editor** (3 routes; UI = `/admin` + in-place editing — see the "Content editor" section):
+  - `GET  /site-content` → `{content:{[id]:string}}` — saved text/image overrides (public read; `{}` until first save).
+  - `POST /site-content/save` — `{password, action:"save"|"restore"|"__check", overrides?, rich?}`. Password constant-time vs `EDIT_PASSWORD`; per-IP + global rate-limit (bump on failure); id `^[a-z0-9.-]{1,64}$` + length caps; `503` when the secret is unset. **Every stored value is `sanitizeRich`'d unconditionally** (escape-first allowlist `strong/b/em/i/br/a` + safe href) — do NOT gate sanitization on the client `rich` flag; the client renders overrides via `dangerouslySetInnerHTML`. Previous state pushed to `site_content:history` (≤20) for `action:"restore"`.
+  - `POST /site-content/image` — `{password, id, dataBase64}`. Magic-byte sniff (JPG/PNG/WebP); stored Content-Type derived from the **sniffed** bytes, never the client mimetype (blocks image/HTML-polyglot stored-XSS in the public bucket); uploaded to the public bucket `site-content`; returns the public URL. KV keys: `site_content:current`, `site_content:history`.
 
 Cache pattern (`cachedFetch<T>` helper in [index.ts](supabase/functions/server/index.ts)): get from KV → if fresh return → else hit upstream → write to KV → return. On upstream failure with a stale cache: serve the stale cache and flag `stale: true`. On failure with no cache: return 502.
 
@@ -166,12 +171,28 @@ Required Supabase Edge Function secrets (set in Supabase Dashboard → Edge Func
 - `GOOGLE_PLACE_ID` *(optional)* — Place ID override; only set if auto-discovery picks the wrong listing
 - `INSTAGRAM_ACCESS_TOKEN` — long-lived Page access token (Meta Graph API; 60-day TTL)
 - `INSTAGRAM_BUSINESS_ACCOUNT_ID` — numeric IG Business/Creator account ID
+- `EDIT_PASSWORD` — content-editor password (16+ chars). The ONLY access control for editing. Until it's set, `/site-content/save` + `/site-content/image` return `503` and editing is disabled site-wide (the public site is unaffected). Set via `supabase secrets set EDIT_PASSWORD=… --project-ref gjcleedoysndaagtsqjb`.
 
 If any of these are missing, the relevant endpoint returns `503 {missing: [...]}`. The frontend handles the cases gracefully — `GoogleReviews` falls back to `src/lib/reviews-data.ts` placeholders + a warning banner; `InstagramFeed` hides itself entirely.
 
 The committed `utils/supabase/info.tsx` carries `projectId` + the **anon** key. That is intentional and safe (anon keys are designed to be client-visible). Do not move it to env vars — Figma Make regenerates this file, and breaking the contract will lose changes on the next pull.
 
 The form pages submit `fetch(...)` directly. They show a success state on `2xx`, surface `data.fields` as inline field errors on `422`, and a German fallback message otherwise. Match this pattern for any new form.
+
+## Content editor (Inhalts-Editor)
+
+`/admin` → password → the whole site opens in an **in-place edit mode** (red-dashed outlines; click text to type, click an image to replace it; floating toolbar with Speichern / Verwerfen / Rückgängig / Verlassen). Saves are **instant-live** on the next load — no rebuild, no GitHub. Built à la the de-Vries CMS, adapted to React. Spec: [docs/superpowers/specs/2026-07-01-inhalts-editor-design.md](docs/superpowers/specs/2026-07-01-inhalts-editor-design.md); plan + full 558-field inventory: `docs/superpowers/plans/2026-07-01-inhalts-editor*.md`.
+
+**Mental model (read before touching editor code):**
+- **Defaults live IN THE CODE.** Editable content is wrapped: `<Editable id="page.section.field" as="h2" style={jakarta}>Default text</Editable>` and `<EditableImage id="…" src={img} alt="…" />`. The `children`/`src` IS the fallback — if Supabase is unreachable the site renders the code version. **Never delete the default text when editing the JSX; it is the content.**
+- **Overrides (only changed fields) live in Supabase KV** (`site_content:current`), fetched once at startup by `ContentProvider` ([src/lib/content.tsx](src/lib/content.tsx)) and layered over defaults via `get(id)`. Only changed fields flash to the new value on load.
+- **Edit mode is app state.** `/admin` ([AdminLoginPage](src/app/components/AdminLoginPage.tsx)) verifies the password against `/site-content/save` (enters edit mode ONLY on HTTP 200) and sets `sessionStorage.cd_edit` + `cd_edit_pw` (password stays in the operator's session, never in the bundle). `ContentProvider` reads the flag on mount.
+- **`<Editable>`** ([src/app/components/editor/Editable.tsx](src/app/components/editor/Editable.tsx)) in edit mode = `contentEditable`, seeded ONCE from the committed value (`getStored`, never live `pending`) so React doesn't fight the cursor; `onClick` preventDefault so editable labels inside `<Link>`/`<a>` don't navigate. Overrides always render via `dangerouslySetInnerHTML` of the **server-sanitized** value (plain + rich alike → no double-escape, no XSS).
+- **`shared.*` = site-wide SSOT.** Contact data (phone/email/address/hours) and menu/footer labels use `shared.*` ids via [src/app/components/editor/Shared.tsx](src/app/components/editor/Shared.tsx) — `PhoneText` / `EmailText` / `AddressBlock` / `HoursText`. One edit updates every occurrence, and these components DERIVE the `tel:`/`mailto:` href from the (editable) value. **When adding contact data anywhere, use these components — never hardcode the number/email/address or its `href`** (that reintroduces the drift the SSOT prevents).
+
+**Wrapping rules (when making content editable):** only text + content images are editable — structure, routes, animations, class names stay byte-identical. A hero H1's colored `<span>` stays structural; the text inside is a SEPARATE `<Editable>` (split — never nest markup inside Editable content). Template/runtime variables (`{JOB_TITLE}`, `{count}`, `{form.*}`) are NOT wrapped. `.map` items get indexed ids (`home.services.0.title`). `rich` only for genuine `<strong>`/`<em>`. Icons and `to=`/`href=` never change.
+
+**One-time setup (operator):** set the Supabase secret `EDIT_PASSWORD` (16+ chars) — until then editing is disabled (503) and the public site is unaffected. The image bucket `site-content` (public) is auto-created on first upload. The Edge Function is deployed as usual; the frontend ships with the editor already wired.
 
 ## Things that look like problems but aren't
 
