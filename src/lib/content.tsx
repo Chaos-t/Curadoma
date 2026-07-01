@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { FN_BASE, FN_ANON } from "./booking";
 
 type Pending = Record<string, { v: string; rich: boolean }>;
@@ -37,9 +37,12 @@ function fileToDataUrl(file: File): Promise<string> {
 export function ContentProvider({ children }: { children: ReactNode }) {
   const [overrides, setOverrides] = useState<Record<string, string>>({});
   const [pending, setPendingState] = useState<Pending>({});
-  const [editMode, setEditMode] = useState<boolean>(
-    () => typeof sessionStorage !== "undefined" && sessionStorage.getItem("cd_edit") === "1",
-  );
+  // Editier-Status NUR im Speicher (kein sessionStorage): der Bearbeitungsmodus
+  // geht ausschliesslich ueber den Passwort-Login (AdminLoginPage) an und ist nach
+  // jedem Reload/neuen Besuch wieder aus. So kann niemand ohne Login editieren —
+  // auch nicht per manuell gesetztem Flag in den DevTools.
+  const [editMode, setEditMode] = useState<boolean>(false);
+  const pwRef = useRef<string>("");
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -65,7 +68,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     setPendingState((p) => ({ ...p, [id]: { v, rich } }));
   }, []);
 
-  const pw = () => (typeof sessionStorage !== "undefined" ? sessionStorage.getItem("cd_edit_pw") || "" : "");
+  const pw = () => pwRef.current;
 
   const uploadImage = useCallback(async (id: string, file: File) => {
     setStatus("Bild wird hochgeladen …"); setError(null);
@@ -106,7 +109,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
 
   const discard = useCallback(() => { setPendingState({}); setStatus("Änderungen verworfen."); setError(null); }, []);
   const exit = useCallback(() => {
-    if (typeof sessionStorage !== "undefined") { sessionStorage.removeItem("cd_edit"); sessionStorage.removeItem("cd_edit_pw"); }
+    pwRef.current = "";
     setEditMode(false); setPendingState({}); setStatus(null); setError(null);
   }, []);
   const restore = useCallback(async () => {
@@ -126,7 +129,9 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     } catch { setError("Rückgängig: Verbindungsfehler."); } finally { setSaving(false); }
   }, []);
   const enterEditMode = useCallback((p: string) => {
-    if (typeof sessionStorage !== "undefined") { sessionStorage.setItem("cd_edit", "1"); sessionStorage.setItem("cd_edit_pw", p); }
+    // Wird nur von AdminLoginPage nach erfolgreicher (HTTP-200) Passwortpruefung
+    // aufgerufen. Passwort bleibt ausschliesslich im Speicher dieser Sitzung.
+    pwRef.current = p;
     setEditMode(true);
   }, []);
 
