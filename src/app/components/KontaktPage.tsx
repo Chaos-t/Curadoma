@@ -12,11 +12,13 @@ import {
   looksLikeBotSubmit,
   Limits,
 } from "../../lib/validation";
+import { Editable } from "./editor/Editable";
+import { EditableImage } from "./editor/EditableImage";
+import { AddressBlock, HoursText } from "./editor/Shared";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 const img = "https://images.unsplash.com/photo-1758518725921-1eb74ed293be?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmcmllbmRseSUyMGNvbnN1bHRhdGlvbiUyMG9mZmljZSUyMG1lZXRpbmclMjB3YXJtfGVufDF8fHx8MTc3NTMxNDQ5MXww&ixlib=rb-4.1.0&q=80&w=1080";
 
-const ADDRESS = "Süntelhang 9, 31787 Hameln";
 const PHONE = "05151 7107093";
 const PHONE_LINK = "tel:+4951517107093";
 const GOOGLE_MAPS_EMBED = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2440.5!2d9.3567!3d52.1037!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zU8O8bnRlbGhhbmcgOSwgMzE3ODcgSGFtZWxu!5e0!3m2!1sde!2sde!4v1700000000000!5m2!1sde!2sde";
@@ -153,13 +155,13 @@ export function KontaktPage() {
         <div className="absolute top-0 left-1/2 w-[600px] h-[600px] bg-[#BFEAF2] opacity-15 rounded-full blur-3xl pointer-events-none -translate-x-1/2 -translate-y-1/3"></div>
         <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
-            Kontakt aufnehmen
+            <Editable as="span" id="kontakt.hero.badge">Kontakt aufnehmen</Editable>
           </div>
           <h1 className="text-4xl sm:text-5xl font-medium tracking-tight text-[#111111] leading-[1.15] mb-6" style={jakarta}>
-            Wir sind <span className="text-[#6FD3D1]">für Sie da</span>
+            <Editable as="span" id="kontakt.hero.title.pre">Wir sind </Editable><span className="text-[#6FD3D1]"><Editable as="span" id="kontakt.hero.title.highlight">für Sie da</Editable></span>
           </h1>
           <p className="text-lg text-[#5F6B73] leading-relaxed max-w-2xl mx-auto font-light">
-            Nehmen Sie Kontakt auf für ein kostenfreies Erstgespräch. Wir nehmen uns Zeit für Sie, beantworten alle Fragen und finden gemeinsam die beste Lösung für Ihre Situation.
+            <Editable as="span" id="kontakt.hero.subtitle">Nehmen Sie Kontakt auf für ein kostenfreies Erstgespräch. Wir nehmen uns Zeit für Sie, beantworten alle Fragen und finden gemeinsam die beste Lösung für Ihre Situation.</Editable>
           </p>
         </div>
       </section>
@@ -170,14 +172,14 @@ export function KontaktPage() {
           {/* Form */}
           <div className="cura-reveal cura-reveal-left">
             <h2 className="text-2xl font-medium tracking-tight text-[#111111] mb-6" style={jakarta}>
-              Schreiben Sie uns
+              <Editable as="span" id="kontakt.form.heading">Schreiben Sie uns</Editable>
             </h2>
 
             {submitted ? (
               <div className="bg-[#F8FEFF] p-8 rounded-3xl border border-[#E5F4F5] text-center">
                 <CheckCircle size={48} className="text-[#6FD3D1] mx-auto mb-4" />
-                <h3 className="text-xl font-medium text-[#111111] mb-2" style={jakarta}>Vielen Dank für Ihre Anfrage.</h3>
-                <p className="text-[15px] text-[#5F6B73] font-light">Wir melden uns schnellstmöglich bei Ihnen.</p>
+                <h3 className="text-xl font-medium text-[#111111] mb-2" style={jakarta}><Editable as="span" id="kontakt.form.success.title">Vielen Dank für Ihre Anfrage.</Editable></h3>
+                <p className="text-[15px] text-[#5F6B73] font-light"><Editable as="span" id="kontakt.form.success.text">Wir melden uns schnellstmöglich bei Ihnen.</Editable></p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5" noValidate>
@@ -198,7 +200,7 @@ export function KontaktPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
-                    <label className="block text-sm font-medium text-[#111111] mb-1.5" htmlFor="kontakt-firstName">Vorname *</label>
+                    <label className="block text-sm font-medium text-[#111111] mb-1.5" htmlFor="kontakt-firstName"><Editable as="span" id="kontakt.form.label.firstname">Vorname *</Editable></label>
                     <input
                       id="kontakt-firstName"
                       type="text"
@@ -214,7 +216,7 @@ export function KontaktPage() {
                     {fieldErrors.firstName && <p className="text-xs text-red-500 mt-1">{fieldErrors.firstName}</p>}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-[#111111] mb-1.5" htmlFor="kontakt-lastName">Nachname *</label>
+                    <label className="block text-sm font-medium text-[#111111] mb-1.5" htmlFor="kontakt-lastName"><Editable as="span" id="kontakt.form.label.lastname">Nachname *</Editable></label>
                     <input
                       id="kontakt-lastName"
                       type="text"
@@ -231,7 +233,7 @@ export function KontaktPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[#111111] mb-1.5" htmlFor="kontakt-email">E-Mail-Adresse *</label>
+                  <label className="block text-sm font-medium text-[#111111] mb-1.5" htmlFor="kontakt-email"><Editable as="span" id="kontakt.form.label.email">E-Mail-Adresse *</Editable></label>
                   <input
                     id="kontakt-email"
                     type="email"
@@ -248,7 +250,7 @@ export function KontaktPage() {
                   {fieldErrors.email && <p className="text-xs text-red-500 mt-1">{fieldErrors.email}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[#111111] mb-1.5" htmlFor="kontakt-phone">Telefonnummer</label>
+                  <label className="block text-sm font-medium text-[#111111] mb-1.5" htmlFor="kontakt-phone"><Editable as="span" id="kontakt.form.label.phone">Telefonnummer</Editable></label>
                   <input
                     id="kontakt-phone"
                     type="tel"
@@ -264,7 +266,7 @@ export function KontaktPage() {
                   {fieldErrors.phone && <p className="text-xs text-red-500 mt-1">{fieldErrors.phone}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[#111111] mb-1.5" htmlFor="kontakt-subject">Betreff</label>
+                  <label className="block text-sm font-medium text-[#111111] mb-1.5" htmlFor="kontakt-subject"><Editable as="span" id="kontakt.form.label.subject">Betreff</Editable></label>
                   <select id="kontakt-subject" value={form.subject} onChange={(e) => update("subject", e.target.value)} className="w-full px-4 py-3 rounded-xl border border-[#E5F4F5] bg-[#F8FEFF] text-sm font-light text-[#5F6B73] focus:outline-none focus:border-[#6FD3D1] focus:ring-1 focus:ring-[#6FD3D1] transition-colors">
                     <option value="">Bitte wählen...</option>
                     <option>Alltagsbegleitung</option>
@@ -277,7 +279,7 @@ export function KontaktPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-[#111111] mb-1.5" htmlFor="kontakt-message">
-                    Ihre Nachricht *
+                    <Editable as="span" id="kontakt.form.label.message">Ihre Nachricht *</Editable>
                     <span className="text-[11px] font-light text-[#9AA3A8] ml-2">{form.message.length}/{Limits.MESSAGE_MAX}</span>
                   </label>
                   <textarea
@@ -296,7 +298,7 @@ export function KontaktPage() {
                 <label className="flex items-start gap-3 text-sm text-[#5F6B73] font-light leading-relaxed">
                   <input type="checkbox" checked={form.consent} onChange={(e) => update("consent", e.target.checked)} className="mt-1 w-4 h-4 accent-[#6FD3D1] shrink-0" />
                   <span>
-                    Ich habe die <Link to="/datenschutz" className="text-[#6FD3D1] underline hover:text-[#5BC2C0]">Datenschutzerklärung</Link> gelesen und stimme zu, dass meine Angaben zur Bearbeitung meiner Anfrage verarbeitet werden.
+                    <Editable as="span" id="kontakt.form.consent.pre">Ich habe die </Editable><Link to="/datenschutz" className="text-[#6FD3D1] underline hover:text-[#5BC2C0]"><Editable as="span" id="kontakt.form.consent.linktext">Datenschutzerklärung</Editable></Link><Editable as="span" id="kontakt.form.consent.post"> gelesen und stimme zu, dass meine Angaben zur Bearbeitung meiner Anfrage verarbeitet werden.</Editable>
                   </span>
                 </label>
                 {fieldErrors.consent_privacy && <p className="text-xs text-red-500 -mt-3">{fieldErrors.consent_privacy}</p>}
@@ -309,7 +311,7 @@ export function KontaktPage() {
                 )}
 
                 <button type="submit" disabled={submitting} className="w-full sm:w-auto bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] disabled:opacity-60 disabled:cursor-not-allowed px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)] flex items-center justify-center gap-2">
-                  <Send size={18} /> {submitting ? "Wird gesendet…" : "Nachricht senden"}
+                  <Send size={18} /> {submitting ? <Editable as="span" id="kontakt.form.submit.loading">Wird gesendet…</Editable> : <Editable as="span" id="kontakt.form.submit.default">Nachricht senden</Editable>}
                 </button>
               </form>
             )}
@@ -318,19 +320,19 @@ export function KontaktPage() {
           {/* Contact Info */}
           <div className="cura-reveal cura-reveal-right">
             <div className="rounded-3xl overflow-hidden shadow-[0_20px_60px_rgb(191,234,242,0.3)] border-4 border-white mb-8">
-              <img src={img} alt="Beratungsgespräch" className="w-full aspect-[4/3] object-cover" />
+              <EditableImage id="kontakt.info.image" src={img} alt="Beratungsgespräch" altId="kontakt.info.image.alt" className="w-full aspect-[4/3] object-cover" />
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-xl font-medium tracking-tight text-[#111111]" style={jakarta}>Direkt erreichen</h3>
+              <h3 className="text-xl font-medium tracking-tight text-[#111111]" style={jakarta}><Editable as="span" id="kontakt.info.heading">Direkt erreichen</Editable></h3>
 
               <a href={PHONE_LINK} className="cura-card-glow flex items-center gap-4 p-4 rounded-2xl bg-[#F8FEFF] border border-[#E5F4F5] hover:shadow-md transition-shadow">
                 <div className="w-12 h-12 bg-[#DFF7F8] rounded-full flex items-center justify-center text-[#6FD3D1] shrink-0">
                   <Phone size={20} />
                 </div>
                 <div>
-                  <div className="text-base font-medium text-[#111111]">{PHONE}</div>
-                  <div className="text-sm text-[#5F6B73] font-light">Rufen Sie uns direkt an</div>
+                  <div className="text-base font-medium text-[#111111]"><Editable as="span" id="shared.tel_display">{PHONE}</Editable></div>
+                  <div className="text-sm text-[#5F6B73] font-light"><Editable as="span" id="kontakt.info.phone.desc">Rufen Sie uns direkt an</Editable></div>
                 </div>
               </a>
 
@@ -339,8 +341,8 @@ export function KontaktPage() {
                   <Mail size={20} />
                 </div>
                 <div>
-                  <div className="text-base font-medium text-[#111111]">info@curadoma.de</div>
-                  <div className="text-sm text-[#5F6B73] font-light">Schreiben Sie uns jederzeit</div>
+                  <div className="text-base font-medium text-[#111111]"><Editable as="span" id="shared.email">info@curadoma.de</Editable></div>
+                  <div className="text-sm text-[#5F6B73] font-light"><Editable as="span" id="kontakt.info.email.desc">Schreiben Sie uns jederzeit</Editable></div>
                 </div>
               </a>
 
@@ -352,8 +354,8 @@ export function KontaktPage() {
                   <MapPin size={20} />
                 </div>
                 <div className="flex-1">
-                  <div className="text-base font-medium text-[#111111]">{ADDRESS}</div>
-                  <div className="text-sm text-[#5F6B73] font-light">Einsatzgebiet: Hameln, Springe & Umgebung</div>
+                  <div className="text-base font-medium text-[#111111]"><AddressBlock variant="inline" /></div>
+                  <div className="text-sm text-[#5F6B73] font-light"><Editable as="span" id="kontakt.info.address.desc">Einsatzgebiet: Hameln, Springe & Umgebung</Editable></div>
                 </div>
                 <ExternalLink size={16} className="text-[#6FD3D1] shrink-0" />
               </button>
@@ -363,8 +365,8 @@ export function KontaktPage() {
                   <Clock size={20} />
                 </div>
                 <div>
-                  <div className="text-base font-medium text-[#111111]">Mo–Fr: 8:00 – 17:00 Uhr</div>
-                  <div className="text-sm text-[#5F6B73] font-light">Antwort innerhalb von 24 Stunden</div>
+                  <div className="text-base font-medium text-[#111111]"><HoursText withSuffix /></div>
+                  <div className="text-sm text-[#5F6B73] font-light"><Editable as="span" id="kontakt.info.hours.desc">Antwort innerhalb von 24 Stunden</Editable></div>
                 </div>
               </div>
             </div>
@@ -380,10 +382,10 @@ export function KontaktPage() {
               <MapPin size={24} />
             </div>
             <h2 className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-4" style={jakarta}>
-              Hier finden Sie uns
+              <Editable as="span" id="kontakt.map.heading">Hier finden Sie uns</Editable>
             </h2>
             <p className="text-lg text-[#5F6B73] font-light max-w-2xl mx-auto">
-              Besuchen Sie uns in Hameln oder kontaktieren Sie uns für einen Hausbesuch in Ihrem Zuhause.
+              <Editable as="span" id="kontakt.map.subtitle">Besuchen Sie uns in Hameln oder kontaktieren Sie uns für einen Hausbesuch in Ihrem Zuhause.</Editable>
             </p>
           </div>
 
@@ -418,7 +420,7 @@ export function KontaktPage() {
             <div className="cura-reveal cura-reveal-right flex flex-col gap-6">
               <div className="cura-card-glow bg-white/90 backdrop-blur-sm p-8 rounded-3xl border border-[#E5F4F5] shadow-sm flex-1">
                 <h3 className="text-xl font-medium tracking-tight text-[#111111] mb-6" style={jakarta}>
-                  Kontakt & Standort
+                  <Editable as="span" id="kontakt.locationcard.heading">Kontakt & Standort</Editable>
                 </h3>
 
                 <div className="space-y-5">
@@ -430,8 +432,8 @@ export function KontaktPage() {
                       <MapPin size={18} />
                     </div>
                     <div>
-                      <div className="text-base font-medium text-[#111111] group-hover/addr:text-[#6FD3D1] transition-colors">Süntelhang 9</div>
-                      <div className="text-sm text-[#5F6B73] font-light">31787 Hameln, Germany</div>
+                      <div className="text-base font-medium text-[#111111] group-hover/addr:text-[#6FD3D1] transition-colors"><Editable as="span" id="shared.address.street">Süntelhang 9</Editable></div>
+                      <div className="text-sm text-[#5F6B73] font-light"><Editable as="span" id="kontakt.locationcard.address.line2">31787 Hameln, Germany</Editable></div>
                     </div>
                   </button>
 
@@ -440,8 +442,8 @@ export function KontaktPage() {
                       <Phone size={18} />
                     </div>
                     <div>
-                      <div className="text-base font-medium text-[#111111] group-hover/phone:text-[#6FD3D1] transition-colors">{PHONE}</div>
-                      <div className="text-sm text-[#5F6B73] font-light">Direkt anrufen</div>
+                      <div className="text-base font-medium text-[#111111] group-hover/phone:text-[#6FD3D1] transition-colors"><Editable as="span" id="shared.tel_display">{PHONE}</Editable></div>
+                      <div className="text-sm text-[#5F6B73] font-light"><Editable as="span" id="kontakt.locationcard.phone.desc">Direkt anrufen</Editable></div>
                     </div>
                   </a>
 
@@ -450,8 +452,8 @@ export function KontaktPage() {
                       <Mail size={18} />
                     </div>
                     <div>
-                      <div className="text-base font-medium text-[#111111] group-hover/mail:text-[#6FD3D1] transition-colors">info@curadoma.de</div>
-                      <div className="text-sm text-[#5F6B73] font-light">E-Mail schreiben</div>
+                      <div className="text-base font-medium text-[#111111] group-hover/mail:text-[#6FD3D1] transition-colors"><Editable as="span" id="shared.email">info@curadoma.de</Editable></div>
+                      <div className="text-sm text-[#5F6B73] font-light"><Editable as="span" id="kontakt.locationcard.email.desc">E-Mail schreiben</Editable></div>
                     </div>
                   </a>
 
@@ -460,8 +462,8 @@ export function KontaktPage() {
                       <Clock size={18} />
                     </div>
                     <div>
-                      <div className="text-base font-medium text-[#111111]">Mo–Fr: 8:00 – 17:00</div>
-                      <div className="text-sm text-[#5F6B73] font-light">Termine nach Vereinbarung</div>
+                      <div className="text-base font-medium text-[#111111]"><HoursText withSuffix={false} /></div>
+                      <div className="text-sm text-[#5F6B73] font-light"><Editable as="span" id="kontakt.locationcard.hours.desc">Termine nach Vereinbarung</Editable></div>
                     </div>
                   </div>
                 </div>
@@ -472,7 +474,7 @@ export function KontaktPage() {
                   className="mt-8 w-full bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-6 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)] flex items-center justify-center gap-2"
                 >
                   <Navigation size={18} />
-                  Route ansehen
+                  <Editable as="span" id="kontakt.locationcard.button.route">Route ansehen</Editable>
                 </button>
 
                 <a
@@ -482,7 +484,7 @@ export function KontaktPage() {
                   className="mt-3 w-full bg-white text-[#5F6B73] border border-[#E5F4F5] hover:bg-[#F8FEFF] hover:text-[#111111] px-6 py-3 rounded-full text-sm font-normal transition-all flex items-center justify-center gap-2"
                 >
                   <ExternalLink size={16} />
-                  In Google Maps öffnen
+                  <Editable as="span" id="kontakt.locationcard.button.maps">In Google Maps öffnen</Editable>
                 </a>
               </div>
             </div>
@@ -495,10 +497,10 @@ export function KontaktPage() {
         <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center">
           <Heart size={48} strokeWidth={1} className="text-[#BFEAF2] mb-6 mx-auto" />
           <h2 className="text-2xl lg:text-3xl font-medium tracking-tight text-[#111111] mb-4" style={jakarta}>
-            Unser Versprechen an Sie
+            <Editable as="span" id="kontakt.promise.heading">Unser Versprechen an Sie</Editable>
           </h2>
           <p className="text-lg text-[#5F6B73] font-light max-w-2xl mx-auto">
-            Jede Anfrage wird persönlich und vertraulich behandelt. Wir nehmen uns Zeit für ein ausführliches Erstgespräch, beraten Sie zu allen Möglichkeiten der Kostenübernahme und erstellen einen individuellen Betreuungsplan – alles kostenfrei und unverbindlich.
+            <Editable as="span" id="kontakt.promise.text">Jede Anfrage wird persönlich und vertraulich behandelt. Wir nehmen uns Zeit für ein ausführliches Erstgespräch, beraten Sie zu allen Möglichkeiten der Kostenübernahme und erstellen einen individuellen Betreuungsplan – alles kostenfrei und unverbindlich.</Editable>
           </p>
         </div>
       </section>
