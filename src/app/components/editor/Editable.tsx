@@ -5,14 +5,18 @@ type Tag = keyof JSX.IntrinsicElements;
 export function Editable({ id, children, as = "span", rich = false, className, style }: {
   id: string; children: ReactNode; as?: Tag; rich?: boolean; className?: string; style?: React.CSSProperties;
 }) {
-  const { get, editMode, setPending } = useContent();
+  const { get, getStored, editMode, setPending } = useContent();
   const override = get(id);
   // Seed nur einmal bei aktivem Edit-Modus erfassen; bei Verlassen zurücksetzen.
+  // Seed kommt aus dem GESPEICHERTEN (server-sanitisierten) Wert, nie aus dem
+  // ungespeicherten `pending` — so kann kein roh getipptes innerHTML einen
+  // dangerouslySetInnerHTML seed füllen.
   const seed = useRef<ReactNode | undefined>(undefined);
   if (editMode) {
     if (seed.current === undefined) {
-      seed.current = override != null
-        ? (rich ? <span dangerouslySetInnerHTML={{ __html: override }} /> : override)
+      const stored = getStored(id);
+      seed.current = stored != null
+        ? (rich ? <span dangerouslySetInnerHTML={{ __html: stored }} /> : stored)
         : children;
     }
   } else {

@@ -4,6 +4,9 @@ import { FN_BASE, FN_ANON } from "./booking";
 type Pending = Record<string, { v: string; rich: boolean }>;
 type Ctx = {
   get: (id: string) => string | undefined;
+  /** Committed value only (ignores unsaved pending) — used to seed edit mode
+   *  so un-sanitized pending HTML can never seed a dangerouslySetInnerHTML. */
+  getStored: (id: string) => string | undefined;
   editMode: boolean;
   dirtyCount: number;
   saving: boolean;
@@ -55,6 +58,8 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     if (id in overrides) return overrides[id];
     return undefined;
   }, [pending, overrides]);
+
+  const getStored = useCallback((id: string) => (id in overrides ? overrides[id] : undefined), [overrides]);
 
   const setPending = useCallback((id: string, v: string, rich: boolean) => {
     setPendingState((p) => ({ ...p, [id]: { v, rich } }));
@@ -126,7 +131,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value: Ctx = {
-    get, editMode, dirtyCount: Object.keys(pending).length, saving, status, error,
+    get, getStored, editMode, dirtyCount: Object.keys(pending).length, saving, status, error,
     setPending, uploadImage, save, discard, exit, restore, enterEditMode,
   };
   return <ContentContext.Provider value={value}>{children}</ContentContext.Provider>;
