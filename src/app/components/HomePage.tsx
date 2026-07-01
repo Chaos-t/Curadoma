@@ -8,6 +8,7 @@ import { EinzugsgebietSection } from "./EinzugsgebietSection";
 import { GoogleReviews } from "./GoogleReviews";
 import { InstagramFeed } from "./InstagramFeed";
 import { Editable } from "./editor/Editable";
+import { EditableImage } from "./editor/EditableImage";
 
 type Partner = {
   name: string;
@@ -48,15 +49,15 @@ function PartnerSection() {
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="cura-reveal cura-reveal-up text-center max-w-2xl mx-auto mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-5 uppercase tracking-wider">
-            <Handshake size={14} /> Unsere Partner
+            <Handshake size={14} /> <Editable as="span" id="home.partners.badge">Unsere Partner</Editable>
           </div>
-          <h2 className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <Editable as="h2" id="home.partners.title" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }} className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-4">
             Gemeinsam stark für Sie
-          </h2>
-          <p className="text-[15px] lg:text-base text-[#5F6B73] font-light leading-relaxed">
+          </Editable>
+          <Editable as="p" id="home.partners.text" className="text-[15px] lg:text-base text-[#5F6B73] font-light leading-relaxed">
             Wir arbeiten vertrauensvoll mit Beratungs- und Versorgungspartnern zusammen,
             um Ihnen eine umfassende Betreuung zu ermöglichen.
-          </p>
+          </Editable>
         </div>
 
         {/* Mobile: swipe / Desktop: marquee */}
@@ -64,14 +65,14 @@ function PartnerSection() {
           <div className="hidden md:block relative overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]">
             <div className="flex gap-6 motion-safe:animate-[curaPartnerMarquee_45s_linear_infinite]">
               {loop.map((p, i) => (
-                <PartnerCard key={`${p.name}-${i}`} partner={p} />
+                <PartnerCard key={`${p.name}-${i}`} partner={p} index={i % partners.length} />
               ))}
             </div>
           </div>
           <div className="md:hidden flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-6 px-6">
-            {partners.map((p) => (
+            {partners.map((p, i) => (
               <div key={p.name} className="snap-start shrink-0 w-[80%]">
-                <PartnerCard partner={p} />
+                <PartnerCard partner={p} index={i} />
               </div>
             ))}
           </div>
@@ -87,7 +88,7 @@ function PartnerSection() {
   );
 }
 
-function PartnerCard({ partner }: { partner: Partner }) {
+function PartnerCard({ partner, index }: { partner: Partner; index: number }) {
   return (
     <a
       href={partner.url}
@@ -98,7 +99,8 @@ function PartnerCard({ partner }: { partner: Partner }) {
     >
       {/* Logo with bg-mint tile so transparent-PNG logos read on white */}
       <div className="w-14 h-14 rounded-xl bg-[#F8FEFF] border border-[#E5F4F5] flex items-center justify-center shrink-0 overflow-hidden">
-        <img
+        <EditableImage
+          id={`home.partners.${index}.logo`}
           src={partner.logoUrl}
           alt={`${partner.name} Logo`}
           loading="lazy"
@@ -108,14 +110,14 @@ function PartnerCard({ partner }: { partner: Partner }) {
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-[#9AA3A8] font-light mb-0.5">
-          Partner
+          <Editable as="span" id="home.partners.eyebrow-label">Partner</Editable>
           <ExternalLink size={10} className="text-[#9AA3A8] opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
         <div className="text-sm font-medium text-[#111111] truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-          {partner.name}
+          <Editable as="span" id={`home.partners.${index}.name`}>{partner.name}</Editable>
         </div>
         <div className="text-[11px] text-[#5F6B73] font-light truncate">
-          {partner.tagline}
+          <Editable as="span" id={`home.partners.${index}.tagline`}>{partner.tagline}</Editable>
         </div>
       </div>
       <style>{`@keyframes curaFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
@@ -140,41 +142,41 @@ export function HomePage() {
           <div className="cura-hero-text flex-1 text-center lg:text-left">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#E5F4F5] shadow-sm text-xs font-normal text-[#5F6B73] mb-8">
               <HandHeart size={18} strokeWidth={1.5} className="text-[#6FD3D1]" />
-              Vertrauensvolle Betreuung im eigenen Zuhause
+              <Editable as="span" id="home.hero.badge">Vertrauensvolle Betreuung im eigenen Zuhause</Editable>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-[#111111] leading-[1.15] mb-6" style={jakarta}>
-              Sie können nicht immer da sein. <br className="hidden lg:block" />
-              <span className="text-[#6FD3D1]">Wir können es.</span>
+              <Editable as="span" id="home.hero.title">Sie können nicht immer da sein.</Editable> <br className="hidden lg:block" />
+              <span className="text-[#6FD3D1]"><Editable as="span" id="home.hero.title-highlight">Wir können es.</Editable></span>
             </h1>
-            <p className="text-lg lg:text-xl text-[#5F6B73] leading-relaxed max-w-2xl mx-auto lg:mx-0 mb-10 font-light">
+            <Editable as="p" id="home.hero.subtitle" className="text-lg lg:text-xl text-[#5F6B73] leading-relaxed max-w-2xl mx-auto lg:mx-0 mb-10 font-light">
               Liebevolle und individuelle Unterstützung für pflegebedürftige Menschen in ihrer gewohnten Umgebung. Wir entlasten Angehörige und fördern ein würdevolles, selbstbestimmtes Leben.
-            </p>
+            </Editable>
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-10">
               <Link to="/kontakt" className="w-full sm:w-auto bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)] flex items-center justify-center gap-2">
-                Kostenlos beraten lassen
+                <Editable as="span" id="home.hero.cta-primary">Kostenlos beraten lassen</Editable>
               </Link>
               <Link to="/leistungen" className="w-full sm:w-auto bg-white text-[#5F6B73] border border-[#E5F4F5] hover:bg-[#F8FEFF] hover:text-[#111111] px-8 py-3.5 rounded-full text-base font-normal transition-all flex items-center justify-center">
-                Unsere Leistungen
+                <Editable as="span" id="home.hero.cta-secondary">Unsere Leistungen</Editable>
               </Link>
             </div>
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-x-6 gap-y-2 text-xs text-[#5F6B73] font-light">
-              <span className="inline-flex items-center gap-1.5"><CheckCircle size={14} className="text-[#6FD3D1]" /> Anerkannter Anbieter</span>
-              <span className="inline-flex items-center gap-1.5"><CheckCircle size={14} className="text-[#6FD3D1]" /> Abrechnung über Pflegekasse möglich</span>
-              <span className="inline-flex items-center gap-1.5"><CheckCircle size={14} className="text-[#6FD3D1]" /> Persönliche Betreuung</span>
+              <span className="inline-flex items-center gap-1.5"><CheckCircle size={14} className="text-[#6FD3D1]" /> <Editable as="span" id="home.hero.trust.0">Anerkannter Anbieter</Editable></span>
+              <span className="inline-flex items-center gap-1.5"><CheckCircle size={14} className="text-[#6FD3D1]" /> <Editable as="span" id="home.hero.trust.1">Abrechnung über Pflegekasse möglich</Editable></span>
+              <span className="inline-flex items-center gap-1.5"><CheckCircle size={14} className="text-[#6FD3D1]" /> <Editable as="span" id="home.hero.trust.2">Persönliche Betreuung</Editable></span>
             </div>
           </div>
 
           <div className="cura-hero-image flex-1 w-full max-w-lg lg:max-w-none relative">
             <div className="relative rounded-3xl overflow-hidden shadow-[0_20px_60px_rgb(191,234,242,0.4)] border-4 border-white">
-              <img src={heroImage} alt="Betreuerin hält die Hände einer älteren Dame" className="w-full h-auto aspect-[4/3] object-cover" />
+              <EditableImage id="home.hero.image" src={heroImage} alt="Betreuerin hält die Hände einer älteren Dame" altId="home.hero.image-alt" className="w-full h-auto aspect-[4/3] object-cover" />
             </div>
             <div className="cura-card-glow absolute -bottom-6 -left-4 lg:-left-12 bg-white p-5 rounded-2xl shadow-[0_10px_30px_rgb(0,0,0,0.05)] border border-[#E5F4F5] flex items-center gap-4">
               <div className="w-12 h-12 bg-[#DFF7F8] rounded-full flex items-center justify-center text-[#6FD3D1]">
                 <ShieldCheck size={24} strokeWidth={1.5} />
               </div>
               <div>
-                <div className="text-sm font-medium tracking-tight text-[#111111]" style={jakarta}>Anerkannter Partner</div>
-                <div className="text-xs text-[#5F6B73] font-light mt-0.5">Abrechnung mit der Pflegekasse</div>
+                <Editable as="div" id="home.hero.card.title" style={jakarta} className="text-sm font-medium tracking-tight text-[#111111]">Anerkannter Partner</Editable>
+                <Editable as="div" id="home.hero.card.desc" className="text-xs text-[#5F6B73] font-light mt-0.5">Abrechnung mit der Pflegekasse</Editable>
               </div>
             </div>
           </div>
@@ -211,9 +213,9 @@ export function HomePage() {
           <Editable as="h2" id="home.intro.title" style={jakarta} className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-6">
             Der Mensch im Mittelpunkt
           </Editable>
-          <p className="text-lg lg:text-xl text-[#5F6B73] leading-relaxed font-light">
+          <Editable as="p" id="home.intro.text" className="text-lg lg:text-xl text-[#5F6B73] leading-relaxed font-light">
             Cura Doma ist Ihr anerkannter ambulanter Betreuungsdienst. Unsere Mission ist es, pflegebedürftigen Menschen und ihren Familien zur Seite zu stehen. Wir fördern die Selbstständigkeit, schaffen Freiräume für pflegende Angehörige und machen es möglich, so lange wie möglich sicher und geborgen im eigenen Zuhause zu leben.
-          </p>
+          </Editable>
         </div>
       </section>
 
@@ -221,12 +223,12 @@ export function HomePage() {
       <section className="py-24 bg-[#F8FEFF]/80">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="cura-reveal cura-reveal-up mb-16 text-center max-w-2xl mx-auto">
-            <h2 className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-4" style={jakarta}>
+            <Editable as="h2" id="home.services.title" style={jakarta} className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-4">
               Wie wir Sie unterstützen können
-            </h2>
-            <p className="text-lg text-[#5F6B73] font-light">
+            </Editable>
+            <Editable as="p" id="home.services.intro" className="text-lg text-[#5F6B73] font-light">
               Individuelle Leistungen, die sich sanft in Ihren Alltag einfügen.
-            </p>
+            </Editable>
           </div>
 
           <div className="cura-reveal cura-reveal-up grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -246,10 +248,10 @@ export function HomePage() {
                 <div className="w-14 h-14 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] mb-6">
                   {service.icon}
                 </div>
-                <h3 className="text-xl font-medium tracking-tight text-[#111111] mb-3" style={jakarta}>{service.title}</h3>
-                <p className="text-[15px] text-[#5F6B73] leading-relaxed font-light mb-5 flex-1">{service.desc}</p>
+                <Editable as="h3" id={`home.services.${i}.title`} style={jakarta} className="text-xl font-medium tracking-tight text-[#111111] mb-3">{service.title}</Editable>
+                <Editable as="p" id={`home.services.${i}.desc`} className="text-[15px] text-[#5F6B73] leading-relaxed font-light mb-5 flex-1">{service.desc}</Editable>
                 <span className="inline-flex items-center gap-1.5 text-sm font-medium text-[#6FD3D1] group-hover:gap-2.5 transition-all">
-                  Mehr erfahren <ArrowRight size={16} />
+                  <Editable as="span" id="home.services.card-link">Mehr erfahren</Editable> <ArrowRight size={16} />
                 </span>
               </Link>
             ))}
@@ -257,7 +259,7 @@ export function HomePage() {
 
           <div className="text-center mt-12">
             <Link to="/leistungen" className="inline-flex items-center gap-2 text-sm font-medium text-[#6FD3D1] hover:text-[#5BC2C0] transition-colors">
-              Alle Leistungen im Detail ansehen <ArrowRight size={16} />
+              <Editable as="span" id="home.services.all-link">Alle Leistungen im Detail ansehen</Editable> <ArrowRight size={16} />
             </Link>
           </div>
         </div>
@@ -268,43 +270,43 @@ export function HomePage() {
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="flex flex-col lg:flex-row gap-16 items-center">
             <div className="cura-reveal cura-reveal-left flex-1">
-              <h2 className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-6" style={jakarta}>
+              <Editable as="h2" id="home.pflegekasse.title" style={jakarta} className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-6">
                 Ihre Ansprüche bei der Pflegekasse
-              </h2>
-              <p className="text-lg text-[#5F6B73] leading-relaxed font-light mb-8">
+              </Editable>
+              <Editable as="p" id="home.pflegekasse.text" rich className="text-lg text-[#5F6B73] leading-relaxed font-light mb-8">
                 Wussten Sie schon? Ab Pflegegrad 1 steht Ihnen ein monatlicher <strong>Entlastungsbetrag von 131 Euro (§ 45b SGB XI)</strong> zur Verfügung. Dieser kann für unsere haushaltsnahen Dienstleistungen und die Alltagsbegleitung genutzt werden.
-              </p>
+              </Editable>
               <div className="cura-card-glow bg-[#F8FEFF] p-6 rounded-2xl border border-[#E5F4F5] mb-8">
                 <h4 className="text-base font-medium text-[#111111] mb-2 flex items-center gap-2">
-                  <Info size={18} className="text-[#6FD3D1]" /> Weitere Möglichkeiten
+                  <Info size={18} className="text-[#6FD3D1]" /> <Editable as="span" id="home.pflegekasse.box.title">Weitere Möglichkeiten</Editable>
                 </h4>
                 <ul className="space-y-3 text-[15px] text-[#5F6B73] font-light">
                   <li className="flex items-start gap-2">
                     <CheckCircle size={18} className="text-[#6FD3D1] mt-0.5 shrink-0" />
-                    <span><strong>Verhinderungspflege:</strong> Fällt die private Pflegeperson aus, können wir einspringen. Die Kosten trägt die Kasse.</span>
+                    <Editable as="span" id="home.pflegekasse.box.0" rich><strong>Verhinderungspflege:</strong> Fällt die private Pflegeperson aus, können wir einspringen. Die Kosten trägt die Kasse.</Editable>
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle size={18} className="text-[#6FD3D1] mt-0.5 shrink-0" />
-                    <span><strong>Umwandlung von Pflegesachleistungen:</strong> Nutzen Sie ungenutzte Sachleistungsbeträge für unsere Betreuung.</span>
+                    <Editable as="span" id="home.pflegekasse.box.1" rich><strong>Umwandlung von Pflegesachleistungen:</strong> Nutzen Sie ungenutzte Sachleistungsbeträge für unsere Betreuung.</Editable>
                   </li>
                 </ul>
               </div>
               <Link to="/entlastung" className="inline-flex items-center gap-2 text-sm font-medium text-[#6FD3D1] hover:text-[#5BC2C0] transition-colors">
-                Mehr zu Ihren Ansprüchen erfahren <ArrowRight size={16} />
+                <Editable as="span" id="home.pflegekasse.link">Mehr zu Ihren Ansprüchen erfahren</Editable> <ArrowRight size={16} />
               </Link>
             </div>
 
             <div className="cura-reveal cura-reveal-right cura-card-glow flex-1 w-full bg-[#F8FEFF] rounded-3xl p-8 lg:p-10 border border-[#E5F4F5]">
-              <h3 className="text-2xl font-medium tracking-tight text-[#111111] mb-8 text-center" style={jakarta}>
+              <Editable as="h3" id="home.steps.title" style={jakarta} className="text-2xl font-medium tracking-tight text-[#111111] mb-8 text-center">
                 Einfach und unkompliziert
-              </h3>
+              </Editable>
               <div className="space-y-8 relative">
                 <div className="absolute left-6 top-8 bottom-8 w-px bg-[#DFF7F8] -z-10"></div>
                 {[
                   { num: "1", title: "Beratung", desc: "Wir besprechen Ihre individuelle Situation und zeigen auf, welche Budgets der Pflegekasse Ihnen zustehen.", filled: false },
                   { num: "2", title: "Antrag & Organisation", desc: "Wir helfen Ihnen bei der Beantragung der Leistungen und planen gemeinsam die Einsätze nach Ihren Wünschen.", filled: false },
                   { num: "3", title: "Direkte Abrechnung", desc: "Sobald alles bewilligt ist, rechnen wir unsere Leistungen bequem und direkt mit Ihrer Pflegekasse ab. Sie müssen sich um nichts kümmern.", filled: true },
-                ].map((step) => (
+                ].map((step, i) => (
                   <div key={step.num} className="flex gap-6">
                     <div
                       className={`w-12 h-12 rounded-full flex items-center justify-center font-medium text-lg shrink-0 ${step.filled ? "bg-[#6FD3D1] text-white shadow-md" : "bg-white border-2 border-[#6FD3D1] text-[#6FD3D1]"}`}
@@ -313,8 +315,8 @@ export function HomePage() {
                       {step.num}
                     </div>
                     <div>
-                      <h4 className="text-lg font-medium text-[#111111] mb-1" style={jakarta}>{step.title}</h4>
-                      <p className="text-sm text-[#5F6B73] font-light">{step.desc}</p>
+                      <Editable as="h4" id={`home.steps.${i}.title`} style={jakarta} className="text-lg font-medium text-[#111111] mb-1">{step.title}</Editable>
+                      <Editable as="p" id={`home.steps.${i}.desc`} className="text-sm text-[#5F6B73] font-light">{step.desc}</Editable>
                     </div>
                   </div>
                 ))}
@@ -329,21 +331,21 @@ export function HomePage() {
         <div className="max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <div className="cura-reveal cura-reveal-left order-2 lg:order-1 relative">
             <div className="aspect-square rounded-3xl overflow-hidden">
-              <img src={demenzImage} alt="Betreuerin liest Seniorin vor" className="w-full h-full object-cover" />
+              <EditableImage id="home.demenz.image" src={demenzImage} alt="Betreuerin liest Seniorin vor" altId="home.demenz.image-alt" className="w-full h-full object-cover" />
             </div>
             <div className="absolute inset-0 bg-[#BFEAF2] opacity-10 rounded-3xl mix-blend-multiply"></div>
           </div>
 
           <div className="cura-reveal cura-reveal-right order-1 lg:order-2">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
-              Spezialisierte Betreuung
+              <Editable as="span" id="home.demenz.badge">Spezialisierte Betreuung</Editable>
             </div>
-            <h2 className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-6" style={jakarta}>
+            <Editable as="h2" id="home.demenz.title" style={jakarta} className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-6">
               Senioren- und Demenzbetreuung mit Herz
-            </h2>
-            <p className="text-lg text-[#5F6B73] leading-relaxed font-light mb-8">
+            </Editable>
+            <Editable as="p" id="home.demenz.text" className="text-lg text-[#5F6B73] leading-relaxed font-light mb-8">
               Menschen mit demenziellen Veränderungen benötigen eine Umgebung, die Geborgenheit und Sicherheit ausstrahlt. Wir begegnen unseren Klienten mit tiefem Respekt, Empathie und fachlichem Wissen.
-            </p>
+            </Editable>
             <ul className="space-y-4 mb-8">
               {[
                 { icon: <Sun size={24} className="text-[#6FD3D1] mt-0.5" />, title: "Tagesstruktur & Orientierung", desc: "Feste Rhythmen und vertraute Rituale geben Sicherheit im Alltag." },
@@ -352,14 +354,14 @@ export function HomePage() {
                 <li key={i} className="cura-card-glow flex items-start gap-4 p-4 rounded-2xl bg-white border border-[#E5F4F5]">
                   {item.icon}
                   <div>
-                    <div className="text-base font-medium text-[#111111]">{item.title}</div>
-                    <div className="text-sm text-[#5F6B73] font-light mt-1">{item.desc}</div>
+                    <Editable as="div" id={`home.demenz.${i}.title`} className="text-base font-medium text-[#111111]">{item.title}</Editable>
+                    <Editable as="div" id={`home.demenz.${i}.desc`} className="text-sm text-[#5F6B73] font-light mt-1">{item.desc}</Editable>
                   </div>
                 </li>
               ))}
             </ul>
             <Link to="/demenzbetreuung" className="inline-flex items-center gap-2 text-sm font-medium text-[#6FD3D1] hover:text-[#5BC2C0] transition-colors">
-              Mehr zur Demenzbetreuung <ArrowRight size={16} />
+              <Editable as="span" id="home.demenz.link">Mehr zur Demenzbetreuung</Editable> <ArrowRight size={16} />
             </Link>
           </div>
         </div>
@@ -368,9 +370,9 @@ export function HomePage() {
       {/* Why Families Choose Us */}
       <section className="py-20 bg-white/80">
         <div className="cura-reveal cura-reveal-up max-w-7xl mx-auto px-6 lg:px-12 text-center">
-          <h2 className="text-2xl lg:text-3xl font-medium tracking-tight text-[#111111] mb-12" style={jakarta}>
+          <Editable as="h2" id="home.why.title" style={jakarta} className="text-2xl lg:text-3xl font-medium tracking-tight text-[#111111] mb-12">
             Warum sich Familien für uns entscheiden
-          </h2>
+          </Editable>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-8">
             {[
               { icon: <Heart size={32} strokeWidth={1.5} />, label: "Individuell" },
@@ -382,7 +384,7 @@ export function HomePage() {
                 <div className="w-16 h-16 rounded-full bg-[#F8FEFF] border border-[#E5F4F5] flex items-center justify-center text-[#6FD3D1] mb-4">
                   {item.icon}
                 </div>
-                <h4 className="text-base font-medium text-[#111111]">{item.label}</h4>
+                <Editable as="h4" id={`home.why.${i}`} className="text-base font-medium text-[#111111]">{item.label}</Editable>
               </div>
             ))}
           </div>
@@ -401,24 +403,24 @@ export function HomePage() {
       <section className="py-24 lg:py-32 bg-white/80">
         <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-3xl lg:text-5xl font-medium tracking-tight text-[#111111] mb-6" style={jakarta}>
-            Interesse an einer kostenlosen <br className="hidden lg:block" />und unverbindlichen Beratung?
+            <Editable as="span" id="home.cta.title">Interesse an einer kostenlosen</Editable> <br className="hidden lg:block" /><Editable as="span" id="home.cta.title-line2">und unverbindlichen Beratung?</Editable>
           </h2>
-          <p className="text-lg lg:text-xl text-[#5F6B73] mb-10 max-w-2xl mx-auto font-light">
+          <Editable as="p" id="home.cta.text" className="text-lg lg:text-xl text-[#5F6B73] mb-10 max-w-2xl mx-auto font-light">
             Wir nehmen uns Zeit für Sie und beantworten alle Fragen zur Pflegekasse in Ruhe – persönlich und ohne Verpflichtung.
-          </p>
+          </Editable>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
             <Link to="/kontakt" className="w-full sm:w-auto bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-8 py-4 rounded-full text-base font-normal transition-all flex items-center justify-center gap-2 shadow-sm">
               <Mail size={20} />
-              Jetzt anfragen
+              <Editable as="span" id="home.cta.button-anfrage">Jetzt anfragen</Editable>
             </Link>
             <a href="tel:+4951517107093" className="w-full sm:w-auto bg-[#F8FEFF] text-[#111111] border border-[#E5F4F5] hover:bg-[#DFF7F8] px-8 py-4 rounded-full text-base font-normal transition-all flex items-center justify-center gap-2">
               <Phone size={20} className="text-[#6FD3D1]" />
-              Anrufen: 05151 7107093
+              Anrufen: <Editable as="span" id="shared.tel_display">05151 7107093</Editable>
             </a>
           </div>
           <div className="text-sm text-[#5F6B73] font-light flex items-center justify-center gap-2">
             <Clock size={16} className="text-[#6FD3D1]" />
-            Wir melden uns in der Regel innerhalb von 24 Stunden bei Ihnen.
+            <Editable as="span" id="home.cta.note">Wir melden uns in der Regel innerhalb von 24 Stunden bei Ihnen.</Editable>
           </div>
         </div>
       </section>
