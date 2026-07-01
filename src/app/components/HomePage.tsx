@@ -7,6 +7,7 @@ import {
 import { EinzugsgebietSection } from "./EinzugsgebietSection";
 import { GoogleReviews } from "./GoogleReviews";
 import { InstagramFeed } from "./InstagramFeed";
+import { Editable } from "./editor/Editable";
 
 type Partner = {
   name: string;
@@ -207,9 +208,9 @@ export function HomePage() {
       <section className="py-24 bg-white/80">
         <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center">
           <Users size={48} strokeWidth={1} className="text-[#BFEAF2] mb-6 mx-auto" />
-          <h2 className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-6" style={jakarta}>
+          <Editable as="h2" id="home.intro.title" style={jakarta} className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-6">
             Der Mensch im Mittelpunkt
-          </h2>
+          </Editable>
           <p className="text-lg lg:text-xl text-[#5F6B73] leading-relaxed font-light">
             Cura Doma ist Ihr anerkannter ambulanter Betreuungsdienst. Unsere Mission ist es, pflegebedürftigen Menschen und ihren Familien zur Seite zu stehen. Wir fördern die Selbstständigkeit, schaffen Freiräume für pflegende Angehörige und machen es möglich, so lange wie möglich sicher und geborgen im eigenen Zuhause zu leben.
           </p>

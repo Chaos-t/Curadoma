@@ -1,0 +1,41 @@
+import { createElement, useRef, type ReactNode } from "react";
+import { useContent } from "../../../lib/content";
+
+type Tag = keyof JSX.IntrinsicElements;
+export function Editable({ id, children, as = "span", rich = false, className, style }: {
+  id: string; children: ReactNode; as?: Tag; rich?: boolean; className?: string; style?: React.CSSProperties;
+}) {
+  const { get, editMode, setPending } = useContent();
+  const override = get(id);
+  // Seed nur einmal bei aktivem Edit-Modus erfassen; bei Verlassen zurücksetzen.
+  const seed = useRef<ReactNode | undefined>(undefined);
+  if (editMode) {
+    if (seed.current === undefined) {
+      seed.current = override != null
+        ? (rich ? <span dangerouslySetInnerHTML={{ __html: override }} /> : override)
+        : children;
+    }
+  } else {
+    seed.current = undefined;
+  }
+
+  if (!editMode) {
+    if (override != null) {
+      return rich
+        ? createElement(as, { className, style, dangerouslySetInnerHTML: { __html: override } })
+        : createElement(as, { className, style }, override);
+    }
+    return createElement(as, { className, style }, children);
+  }
+
+  const editClass = `${className ?? ""} outline outline-1 outline-dashed outline-[#d7120a] outline-offset-2 rounded-sm cursor-text focus:outline-2 focus:outline-solid`.trim();
+  const onInput = (e: React.FormEvent<HTMLElement>) => {
+    const el = e.currentTarget;
+    setPending(id, rich ? el.innerHTML : (el.innerText ?? ""), rich);
+  };
+  return createElement(
+    as,
+    { "data-ed-id": id, contentEditable: true, suppressContentEditableWarning: true, className: editClass, style, onInput, title: id },
+    seed.current,
+  );
+}
