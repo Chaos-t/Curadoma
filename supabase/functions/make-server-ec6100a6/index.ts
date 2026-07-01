@@ -1442,11 +1442,40 @@ function sanitizeRich(html: string): string {
   s = s.replace(/&lt;\/?[a-z][\s\S]*?&gt;/gi, "");
   return s;
 }
+// Editor-Client-IP: bevorzugt plattform-gesetzte, vom Client NICHT faelschbare
+// Header (cf-connecting-ip / x-real-ip) VOR X-Forwarded-For. So kann ein Angreifer
+// die per-IP-Sperre nicht durch selbst gesetzte XFF-Eintraege umgehen. Faellt auf
+// den rechtesten XFF-Eintrag zurueck, falls kein Plattform-Header vorhanden ist.
+function editorClientIp(c: { req: { header: (k: string) => string | undefined } }): string {
+  const real = c.req.header("cf-connecting-ip") ?? c.req.header("x-real-ip");
+  if (real && real.trim()) return real.trim();
+  const fwd = c.req.header("x-forwarded-for");
+  if (fwd) {
+    const parts = fwd.split(",").map((s) => s.trim()).filter(Boolean);
+    if (parts.length) return parts[parts.length - 1];
+  }
+  return "unknown";
+}
 // Editor-Rate-Limit: nur bei FEHLERN hochzählen (per IP + global); Fenster = RL_WINDOW_MS.
+// Anders als bei den oeffentlichen Endpunkten faellt der Editor bei KV-Lesefehlern
+// CLOSED (429) statt open — lieber eine kurze Login-Sperre bei KV-Ausfall als eine
+// ausgefallene Brute-Force-Bremse (Editor = Low-Traffic-Admin; Speichern waere bei
+// KV-Ausfall ohnehin nicht moeglich).
+async function editRateCount(key: string): Promise<number> {
+  const now = Date.now();
+  // wirft bei KV-Lesefehler -> Aufrufer faellt closed
+  const rec = (await kv.get(key)) as { count: number; resetAt: number } | undefined;
+  return rec && now <= rec.resetAt ? rec.count : 0;
+}
 async function editRateLimited(ip: string): Promise<boolean> {
-  const perIp = await rateLimitState(`edit_rl:ip:${ip}`);
-  const glob = await rateLimitState(`edit_rl:global`);
-  return perIp.count >= 10 || glob.count >= 60;
+  try {
+    const perIp = await editRateCount(`edit_rl:ip:${ip}`);
+    const glob = await editRateCount(`edit_rl:global`);
+    return perIp >= 10 || glob >= 60;
+  } catch (e) {
+    console.log("edit rate-limit read failed (failing closed):", e);
+    return true;
+  }
 }
 async function editBumpFail(ip: string): Promise<void> {
   await bumpRateLimit(`edit_rl:ip:${ip}`, await rateLimitState(`edit_rl:ip:${ip}`));
@@ -1464,7 +1493,7 @@ app.get("/make-server-ec6100a6/site-content", async (c) => {
 
 app.post("/make-server-ec6100a6/site-content/save", async (c) => {
   if (!EDIT_PW) return c.json({ error: "not_configured" }, 503);
-  const ip = clientIp(c);
+  const ip = editorClientIp(c);
   if (await editRateLimited(ip)) return c.json({ error: "rate_limited" }, 429);
 
   let body: any;
@@ -1518,7 +1547,7 @@ app.post("/make-server-ec6100a6/site-content/save", async (c) => {
 
 app.post("/make-server-ec6100a6/site-content/image", async (c) => {
   if (!EDIT_PW) return c.json({ error: "not_configured" }, 503);
-  const ip = clientIp(c);
+  const ip = editorClientIp(c);
   if (await editRateLimited(ip)) return c.json({ error: "rate_limited" }, 429);
 
   let body: any;
