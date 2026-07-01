@@ -6,24 +6,26 @@ import { CookieBanner } from "./CookieBanner";
 import { WhatsAppButton } from "./WhatsAppButton";
 import { CuraDomaLogo } from "./CuraDomaLogo";
 import { requestReopenBanner } from "../../lib/consent";
+import { Editable } from "./editor/Editable";
+import { PhoneText, EmailText, AddressBlock } from "./editor/Shared";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
 const leistungenLinks = [
-  { path: "/leistungen", label: "Alle Leistungen" },
-  { path: "/entlastung", label: "Entlastungsleistungen" },
-  { path: "/demenzbetreuung", label: "Demenz- & Seniorenbetreuung" },
-  { path: "/haushaltsnahe-dienstleistungen", label: "Haushaltsnahe Dienstleistungen" },
-  { path: "/verhinderungspflege", label: "Verhinderungspflege" },
-  { path: "/umwandlung-sachleistungen", label: "Umwandlung in Sachleistungen" },
+  { path: "/leistungen", label: "Alle Leistungen", id: "shared.leistungenmenu.0.label" },
+  { path: "/entlastung", label: "Entlastungsleistungen", id: "shared.leistungenmenu.1.label" },
+  { path: "/demenzbetreuung", label: "Demenz- & Seniorenbetreuung", id: "shared.leistungenmenu.2.label" },
+  { path: "/haushaltsnahe-dienstleistungen", label: "Haushaltsnahe Dienstleistungen", id: "shared.leistungenmenu.3.label" },
+  { path: "/verhinderungspflege", label: "Verhinderungspflege", id: "shared.leistungenmenu.4.label" },
+  { path: "/umwandlung-sachleistungen", label: "Umwandlung in Sachleistungen", id: "shared.leistungenmenu.5.label" },
 ];
 
 const topNav = [
-  { path: "/", label: "Startseite" },
-  { path: "/einzugsgebiet", label: "Einzugsgebiet" },
-  { path: "/karriere", label: "Karriere" },
-  { path: "/kontakt", label: "Kontakt" },
-  { path: "/termin", label: "Termin vereinbaren" },
+  { path: "/", label: "Startseite", id: "shared.nav.startseite" },
+  { path: "/einzugsgebiet", label: "Einzugsgebiet", id: "shared.nav.einzugsgebiet" },
+  { path: "/karriere", label: "Karriere", id: "shared.nav.karriere" },
+  { path: "/kontakt", label: "Kontakt", id: "shared.nav.kontakt" },
+  { path: "/termin", label: "Termin vereinbaren", id: "shared.nav.termin_mobile" },
 ];
 
 export function Layout() {
@@ -145,18 +147,18 @@ export function Layout() {
       <div className="relative z-10 w-full bg-[#DFF7F8]/90 backdrop-blur-sm border-b border-[#BFEAF2]/50 py-2 hidden sm:block">
         <div className="max-w-7xl mx-auto px-6 lg:px-12 flex justify-between items-center text-xs font-normal text-[#5F6B73]">
           <div className="flex items-center gap-6">
-            <a href="tel:+4951517107093" className="flex items-center gap-1.5 hover:text-[#111111] transition-colors">
+            <span className="flex items-center gap-1.5 hover:text-[#111111] transition-colors">
               <Phone size={16} strokeWidth={1.5} />
-              05151 7107093
-            </a>
-            <a href="mailto:info@curadoma.de" className="flex items-center gap-1.5 hover:text-[#111111] transition-colors">
+              <PhoneText id="shared.tel_display" />
+            </span>
+            <span className="flex items-center gap-1.5 hover:text-[#111111] transition-colors">
               <Mail size={16} strokeWidth={1.5} />
-              info@curadoma.de
-            </a>
+              <EmailText />
+            </span>
           </div>
           <div className="flex items-center gap-1.5 text-[#6FD3D1] font-normal">
             <Heart size={16} strokeWidth={1.5} />
-            Wir beraten Sie gerne kostenlos
+            <Editable as="span" id="shared.utilitybar.slogan">Wir beraten Sie gerne kostenlos</Editable>
           </div>
         </div>
       </div>
@@ -170,7 +172,7 @@ export function Layout() {
 
           <div className="hidden lg:flex items-center gap-6 xl:gap-8">
             <Link to="/" className={`text-sm font-light transition-colors ${isActive("/") ? "text-[#6FD3D1]" : "text-[#5F6B73] hover:text-[#6FD3D1]"}`}>
-              Startseite
+              <Editable as="span" id="shared.nav.startseite">Startseite</Editable>
             </Link>
 
             <div className="relative" ref={dropdownRef}>
@@ -178,7 +180,7 @@ export function Layout() {
                 onClick={() => setDropdownOpen(!dropdownOpen)}
                 className={`flex items-center gap-1 text-sm font-light transition-colors ${isLeistungenActive ? "text-[#6FD3D1]" : "text-[#5F6B73] hover:text-[#6FD3D1]"}`}
               >
-                Leistungen
+                <Editable as="span" id="shared.nav.leistungen">Leistungen</Editable>
                 <ChevronDown size={14} className={`transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
               </button>
               {dropdownOpen && (
@@ -189,7 +191,7 @@ export function Layout() {
                       to={l.path}
                       className={`cura-glow-item block px-4 py-2.5 rounded-xl text-sm font-light ${isActive(l.path) ? "bg-[#DFF7F8] text-[#6FD3D1]" : "text-[#5F6B73] hover:text-[#6FD3D1]"}`}
                     >
-                      {l.label}
+                      <Editable as="span" id={l.id}>{l.label}</Editable>
                     </Link>
                   ))}
                 </div>
@@ -197,23 +199,23 @@ export function Layout() {
             </div>
 
             <Link to="/einzugsgebiet" className={`text-sm font-light transition-colors ${isActive("/einzugsgebiet") ? "text-[#6FD3D1]" : "text-[#5F6B73] hover:text-[#6FD3D1]"}`}>
-              Einzugsgebiet
+              <Editable as="span" id="shared.nav.einzugsgebiet">Einzugsgebiet</Editable>
             </Link>
             <Link to="/karriere" className={`text-sm font-light transition-colors ${isActive("/karriere") ? "text-[#6FD3D1]" : "text-[#5F6B73] hover:text-[#6FD3D1]"}`}>
-              Karriere
+              <Editable as="span" id="shared.nav.karriere">Karriere</Editable>
             </Link>
             <Link to="/kontakt" className={`text-sm font-light transition-colors ${isActive("/kontakt") ? "text-[#6FD3D1]" : "text-[#5F6B73] hover:text-[#6FD3D1]"}`}>
-              Kontakt
+              <Editable as="span" id="shared.nav.kontakt">Kontakt</Editable>
             </Link>
             <Link to="/termin" className={`text-sm font-light transition-colors ${isActive("/termin") ? "text-[#6FD3D1]" : "text-[#5F6B73] hover:text-[#6FD3D1]"}`}>
-              Termin
+              <Editable as="span" id="shared.nav.termin">Termin</Editable>
             </Link>
 
             <Link
               to="/kontakt"
               className="text-sm font-light text-white bg-[#6FD3D1] hover:bg-[#5BC2C0] transition-colors rounded-full py-2.5 px-5 shadow-[0_4px_14px_rgb(111,211,209,0.3)]"
             >
-              Kostenlos beraten lassen
+              <Editable as="span" id="shared.nav.cta">Kostenlos beraten lassen</Editable>
             </Link>
           </div>
 
@@ -250,7 +252,7 @@ export function Layout() {
           >
             {topNav.slice(0, 1).map((link) => (
               <Link key={link.path} to={link.path} style={{ animationDelay: "40ms" }} className={`block py-2 text-sm font-light ${itemAnim} ${isActive(link.path) ? "text-[#6FD3D1]" : "text-[#5F6B73]"}`}>
-                {link.label}
+                <Editable as="span" id={link.id}>{link.label}</Editable>
               </Link>
             ))}
             <button
@@ -258,25 +260,25 @@ export function Layout() {
               style={{ animationDelay: "90ms" }}
               className={`flex items-center justify-between w-full py-2 text-sm font-light ${itemAnim} ${isLeistungenActive ? "text-[#6FD3D1]" : "text-[#5F6B73]"}`}
             >
-              Leistungen
+              <Editable as="span" id="shared.nav.leistungen">Leistungen</Editable>
               <ChevronDown size={16} className={`transition-transform ${mobileSubOpen ? "rotate-180" : ""}`} />
             </button>
             {mobileSubOpen && (
               <div className="pl-4 space-y-1 border-l border-[#E5F4F5] overflow-hidden motion-safe:animate-[curaSubIn_240ms_cubic-bezier(0.22,1,0.36,1)_both]">
                 {leistungenLinks.map((l, i) => (
                   <Link key={l.path} to={l.path} style={{ animationDelay: `${i * 35}ms` }} className={`block py-2 text-sm font-light ${itemAnim} ${isActive(l.path) ? "text-[#6FD3D1]" : "text-[#5F6B73]"}`}>
-                    {l.label}
+                    <Editable as="span" id={l.id}>{l.label}</Editable>
                   </Link>
                 ))}
               </div>
             )}
             {topNav.slice(1).map((link, i) => (
               <Link key={link.path} to={link.path} style={{ animationDelay: `${140 + i * 50}ms` }} className={`block py-2 text-sm font-light ${itemAnim} ${isActive(link.path) ? "text-[#6FD3D1]" : "text-[#5F6B73]"}`}>
-                {link.label}
+                <Editable as="span" id={link.id}>{link.label}</Editable>
               </Link>
             ))}
             <Link to="/kontakt" style={{ animationDelay: "290ms" }} className={`block mt-3 text-sm font-light text-white bg-[#6FD3D1] rounded-full py-2.5 px-6 text-center ${itemAnim}`}>
-              Kostenlos beraten lassen
+              <Editable as="span" id="shared.nav.cta">Kostenlos beraten lassen</Editable>
             </Link>
           </div>
         )}
@@ -294,43 +296,43 @@ export function Layout() {
                 <CuraDomaLogo className="h-24 sm:h-28 md:h-32 w-auto" />
               </Link>
               <p className="text-sm text-[#5F6B73] leading-relaxed font-light max-w-sm">
-                Ihr würdevoller, ambulanter Betreuungsdienst. Wir unterstützen Senioren und Pflegebedürftige dabei, sicher und umsorgt im eigenen Zuhause zu leben.
+                <Editable as="span" id="shared.footer.description">Ihr würdevoller, ambulanter Betreuungsdienst. Wir unterstützen Senioren und Pflegebedürftige dabei, sicher und umsorgt im eigenen Zuhause zu leben.</Editable>
               </p>
             </div>
 
             <div>
-              <h4 className="text-[#111111] font-medium mb-4" style={jakarta}>Leistungen</h4>
+              <h4 className="text-[#111111] font-medium mb-4" style={jakarta}><Editable as="span" id="shared.footer.leistungen.heading">Leistungen</Editable></h4>
               <ul className="space-y-3 text-sm text-[#5F6B73] font-light">
                 {leistungenLinks.map((l) => (
-                  <li key={l.path}><Link to={l.path} className="hover:text-[#6FD3D1] transition-colors">{l.label}</Link></li>
+                  <li key={l.path}><Link to={l.path} className="hover:text-[#6FD3D1] transition-colors"><Editable as="span" id={l.id}>{l.label}</Editable></Link></li>
                 ))}
               </ul>
             </div>
 
             <div>
-              <h4 className="text-[#111111] font-medium mb-4" style={jakarta}>Kontakt</h4>
+              <h4 className="text-[#111111] font-medium mb-4" style={jakarta}><Editable as="span" id="shared.footer.kontakt.heading">Kontakt</Editable></h4>
               <ul className="space-y-3 text-sm text-[#5F6B73] font-light">
                 <li className="flex items-start gap-2">
                   <Phone size={16} className="mt-0.5 shrink-0 text-[#6FD3D1]" />
-                  <a href="tel:+4951517107093" className="hover:text-[#6FD3D1] transition-colors">05151 7107093</a>
+                  <PhoneText className="hover:text-[#6FD3D1] transition-colors" />
                 </li>
                 <li className="flex items-start gap-2">
                   <Mail size={16} className="mt-0.5 shrink-0 text-[#6FD3D1]" />
-                  <a href="mailto:info@curadoma.de" className="hover:text-[#6FD3D1] transition-colors">info@curadoma.de</a>
+                  <EmailText className="hover:text-[#6FD3D1] transition-colors" />
                 </li>
                 <li className="flex items-start gap-2">
                   <MapPin size={16} className="mt-0.5 shrink-0 text-[#6FD3D1]" />
-                  <a href="https://www.google.com/maps/search/?api=1&query=S%C3%BCntelhang+9%2C+31787+Hameln%2C+Germany" target="_blank" rel="noopener noreferrer" className="hover:text-[#6FD3D1] transition-colors">Süntelhang 9<br />31787 Hameln</a>
+                  <a href="https://www.google.com/maps/search/?api=1&query=S%C3%BCntelhang+9%2C+31787+Hameln%2C+Germany" target="_blank" rel="noopener noreferrer" className="hover:text-[#6FD3D1] transition-colors"><AddressBlock variant="br" /></a>
                 </li>
               </ul>
             </div>
           </div>
 
           <div className="pt-8 border-t border-[#E5F4F5] flex flex-col sm:flex-row items-center justify-between gap-4">
-            <p className="text-xs text-[#5F6B73] font-light">© 2026 Cura Doma. Alle Rechte vorbehalten.</p>
+            <p className="text-xs text-[#5F6B73] font-light"><Editable as="span" id="shared.footer.copyright">© 2026 Cura Doma. Alle Rechte vorbehalten.</Editable></p>
             <div className="flex flex-wrap items-center gap-6 text-xs text-[#5F6B73] font-light">
-              <Link to="/impressum" className="hover:text-[#6FD3D1] transition-colors">Impressum</Link>
-              <Link to="/datenschutz" className="hover:text-[#6FD3D1] transition-colors">Datenschutz</Link>
+              <Link to="/impressum" className="hover:text-[#6FD3D1] transition-colors"><Editable as="span" id="shared.footer.impressum">Impressum</Editable></Link>
+              <Link to="/datenschutz" className="hover:text-[#6FD3D1] transition-colors"><Editable as="span" id="shared.footer.datenschutz">Datenschutz</Editable></Link>
               <button
                 type="button"
                 onClick={() => requestReopenBanner()}
@@ -345,14 +347,14 @@ export function Layout() {
 
           <div className="mt-6 pt-6 border-t border-[#E5F4F5] text-center">
             <p className="text-xs text-[#9AA3A8] font-light">
-              Designed by{" "}
+              <Editable as="span" id="shared.footer.credit.pre">Designed by </Editable>
               <a
                 href="https://axion-studio.de/index.html"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[#6FD3D1] hover:text-[#5BC2C0] transition-colors font-normal"
               >
-                Axion Studio
+                <Editable as="span" id="shared.footer.credit.link">Axion Studio</Editable>
               </a>
             </p>
           </div>
