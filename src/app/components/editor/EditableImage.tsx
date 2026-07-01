@@ -11,7 +11,10 @@ export function EditableImage({ id, src, alt = "", altId, className, ...img }: {
   if (!editMode) return <img src={url} alt={altVal} className={className} {...img} />;
   return (
     <>
-      <img src={url} alt={altVal} title="Klicken, um Bild zu ersetzen" onClick={() => inputRef.current?.click()}
+      <img src={url} alt={altVal} title="Klicken, um Bild zu ersetzen"
+        role="button" tabIndex={0} aria-label="Bild ersetzen"
+        onClick={() => inputRef.current?.click()}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); inputRef.current?.click(); } }}
         className={`${className ?? ""} outline outline-2 outline-dashed outline-[#d7120a] outline-offset-2 cursor-pointer`} {...img} />
       <input ref={inputRef} type="file" accept="image/png,image/jpeg,image/webp" hidden
         onChange={async (e) => { const f = e.target.files?.[0]; if (f) await uploadImage(id, f); e.currentTarget.value = ""; }} />
