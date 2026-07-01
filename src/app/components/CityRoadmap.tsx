@@ -11,10 +11,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Car, MapPin } from "lucide-react";
+import { Editable } from "./editor/Editable";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
 type Route = {
+  /** Stable id prefix for the content editor (e.g. "hameln") */
+  idBase: string;
   /** Localised label */
   label: string;
   /** Hub city, displayed as the anchor */
@@ -29,6 +32,7 @@ type Route = {
 };
 
 const HAMELN_ROUTE: Route = {
+  idBase: "hameln",
   label: "Tour Hameln",
   hub: "Hameln",
   vbWidth: 800,
@@ -60,6 +64,7 @@ const HAMELN_ROUTE: Route = {
 };
 
 const PADERBORN_ROUTE: Route = {
+  idBase: "paderborn",
   label: "Tour Paderborn",
   hub: "Paderborn",
   vbWidth: 800,
@@ -264,7 +269,7 @@ function RouteSnake({ route, progress }: { route: Route; progress: number }) {
             </span>
             <span className="w-px h-3 bg-[#E5F4F5]" />
             <MapPin size={12} className={visited ? "text-[#6FD3D1]" : "text-[#9AA3A8]"} />
-            <span>{cities[i]}</span>
+            <Editable as="span" id={`einzugsgebiet.roadmap.${route.idBase}.city.${i}`} className="pointer-events-auto">{cities[i]}</Editable>
           </div>
         );
       })}
@@ -345,7 +350,7 @@ function RouteTimelineMobile({ route, progress }: { route: Route; progress: numb
                 size={12}
                 className={visited ? "text-[#6FD3D1]" : "text-[#9AA3A8]"}
               />
-              {c}
+              <Editable as="span" id={`einzugsgebiet.roadmap.${route.idBase}.city.${i}`}>{c}</Editable>
             </span>
           </li>
         );
@@ -363,13 +368,13 @@ function SingleRoute({ route }: { route: Route }) {
       <div className="text-center mb-8">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-[11px] font-medium text-[#6FD3D1] uppercase tracking-wider mb-3">
           <Car size={14} strokeWidth={1.7} />
-          {route.label}
+          <Editable as="span" id={`einzugsgebiet.roadmap.${route.idBase}.label`}>{route.label}</Editable>
         </div>
         <h3
           className="text-2xl font-medium tracking-tight text-[#111111]"
           style={jakarta}
         >
-          Strecke ab Station <span className="text-[#6FD3D1]">{route.hub}</span>
+          Strecke ab Station <span className="text-[#6FD3D1]"><Editable as="span" id={`einzugsgebiet.roadmap.${route.idBase}.hub`}>{route.hub}</Editable></span>
         </h3>
         <p className="text-sm text-[#5F6B73] font-light mt-1">
           {route.cities.length} Orte werden regelmäßig angefahren
