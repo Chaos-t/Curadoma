@@ -1506,7 +1506,12 @@ app.post("/make-server-ec6100a6/site-content/save", async (c) => {
   await kv.set(CONTENT_HISTORY_KEY, hist.slice(-20));
 
   const next = { ...current };
-  for (const id of ids) next[id] = richIds.has(id) ? sanitizeRich(overrides[id]) : overrides[id];
+  // JEDEN Wert unbedingt sanitisieren — nicht nur die client-gemeldeten `rich`-IDs.
+  // Sonst koennte ein (authentifizierter) Client rohes HTML unter einer IM FRONTEND
+  // rich-gerenderten ID speichern, ohne sie in `rich` zu listen -> Stored XSS.
+  // Plain-Text ueberlebt sanitizeRich als escapetes HTML; der Client rendert Overrides
+  // konsequent per dangerouslySetInnerHTML (siehe Editable.tsx), daher kein Doppel-Escape.
+  for (const id of ids) next[id] = sanitizeRich(overrides[id]);
   await kv.set(CONTENT_KEY, next);
   return c.json({ ok: true, count: ids.length });
 });
@@ -1530,7 +1535,9 @@ app.post("/make-server-ec6100a6/site-content/image", async (c) => {
   if (bytes.length === 0 || bytes.length > MAX_IMG_BYTES) return c.json({ error: "image_too_big" }, 400);
   const isJpg = bytes[0] === 0xff && bytes[1] === 0xd8;
   const isPng = bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47;
-  const isWebp = bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50; // "WEBP"
+  // WebP = "RIFF"(0-3) .... "WEBP"(8-11) — beide Marker pruefen.
+  const isWebp = bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 &&
+                 bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50;
   if (!(isJpg || isPng || isWebp)) return c.json({ error: "not_image" }, 400);
   const ext = isPng ? "png" : isWebp ? "webp" : "jpg";
 
@@ -1545,7 +1552,7 @@ app.post("/make-server-ec6100a6/site-content/image", async (c) => {
   // ausgeliefert = Stored XSS. `ext` stammt aus isJpg/isPng/isWebp.
   const { error: upErr } = await supabase.storage.from(CONTENT_BUCKET)
     .upload(path, bytes, { contentType: `image/${ext}`, upsert: true });
-  if (upErr) return c.json({ error: upErr.message }, 500);
+  if (upErr) { console.log("site-content image upload failed:", upErr.message); return c.json({ error: "upload_failed" }, 500); }
   const { data: pub } = supabase.storage.from(CONTENT_BUCKET).getPublicUrl(path);
   return c.json({ ok: true, url: pub.publicUrl });
 });

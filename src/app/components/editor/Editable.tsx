@@ -15,8 +15,10 @@ export function Editable({ id, children, as = "span", rich = false, className, s
   if (editMode) {
     if (seed.current === undefined) {
       const stored = getStored(id);
+      // Overrides IMMER als (server-sanitisiertes) HTML seeden — auch "plain",
+      // da der Server jeden gespeicherten Wert sanitisiert (escapetes HTML).
       seed.current = stored != null
-        ? (rich ? <span dangerouslySetInnerHTML={{ __html: stored }} /> : stored)
+        ? <span dangerouslySetInnerHTML={{ __html: stored }} />
         : children;
     }
   } else {
@@ -25,9 +27,9 @@ export function Editable({ id, children, as = "span", rich = false, className, s
 
   if (!editMode) {
     if (override != null) {
-      return rich
-        ? createElement(as, { className, style, dangerouslySetInnerHTML: { __html: override } })
-        : createElement(as, { className, style }, override);
+      // Overrides sind serverseitig sanitisiert -> immer als HTML rendern (kein
+      // Doppel-Escape fuer plain-Werte, kein XSS dank sanitizeRich beim Speichern).
+      return createElement(as, { className, style, dangerouslySetInnerHTML: { __html: override } });
     }
     return createElement(as, { className, style }, children);
   }
