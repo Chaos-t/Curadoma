@@ -14,13 +14,11 @@ import {
 } from "../../lib/validation";
 import { Editable } from "./editor/Editable";
 import { EditableImage } from "./editor/EditableImage";
-import { AddressBlock, HoursText } from "./editor/Shared";
+import { AddressBlock, HoursText, PhoneText, EmailText } from "./editor/Shared";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 const img = "https://images.unsplash.com/photo-1758518725921-1eb74ed293be?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmcmllbmRseSUyMGNvbnN1bHRhdGlvbiUyMG9mZmljZSUyMG1lZXRpbmclMjB3YXJtfGVufDF8fHx8MTc3NTMxNDQ5MXww&ixlib=rb-4.1.0&q=80&w=1080";
 
-const PHONE = "05151 7107093";
-const PHONE_LINK = "tel:+4951517107093";
 const GOOGLE_MAPS_EMBED = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2440.5!2d9.3567!3d52.1037!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zU8O8bnRlbGhhbmcgOSwgMzE3ODcgSGFtZWxu!5e0!3m2!1sde!2sde!4v1700000000000!5m2!1sde!2sde";
 const GOOGLE_MAPS_URL = "https://www.google.com/maps/search/?api=1&query=S%C3%BCntelhang+9%2C+31787+Hameln%2C+Germany";
 
@@ -326,25 +324,25 @@ export function KontaktPage() {
             <div className="space-y-4">
               <h3 className="text-xl font-medium tracking-tight text-[#111111]" style={jakarta}><Editable as="span" id="kontakt.info.heading">Direkt erreichen</Editable></h3>
 
-              <a href={PHONE_LINK} className="cura-card-glow flex items-center gap-4 p-4 rounded-2xl bg-[#F8FEFF] border border-[#E5F4F5] hover:shadow-md transition-shadow">
+              <div className="cura-card-glow flex items-center gap-4 p-4 rounded-2xl bg-[#F8FEFF] border border-[#E5F4F5] hover:shadow-md transition-shadow">
                 <div className="w-12 h-12 bg-[#DFF7F8] rounded-full flex items-center justify-center text-[#6FD3D1] shrink-0">
                   <Phone size={20} />
                 </div>
                 <div>
-                  <div className="text-base font-medium text-[#111111]"><Editable as="span" id="shared.tel_display">{PHONE}</Editable></div>
+                  <div className="text-base font-medium text-[#111111]"><PhoneText /></div>
                   <div className="text-sm text-[#5F6B73] font-light"><Editable as="span" id="kontakt.info.phone.desc">Rufen Sie uns direkt an</Editable></div>
                 </div>
-              </a>
+              </div>
 
-              <a href="mailto:info@curadoma.de" className="cura-card-glow flex items-center gap-4 p-4 rounded-2xl bg-[#F8FEFF] border border-[#E5F4F5] hover:shadow-md transition-shadow">
+              <div className="cura-card-glow flex items-center gap-4 p-4 rounded-2xl bg-[#F8FEFF] border border-[#E5F4F5] hover:shadow-md transition-shadow">
                 <div className="w-12 h-12 bg-[#DFF7F8] rounded-full flex items-center justify-center text-[#6FD3D1] shrink-0">
                   <Mail size={20} />
                 </div>
                 <div>
-                  <div className="text-base font-medium text-[#111111]"><Editable as="span" id="shared.email">info@curadoma.de</Editable></div>
+                  <div className="text-base font-medium text-[#111111]"><EmailText /></div>
                   <div className="text-sm text-[#5F6B73] font-light"><Editable as="span" id="kontakt.info.email.desc">Schreiben Sie uns jederzeit</Editable></div>
                 </div>
-              </a>
+              </div>
 
               <button
                 onClick={handleOpenMaps}
@@ -432,30 +430,29 @@ export function KontaktPage() {
                       <MapPin size={18} />
                     </div>
                     <div>
-                      <div className="text-base font-medium text-[#111111] group-hover/addr:text-[#6FD3D1] transition-colors"><Editable as="span" id="shared.address.street">Süntelhang 9</Editable></div>
-                      <div className="text-sm text-[#5F6B73] font-light"><Editable as="span" id="kontakt.locationcard.address.line2">31787 Hameln, Germany</Editable></div>
+                      <div className="text-base font-medium text-[#111111] group-hover/addr:text-[#6FD3D1] transition-colors"><AddressBlock variant="br" /></div>
                     </div>
                   </button>
 
-                  <a href={PHONE_LINK} className="flex items-start gap-4 group/phone">
+                  <div className="flex items-start gap-4 group/phone">
                     <div className="w-10 h-10 bg-[#DFF7F8] rounded-xl flex items-center justify-center text-[#6FD3D1] shrink-0 mt-0.5">
                       <Phone size={18} />
                     </div>
                     <div>
-                      <div className="text-base font-medium text-[#111111] group-hover/phone:text-[#6FD3D1] transition-colors"><Editable as="span" id="shared.tel_display">{PHONE}</Editable></div>
+                      <div className="text-base font-medium text-[#111111] group-hover/phone:text-[#6FD3D1] transition-colors"><PhoneText /></div>
                       <div className="text-sm text-[#5F6B73] font-light"><Editable as="span" id="kontakt.locationcard.phone.desc">Direkt anrufen</Editable></div>
                     </div>
-                  </a>
+                  </div>
 
-                  <a href="mailto:info@curadoma.de" className="flex items-start gap-4 group/mail">
+                  <div className="flex items-start gap-4 group/mail">
                     <div className="w-10 h-10 bg-[#DFF7F8] rounded-xl flex items-center justify-center text-[#6FD3D1] shrink-0 mt-0.5">
                       <Mail size={18} />
                     </div>
                     <div>
-                      <div className="text-base font-medium text-[#111111] group-hover/mail:text-[#6FD3D1] transition-colors"><Editable as="span" id="shared.email">info@curadoma.de</Editable></div>
+                      <div className="text-base font-medium text-[#111111] group-hover/mail:text-[#6FD3D1] transition-colors"><EmailText /></div>
                       <div className="text-sm text-[#5F6B73] font-light"><Editable as="span" id="kontakt.locationcard.email.desc">E-Mail schreiben</Editable></div>
                     </div>
-                  </a>
+                  </div>
 
                   <div className="flex items-start gap-4">
                     <div className="w-10 h-10 bg-[#DFF7F8] rounded-xl flex items-center justify-center text-[#6FD3D1] shrink-0 mt-0.5">

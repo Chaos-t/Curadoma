@@ -50,7 +50,7 @@ export function ImpressumPage() {
 
           <Block title={<Editable as="span" id="impressum.verantwortlich.title">Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</Editable>}>
             <p><Editable as="span" id="impressum.verantwortlich.line1">Cura Doma</Editable></p>
-            <p><Editable as="span" id="impressum.verantwortlich.line2">Süntelhang 9, 31787 Hameln</Editable></p>
+            <p><AddressBlock variant="inline" /></p>
           </Block>
 
           <Block title={<Editable as="span" id="impressum.unternehmensangaben.title">Unternehmensangaben</Editable>}>
