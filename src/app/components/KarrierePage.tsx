@@ -11,6 +11,7 @@ import {
   looksLikeBotSubmit,
   Limits,
 } from "../../lib/validation";
+import { Editable } from "./editor/Editable";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
@@ -194,19 +195,19 @@ export function KarrierePage() {
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#BFEAF2] opacity-15 rounded-full blur-3xl pointer-events-none translate-x-1/3 -translate-y-1/3" />
         <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center relative z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
-            <Briefcase size={14} /> Karriere
+            <Briefcase size={14} /> <Editable as="span" id="karriere.hero.badge">Karriere</Editable>
           </div>
           <h1 className="text-4xl sm:text-5xl font-medium tracking-tight text-[#111111] leading-[1.15] mb-6" style={jakarta}>
-            Karriere bei <span className="text-[#6FD3D1]">Cura Doma</span>
+            <Editable as="span" id="karriere.hero.title.pre">Karriere bei </Editable><span className="text-[#6FD3D1]"><Editable as="span" id="karriere.hero.title">Cura Doma</Editable></span>
           </h1>
           <p className="text-lg text-[#5F6B73] leading-relaxed max-w-2xl mx-auto font-light mb-8">
-            Wir suchen engagierte Unterstützung für unser Team im Bereich Betreuung und Haushaltshilfe.
+            <Editable as="span" id="karriere.hero.subtitle">Wir suchen engagierte Unterstützung für unser Team im Bereich Betreuung und Haushaltshilfe.</Editable>
           </p>
           <a
             href="#bewerben"
             className="inline-flex items-center gap-2 bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)]"
           >
-            Jetzt bewerben <ArrowRight size={18} />
+            <Editable as="span" id="karriere.hero.cta">Jetzt bewerben</Editable> <ArrowRight size={18} />
           </a>
         </div>
       </section>
@@ -216,24 +217,24 @@ export function KarrierePage() {
         <div className="max-w-5xl mx-auto px-6">
           <div className="cura-reveal cura-reveal-up text-center mb-12">
             <h2 className="text-3xl font-medium tracking-tight text-[#111111] mb-3" style={jakarta}>
-              Offene Stellen
+              <Editable as="span" id="karriere.jobs.title">Offene Stellen</Editable>
             </h2>
             <p className="text-[#5F6B73] font-light">
-              Aktuell suchen wir Verstärkung für unser Team rund um Hameln.
+              <Editable as="span" id="karriere.jobs.intro">Aktuell suchen wir Verstärkung für unser Team rund um Hameln.</Editable>
             </p>
           </div>
 
           <div className="cura-card-glow bg-white rounded-3xl border border-[#E5F4F5] shadow-[0_18px_50px_rgb(191,234,242,0.3)] p-8 sm:p-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
             <div>
               <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#DFF7F8] text-[11px] font-medium text-[#6FD3D1] mb-3 uppercase tracking-wider">
-                Festanstellung · Teilzeit · Minijob · flexibel
+                <Editable as="span" id="karriere.jobs.card.badge">Festanstellung · Teilzeit · Minijob · flexibel</Editable>
               </div>
               <h3 className="cura-reveal cura-reveal-up text-xl font-medium text-[#111111] mb-2" style={jakarta}>
                 {JOB_TITLE}
               </h3>
               <p className="cura-reveal cura-reveal-up text-[15px] text-[#5F6B73] font-light leading-relaxed max-w-lg">
-                Werden Sie Teil unseres Teams und unterstützen Sie pflegebedürftige Menschen in
-                ihrem Alltag — mit Empathie, Verlässlichkeit und Herz.
+                <Editable as="span" id="karriere.jobs.card.desc">Werden Sie Teil unseres Teams und unterstützen Sie pflegebedürftige Menschen in
+                ihrem Alltag — mit Empathie, Verlässlichkeit und Herz.</Editable>
               </p>
             </div>
             <button
@@ -241,33 +242,33 @@ export function KarrierePage() {
               onClick={() => setShowDetail((v) => !v)}
               className="shrink-0 inline-flex items-center gap-2 bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-6 py-3 rounded-full text-sm font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)]"
             >
-              zum Stellenangebot <ArrowRight size={16} />
+              <Editable as="span" id="karriere.jobs.card.cta">zum Stellenangebot</Editable> <ArrowRight size={16} />
             </button>
           </div>
 
           {showDetail && (
             <div className="cura-card-glow mt-8 bg-white rounded-3xl border border-[#E5F4F5] p-8 sm:p-10">
               <h3 className="cura-reveal cura-reveal-up text-xl font-medium text-[#111111] mb-5" style={jakarta}>
-                {JOB_TITLE} — Aufgaben & Profil
+                {JOB_TITLE} — <Editable as="span" id="karriere.job.detail.title">Aufgaben & Profil</Editable>
               </h3>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {jobBullets.map((b) => (
+                {jobBullets.map((b, i) => (
                   <li key={b} className="flex items-start gap-2 text-[15px] text-[#5F6B73] font-light">
                     <CheckCircle size={16} className="text-[#6FD3D1] mt-0.5 shrink-0" />
-                    {b}
+                    <Editable as="span" id={`karriere.job.bullets.${i}`}>{b}</Editable>
                   </li>
                 ))}
               </ul>
               <div className="mt-6 flex flex-wrap gap-4 text-xs text-[#5F6B73] font-light">
-                <span className="inline-flex items-center gap-1.5"><Heart size={14} className="text-[#6FD3D1]" /> Wertschätzendes Team</span>
-                <span className="inline-flex items-center gap-1.5"><Clock size={14} className="text-[#6FD3D1]" /> Flexible Zeitmodelle</span>
-                <span className="inline-flex items-center gap-1.5"><Users size={14} className="text-[#6FD3D1]" /> Sinnvolle Tätigkeit</span>
+                <span className="inline-flex items-center gap-1.5"><Heart size={14} className="text-[#6FD3D1]" /> <Editable as="span" id="karriere.job.perk.0">Wertschätzendes Team</Editable></span>
+                <span className="inline-flex items-center gap-1.5"><Clock size={14} className="text-[#6FD3D1]" /> <Editable as="span" id="karriere.job.perk.1">Flexible Zeitmodelle</Editable></span>
+                <span className="inline-flex items-center gap-1.5"><Users size={14} className="text-[#6FD3D1]" /> <Editable as="span" id="karriere.job.perk.2">Sinnvolle Tätigkeit</Editable></span>
               </div>
               <a
                 href="#bewerben"
                 className="inline-flex items-center gap-2 mt-8 bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-6 py-3 rounded-full text-sm font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)]"
               >
-                Jetzt bewerben <ArrowRight size={16} />
+                <Editable as="span" id="karriere.job.detail.cta">Jetzt bewerben</Editable> <ArrowRight size={16} />
               </a>
             </div>
           )}
@@ -279,10 +280,10 @@ export function KarrierePage() {
         <div className="max-w-3xl mx-auto px-6">
           <div className="cura-reveal cura-reveal-up text-center mb-10">
             <h2 className="text-3xl font-medium tracking-tight text-[#111111] mb-3" style={jakarta}>
-              Ihre Bewerbung
+              <Editable as="span" id="karriere.form.title">Ihre Bewerbung</Editable>
             </h2>
             <p className="text-[#5F6B73] font-light">
-              Position: <span className="text-[#111111]">{JOB_TITLE}</span>
+              <Editable as="span" id="karriere.form.position.label">Position:</Editable> <span className="text-[#111111]">{JOB_TITLE}</span>
             </p>
           </div>
 
@@ -290,10 +291,10 @@ export function KarrierePage() {
             <div className="cura-card-glow bg-[#F8FEFF] p-8 rounded-3xl border border-[#E5F4F5] text-center">
               <CheckCircle size={48} className="text-[#6FD3D1] mx-auto mb-4" />
               <h3 className="text-xl font-medium text-[#111111] mb-2" style={jakarta}>
-                Vielen Dank!
+                <Editable as="span" id="karriere.form.success.title">Vielen Dank!</Editable>
               </h3>
               <p className="text-[15px] text-[#5F6B73] font-light">
-                Ihre Bewerbung wurde erfolgreich übermittelt.
+                <Editable as="span" id="karriere.form.success.text">Ihre Bewerbung wurde erfolgreich übermittelt.</Editable>
               </p>
             </div>
           ) : (
@@ -312,24 +313,24 @@ export function KarrierePage() {
                 </label>
               </div>
 
-              <Field label="Vollständiger Name *" error={fieldErrors.name}>
+              <Field label={<Editable as="span" id="karriere.form.field.name.label">Vollständiger Name *</Editable>} error={fieldErrors.name}>
                 <input type="text" autoComplete="name" maxLength={Limits.NAME_MAX} required aria-invalid={!!fieldErrors.name} value={form.name} onChange={(e) => set("name", e.target.value)} className={inputCls} placeholder="Vor- und Nachname" />
               </Field>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <Field label="E-Mail-Adresse *" error={fieldErrors.email}>
+                <Field label={<Editable as="span" id="karriere.form.field.email.label">E-Mail-Adresse *</Editable>} error={fieldErrors.email}>
                   <input type="email" autoComplete="email" inputMode="email" maxLength={Limits.EMAIL_MAX} required aria-invalid={!!fieldErrors.email} value={form.email} onChange={(e) => set("email", e.target.value)} className={inputCls} placeholder="name@beispiel.de" />
                 </Field>
-                <Field label="Telefonnummer *" error={fieldErrors.phone}>
+                <Field label={<Editable as="span" id="karriere.form.field.phone.label">Telefonnummer *</Editable>} error={fieldErrors.phone}>
                   <input type="tel" autoComplete="tel" inputMode="tel" maxLength={25} required aria-invalid={!!fieldErrors.phone} value={form.phone} onChange={(e) => set("phone", e.target.value)} className={inputCls} placeholder="05151 7107093" />
                 </Field>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <Field label="Wohnort" error={fieldErrors.city}>
+                <Field label={<Editable as="span" id="karriere.form.field.city.label">Wohnort</Editable>} error={fieldErrors.city}>
                   <input type="text" autoComplete="address-level2" maxLength={60} value={form.city} onChange={(e) => set("city", e.target.value)} className={inputCls} placeholder="Hameln" />
                 </Field>
-                <Field label="Gewünschte Arbeitszeit">
+                <Field label={<Editable as="span" id="karriere.form.field.workinghours.label">Gewünschte Arbeitszeit</Editable>}>
                   <select value={form.working_hours} onChange={(e) => set("working_hours", e.target.value)} className={inputCls}>
                     <option value="">Bitte wählen…</option>
                     <option>Vollzeit</option>
@@ -340,12 +341,13 @@ export function KarrierePage() {
                 </Field>
               </div>
 
-              <Field label="Frühestmögliches Eintrittsdatum">
+              <Field label={<Editable as="span" id="karriere.form.field.earlieststart.label">Frühestmögliches Eintrittsdatum</Editable>}>
                 <input type="date" value={form.earliest_start} onChange={(e) => set("earliest_start", e.target.value)} className={inputCls} />
               </Field>
 
               <YesNoBlock
-                label="Haben Sie Erfahrung in der Haushaltsunterstützung?"
+                label={<Editable as="span" id="karriere.form.field.experiencehousehold.label">Haben Sie Erfahrung in der Haushaltsunterstützung?</Editable>}
+                name="experience_household"
                 value={form.experience_household}
                 onChange={(v) => set("experience_household", v)}
                 detail={form.experience_household_text}
@@ -353,7 +355,8 @@ export function KarrierePage() {
               />
 
               <YesNoBlock
-                label="Haben Sie Erfahrung in der Senioren- bzw. Alltagsbetreuung?"
+                label={<Editable as="span" id="karriere.form.field.experiencecare.label">Haben Sie Erfahrung in der Senioren- bzw. Alltagsbetreuung?</Editable>}
+                name="experience_care"
                 value={form.experience_care}
                 onChange={(v) => set("experience_care", v)}
                 detail={form.experience_care_text}
@@ -361,15 +364,15 @@ export function KarrierePage() {
               />
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <Field label="Führerschein vorhanden?">
+                <Field label={<Editable as="span" id="karriere.form.field.driverslicense.label">Führerschein vorhanden?</Editable>}>
                   <RadioRow value={form.drivers_license} onChange={(v) => set("drivers_license", v)} name="drivers_license" />
                 </Field>
-                <Field label="Eigenes Auto verfügbar?">
+                <Field label={<Editable as="span" id="karriere.form.field.hascar.label">Eigenes Auto verfügbar?</Editable>}>
                   <RadioRow value={form.has_car} onChange={(v) => set("has_car", v)} name="has_car" />
                 </Field>
               </div>
 
-              <Field label="Kurze Motivation" error={fieldErrors.motivation}>
+              <Field label={<Editable as="span" id="karriere.form.field.motivation.label">Kurze Motivation</Editable>} error={fieldErrors.motivation}>
                 <textarea
                   value={form.motivation}
                   onChange={(e) => set("motivation", e.target.value)}
@@ -380,7 +383,7 @@ export function KarrierePage() {
                 />
               </Field>
 
-              <Field label="Lebenslauf / Unterlagen (optional)" error={fieldErrors.cv}>
+              <Field label={<Editable as="span" id="karriere.form.field.cv.label">Lebenslauf / Unterlagen (optional)</Editable>} error={fieldErrors.cv}>
                 <input
                   type="file"
                   accept={CV_ACCEPT}
@@ -403,15 +406,15 @@ export function KarrierePage() {
                   className="block w-full text-sm text-[#5F6B73] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-[#DFF7F8] file:text-[#6FD3D1] hover:file:bg-[#BFEAF2] cursor-pointer"
                 />
                 {form.cv_filename && !fieldErrors.cv && (
-                  <p className="text-xs text-[#5F6B73] font-light mt-1">Ausgewählt: {form.cv_filename}</p>
+                  <p className="text-xs text-[#5F6B73] font-light mt-1"><Editable as="span" id="karriere.form.field.cv.selected-prefix">Ausgewählt:</Editable> {form.cv_filename}</p>
                 )}
-                <p className="text-xs text-[#9AA3A8] font-light mt-1">PDF, Word oder Bild · max. 5&nbsp;MB</p>
+                <p className="text-xs text-[#9AA3A8] font-light mt-1"><Editable as="span" id="karriere.form.field.cv.hint">PDF, Word oder Bild · max. 5&nbsp;MB</Editable></p>
               </Field>
 
               <label className="flex items-start gap-3 text-sm text-[#5F6B73] font-light leading-relaxed">
                 <input type="checkbox" checked={form.consent_privacy} onChange={(e) => set("consent_privacy", e.target.checked)} className="mt-1 w-4 h-4 accent-[#6FD3D1] shrink-0" />
                 <span>
-                  Ich habe die <Link to="/datenschutz" className="text-[#6FD3D1] underline hover:text-[#5BC2C0]">Datenschutzerklärung</Link> gelesen und stimme zu, dass meine Angaben zur Bearbeitung meiner Bewerbung verarbeitet werden.
+                  <Editable as="span" id="karriere.form.consent.text.pre">Ich habe die </Editable><Link to="/datenschutz" className="text-[#6FD3D1] underline hover:text-[#5BC2C0]">Datenschutzerklärung</Link><Editable as="span" id="karriere.form.consent.text.post"> gelesen und stimme zu, dass meine Angaben zur Bearbeitung meiner Bewerbung verarbeitet werden.</Editable>
                 </span>
               </label>
               {fieldErrors.consent_privacy && <p className="text-xs text-red-500 -mt-3">{fieldErrors.consent_privacy}</p>}
@@ -424,7 +427,11 @@ export function KarrierePage() {
               )}
 
               <button type="submit" disabled={submitting} className="w-full sm:w-auto bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] disabled:opacity-60 disabled:cursor-not-allowed px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)] flex items-center justify-center gap-2">
-                <Send size={18} /> {submitting ? "Wird gesendet…" : "Bewerbung absenden"}
+                <Send size={18} /> {submitting ? (
+                  <Editable as="span" id="karriere.form.submit.loading">Wird gesendet…</Editable>
+                ) : (
+                  <Editable as="span" id="karriere.form.submit">Bewerbung absenden</Editable>
+                )}
               </button>
             </form>
           )}
@@ -437,7 +444,7 @@ export function KarrierePage() {
 const inputCls =
   "w-full px-4 py-3 rounded-xl border border-[#E5F4F5] bg-white text-sm font-light text-[#111111] focus:outline-none focus:border-[#6FD3D1] focus:ring-1 focus:ring-[#6FD3D1] transition-colors";
 
-function Field({ label, children, error }: { label: string; children: React.ReactNode; error?: string }) {
+function Field({ label, children, error }: { label: React.ReactNode; children: React.ReactNode; error?: string }) {
   return (
     <div>
       <label className="block text-sm font-medium text-[#111111] mb-1.5">{label}</label>
@@ -453,7 +460,11 @@ function RadioRow({ value, onChange, name }: { value: "ja" | "nein" | ""; onChan
       {(["ja", "nein"] as const).map((opt) => (
         <label key={opt} className="inline-flex items-center gap-2 text-sm text-[#5F6B73] font-light cursor-pointer">
           <input type="radio" name={name} checked={value === opt} onChange={() => onChange(opt)} className="accent-[#6FD3D1]" />
-          {opt === "ja" ? "Ja" : "Nein"}
+          {opt === "ja" ? (
+            <Editable as="span" id="karriere.form.radio.yes">Ja</Editable>
+          ) : (
+            <Editable as="span" id="karriere.form.radio.no">Nein</Editable>
+          )}
         </label>
       ))}
     </div>
@@ -462,12 +473,14 @@ function RadioRow({ value, onChange, name }: { value: "ja" | "nein" | ""; onChan
 
 function YesNoBlock({
   label,
+  name,
   value,
   onChange,
   detail,
   onDetail,
 }: {
-  label: string;
+  label: React.ReactNode;
+  name: string;
   value: "ja" | "nein" | "";
   onChange: (v: "ja" | "nein") => void;
   detail: string;
@@ -476,7 +489,7 @@ function YesNoBlock({
   return (
     <div>
       <label className="block text-sm font-medium text-[#111111] mb-1.5">{label}</label>
-      <RadioRow value={value} onChange={onChange} name={label} />
+      <RadioRow value={value} onChange={onChange} name={name} />
       {value === "ja" && (
         <textarea
           value={detail}
