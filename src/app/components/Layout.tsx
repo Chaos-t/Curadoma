@@ -347,7 +347,7 @@ export function Layout() {
 
           <div className="mt-6 pt-6 border-t border-[#E5F4F5] text-center">
             <p className="text-xs text-[#9AA3A8] font-light">
-              <Editable as="span" id="shared.footer.credit.pre">Designed by </Editable>
+              <Editable as="span" id="shared.footer.credit.pre">Designed by</Editable>{" "}
               <a
                 href="https://axion-studio.de/index.html"
                 target="_blank"

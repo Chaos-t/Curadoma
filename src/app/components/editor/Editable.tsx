@@ -37,9 +37,14 @@ export function Editable({ id, children, as = "span", rich = false, className, s
     const el = e.currentTarget;
     setPending(id, rich ? el.innerHTML : (el.innerText ?? ""), rich);
   };
+  // Im Edit-Modus Klicks NICHT navigieren lassen: viele editierbare Labels
+  // liegen in <Link>/<a> (Nav, CTAs, Footer-Kontakt) — ohne preventDefault
+  // würde ein Klick zum Bearbeiten die Route öffnen. Der Cursor wird bereits
+  // bei mousedown gesetzt, preventDefault auf click stört das nicht.
+  const onClick = (e: React.MouseEvent<HTMLElement>) => e.preventDefault();
   return createElement(
     as,
-    { "data-ed-id": id, contentEditable: true, suppressContentEditableWarning: true, className: editClass, style, onInput, title: id },
+    { "data-ed-id": id, contentEditable: true, suppressContentEditableWarning: true, className: editClass, style, onInput, onClick, title: id },
     seed.current,
   );
 }
