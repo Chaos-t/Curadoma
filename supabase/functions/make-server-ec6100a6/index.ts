@@ -1422,7 +1422,9 @@ function ctEq(a: string, b: string): boolean {
 }
 function safeHref(h: string): boolean {
   h = (h || "").trim();
-  return /^https?:\/\//i.test(h) || /^mailto:/i.test(h) || /^tel:/i.test(h) || /^\/[\w./-]*$/.test(h) || /^#[\w-]+$/.test(h);
+  // Same-origin relative paths only: reject a second leading slash so a
+  // protocol-relative "//evil.com" (external host) can't pass as "relative".
+  return /^https?:\/\//i.test(h) || /^mailto:/i.test(h) || /^tel:/i.test(h) || /^\/(?!\/)[\w./-]*$/.test(h) || /^#[\w-]+$/.test(h);
 }
 // Escape-First-Allowlist: erst ALLES neutralisieren, dann nur wenige sichere Inline-Tags zurück.
 function sanitizeRich(html: string): string {
@@ -1440,7 +1442,7 @@ function sanitizeRich(html: string): string {
   s = s.replace(/&lt;\/?[a-z][\s\S]*?&gt;/gi, "");
   return s;
 }
-// Editor-Rate-Limit: nur bei FEHLERN hochzählen (per IP + global), 15-Min-Fenster.
+// Editor-Rate-Limit: nur bei FEHLERN hochzählen (per IP + global); Fenster = RL_WINDOW_MS.
 async function editRateLimited(ip: string): Promise<boolean> {
   const perIp = await rateLimitState(`edit_rl:ip:${ip}`);
   const glob = await rateLimitState(`edit_rl:global`);
