@@ -346,15 +346,17 @@ export function Layout() {
           </div>
 
           <div className="mt-6 pt-6 border-t border-[#E5F4F5] text-center">
+            {/* Bewusst NICHT editierbar (kein <Editable>): der Axion-Studio-Credit
+                soll fest bleiben und darf im Editor nicht geaendert werden. */}
             <p className="text-xs text-[#9AA3A8] font-light">
-              <Editable as="span" id="shared.footer.credit.pre">Designed by</Editable>{" "}
+              Designed by{" "}
               <a
                 href="https://axion-studio.de/index.html"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[#6FD3D1] hover:text-[#5BC2C0] transition-colors font-normal"
               >
-                <Editable as="span" id="shared.footer.credit.link">Axion Studio</Editable>
+                Axion Studio
               </a>
             </p>
           </div>
