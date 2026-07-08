@@ -37,8 +37,8 @@ export const router = createBrowserRouter([
       { path: "impressum", Component: ImpressumPage },
       { path: "datenschutz", Component: DatenschutzPage },
       { path: "karriere", Component: KarrierePage },
-      { path: "termin", Component: TerminPage },
-      { path: "termin-status", Component: TerminStatusPage },
+      // { path: "termin", Component: TerminPage }, // TEMP deaktiviert – Termin-Bereich vorerst ausgeblendet
+      { path: "termin-status", Component: TerminStatusPage }, // bleibt: Landeseite der Betreiber-Bestätigungs-Mails
       { path: "admin", Component: AdminLoginPage },
       {
         path: "*",

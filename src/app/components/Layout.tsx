@@ -8,6 +8,7 @@ import { CuraDomaLogo } from "./CuraDomaLogo";
 import { requestReopenBanner } from "../../lib/consent";
 import { Editable } from "./editor/Editable";
 import { PhoneText, EmailText, AddressBlock } from "./editor/Shared";
+import { Seo } from "./Seo";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
@@ -25,7 +26,7 @@ const topNav = [
   { path: "/einzugsgebiet", label: "Einzugsgebiet", id: "shared.nav.einzugsgebiet" },
   { path: "/karriere", label: "Karriere", id: "shared.nav.karriere" },
   { path: "/kontakt", label: "Kontakt", id: "shared.nav.kontakt" },
-  { path: "/termin", label: "Termin vereinbaren", id: "shared.nav.termin_mobile" },
+  // { path: "/termin", label: "Termin vereinbaren", id: "shared.nav.termin_mobile" }, // TEMP deaktiviert – Termin-Bereich vorerst ausgeblendet
 ];
 
 export function Layout() {
@@ -141,6 +142,7 @@ export function Layout() {
       className="min-h-screen bg-[#F8FEFF] text-[#111111] antialiased selection:bg-[#BFEAF2] selection:text-[#111111]"
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
+      <Seo />
       <BackgroundScene />
 
       {/* Top Utility Bar */}
@@ -207,9 +209,11 @@ export function Layout() {
             <Link to="/kontakt" className={`text-sm font-light transition-colors ${isActive("/kontakt") ? "text-[#6FD3D1]" : "text-[#5F6B73] hover:text-[#6FD3D1]"}`}>
               <Editable as="span" id="shared.nav.kontakt">Kontakt</Editable>
             </Link>
+            {/* TEMP deaktiviert – Termin-Bereich vorerst ausgeblendet
             <Link to="/termin" className={`text-sm font-light transition-colors ${isActive("/termin") ? "text-[#6FD3D1]" : "text-[#5F6B73] hover:text-[#6FD3D1]"}`}>
               <Editable as="span" id="shared.nav.termin">Termin</Editable>
             </Link>
+            */}
 
             <Link
               to="/kontakt"
