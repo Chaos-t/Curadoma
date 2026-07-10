@@ -6,10 +6,10 @@ const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
 // Werte = Pflegesachleistung/Monat + max. Umwandlung (40 %) nach § 45a SGB XI.
 const tableRows = [
-  { grad: "Pflegegrad 2", sach: "796 €", umw: "318,40 €", services: "z. B. Haushaltshilfe, Begleitung, Betreuung" },
-  { grad: "Pflegegrad 3", sach: "1.497 €", umw: "598,80 €", services: "z. B. Demenzbetreuung, Alltagshilfe" },
-  { grad: "Pflegegrad 4", sach: "1.859 €", umw: "743,60 €", services: "z. B. stundenweise Betreuung zur Entlastung" },
-  { grad: "Pflegegrad 5", sach: "2.299 €", umw: "919,60 €", services: "z. B. umfassende Unterstützung im Alltag" },
+  { grad: "Pflegegrad 2", sach: "796 €", umw: "318,40 €" },
+  { grad: "Pflegegrad 3", sach: "1.497 €", umw: "598,80 €" },
+  { grad: "Pflegegrad 4", sach: "1.859 €", umw: "743,60 €" },
+  { grad: "Pflegegrad 5", sach: "2.299 €", umw: "919,60 €" },
 ];
 
 export function UmwandlungPage() {
@@ -114,7 +114,6 @@ export function UmwandlungPage() {
                     <th className="p-4 font-medium" style={jakarta}><Editable as="span" id="umwandlung.tabelle.head.grad">Pflegegrad</Editable></th>
                     <th className="p-4 font-medium" style={jakarta}><Editable as="span" id="umwandlung.tabelle.head.sach">Pflegesachleistung pro Monat</Editable></th>
                     <th className="p-4 font-medium" style={jakarta}><Editable as="span" id="umwandlung.tabelle.head.umw">Max. Umwandlungsbetrag (40 %)</Editable></th>
-                    <th className="p-4 font-medium" style={jakarta}><Editable as="span" id="umwandlung.tabelle.head.services">Mögliche Sachleistungen</Editable></th>
                   </tr>
                 </thead>
                 <tbody className="text-[#5F6B73] font-light">
@@ -123,7 +122,6 @@ export function UmwandlungPage() {
                       <td className="p-4 font-medium text-[#111111]"><Editable as="span" id={`umwandlung.tabelle.rows.${i}.grad`}>{r.grad}</Editable></td>
                       <td className="p-4"><Editable as="span" id={`umwandlung.tabelle.rows.${i}.sach`}>{r.sach}</Editable></td>
                       <td className="p-4"><Editable as="span" id={`umwandlung.tabelle.rows.${i}.umw`}>{r.umw}</Editable></td>
-                      <td className="p-4"><Editable as="span" id={`umwandlung.tabelle.rows.${i}.services`}>{r.services}</Editable></td>
                     </tr>
                   ))}
                 </tbody>
@@ -139,7 +137,6 @@ export function UmwandlungPage() {
                 <dl className="space-y-2 text-sm text-[#5F6B73] font-light">
                   <div className="flex justify-between gap-3"><dt><Editable as="span" id="umwandlung.tabelle.mobile.label.sach">Pflegesachleistung / Monat</Editable></dt><dd className="text-right text-[#111111]"><Editable as="span" id={`umwandlung.tabelle.rows.${i}.sach`}>{r.sach}</Editable></dd></div>
                   <div className="flex justify-between gap-3"><dt><Editable as="span" id="umwandlung.tabelle.mobile.label.umw">Max. Umwandlung (40 %)</Editable></dt><dd className="text-right text-[#111111]"><Editable as="span" id={`umwandlung.tabelle.rows.${i}.umw`}>{r.umw}</Editable></dd></div>
-                  <div className="pt-2 border-t border-[#E5F4F5]"><dt className="text-xs uppercase tracking-wider mb-1"><Editable as="span" id="umwandlung.tabelle.mobile.label.services">Mögliche Sachleistungen</Editable></dt><dd><Editable as="span" id={`umwandlung.tabelle.rows.${i}.services`}>{r.services}</Editable></dd></div>
                 </dl>
               </div>
             ))}

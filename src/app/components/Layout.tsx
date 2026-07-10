@@ -18,7 +18,7 @@ const leistungenLinks = [
   { path: "/demenzbetreuung", label: "Demenz- & Seniorenbetreuung", id: "shared.leistungenmenu.2.label" },
   { path: "/haushaltsnahe-dienstleistungen", label: "Haushaltsnahe Dienstleistungen", id: "shared.leistungenmenu.3.label" },
   { path: "/verhinderungspflege", label: "Verhinderungspflege", id: "shared.leistungenmenu.4.label" },
-  { path: "/umwandlung-sachleistungen", label: "Umwandlung in Sachleistungen", id: "shared.leistungenmenu.5.label" },
+  { path: "/umwandlung-sachleistungen", label: "Umwandlungsanspruch", id: "shared.leistungenmenu.5.label" },
 ];
 
 const topNav = [
