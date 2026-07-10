@@ -18,7 +18,7 @@ export function EntlastungPage() {
             </div>
             <h1 className="text-4xl sm:text-5xl font-medium tracking-tight text-[#111111] leading-[1.15] mb-6" style={jakarta}>
               <Editable as="span" id="entlastung.hero.title">Entlastungsleistungen</Editable> <br className="hidden lg:block" />
-              <span className="text-[#6FD3D1]"><Editable as="span" id="entlastung.hero.title-highlight">nach § 45a SGB XI</Editable></span>
+              <span className="text-[#6FD3D1]"><Editable as="span" id="entlastung.hero.title-highlight">nach § 45b SGB XI</Editable></span>
             </h1>
             <p className="text-lg text-[#5F6B73] leading-relaxed max-w-2xl mx-auto lg:mx-0 font-light">
               <Editable as="span" id="entlastung.hero.subtitle">Unterstützung im Alltag für Pflegebedürftige und Angehörige – finanziert über die Pflegekasse.</Editable>

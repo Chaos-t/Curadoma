@@ -153,10 +153,8 @@ export function DemenzPage() {
           <p className="cura-reveal cura-reveal-up text-lg text-[#5F6B73] leading-relaxed font-light mb-12">
             <Editable as="span" id="demenz.qualifikation.intro">Unsere Betreuungskräfte sind speziell für die Arbeit mit demenziell veränderten Menschen geschult. Regelmäßige Fortbildungen stellen sicher, dass wir stets nach aktuellen Erkenntnissen arbeiten.</Editable>
           </p>
-          <div className="cura-reveal cura-reveal-up grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="cura-reveal cura-reveal-up grid grid-cols-1 gap-6 max-w-sm mx-auto">
             {[
-              { num: "100+", label: "Stunden Fachschulung pro Mitarbeiter" },
-              { num: "24h", label: "Erreichbarkeit bei Notfällen" },
               { num: "100%", label: "Herz bei jeder Begegnung" },
             ].map((stat, i) => (
               <div key={i} className="cura-card-glow bg-[#F8FEFF] p-6 rounded-2xl border border-[#E5F4F5]">

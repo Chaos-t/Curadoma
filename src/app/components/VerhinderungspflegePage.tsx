@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { CheckCircle, Phone, Calendar, Euro, FileText, Users } from "lucide-react";
+import { CheckCircle, Phone, Calendar, Euro, FileText, Users, Repeat } from "lucide-react";
 import { Editable } from "./editor/Editable";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
@@ -43,7 +43,6 @@ export function VerhinderungspflegePage() {
             <ul className="space-y-3 text-[15px] text-[#5F6B73] font-light">
               {[
                 "Der oder die Pflegebedürftige hat Pflegegrad 2 oder höher.",
-                "Die reguläre Pflegeperson hat den Pflegebedürftigen bereits mindestens 6 Monate zu Hause betreut.",
                 "Die Pflegeperson ist vorübergehend verhindert (z. B. durch Krankheit oder Urlaub).",
               ].map((v, i) => (
                 <li key={i} className="flex items-start gap-2">
@@ -87,9 +86,9 @@ export function VerhinderungspflegePage() {
           </h2>
           <div className="cura-reveal cura-reveal-up grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { icon: <Euro size={24} strokeWidth={1.5} />, value: "1.612 €", desc: "pro Kalenderjahr für Verhinderungspflege" },
-              { icon: <Euro size={24} strokeWidth={1.5} />, value: "+ 806 €", desc: "zusätzlich aus nicht genutzter Kurzzeitpflege (gesamt bis zu 2.418 €/Jahr)" },
-              { icon: <Calendar size={24} strokeWidth={1.5} />, value: "42 Tage", desc: "Nutzung pro Jahr möglich" },
+              { icon: <Euro size={24} strokeWidth={1.5} />, value: "3.539 €", desc: "pro Kalenderjahr für Verhinderungs- und Kurzzeitpflege (gemeinsamer Jahresbetrag)" },
+              { icon: <Repeat size={24} strokeWidth={1.5} />, value: "Flexibel nutzbar", desc: "für Verhinderungspflege und/oder Kurzzeitpflege nach individuellem Bedarf" },
+              { icon: <Calendar size={24} strokeWidth={1.5} />, value: "56 Tage", desc: "Nutzung pro Kalenderjahr möglich (bis zu 8 Wochen)" },
             ].map((s, i) => (
               <div key={i} className="cura-card-glow bg-[#F8FEFF] p-7 rounded-3xl border border-[#E5F4F5] text-center">
                 <div className="w-12 h-12 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] mx-auto mb-4">

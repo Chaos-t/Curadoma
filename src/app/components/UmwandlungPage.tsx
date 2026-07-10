@@ -1,14 +1,15 @@
 import { Link } from "react-router";
-import { CheckCircle, Phone, Repeat, Info } from "lucide-react";
+import { CheckCircle, Phone, Repeat } from "lucide-react";
 import { Editable } from "./editor/Editable";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
+// Werte = Pflegesachleistung/Monat + max. Umwandlung (40 %) nach § 45a SGB XI.
 const tableRows = [
-  { grad: "Pflegegrad 2", geld: "316 €", umw: "126,40 €", rest: "189,60 €", services: "z. B. Haushaltshilfe, Begleitung, Betreuung" },
-  { grad: "Pflegegrad 3", geld: "545 €", umw: "218 €", rest: "327 €", services: "z. B. Demenzbetreuung, Alltagshilfe" },
-  { grad: "Pflegegrad 4", geld: "728 €", umw: "291,20 €", rest: "436,80 €", services: "z. B. stundenweise Betreuung zur Entlastung" },
-  { grad: "Pflegegrad 5", geld: "901 €", umw: "360,40 €", rest: "540,60 €", services: "z. B. umfassende Unterstützung im Alltag" },
+  { grad: "Pflegegrad 2", sach: "796 €", umw: "318,40 €", services: "z. B. Haushaltshilfe, Begleitung, Betreuung" },
+  { grad: "Pflegegrad 3", sach: "1.497 €", umw: "598,80 €", services: "z. B. Demenzbetreuung, Alltagshilfe" },
+  { grad: "Pflegegrad 4", sach: "1.859 €", umw: "743,60 €", services: "z. B. stundenweise Betreuung zur Entlastung" },
+  { grad: "Pflegegrad 5", sach: "2.299 €", umw: "919,60 €", services: "z. B. umfassende Unterstützung im Alltag" },
 ];
 
 export function UmwandlungPage() {
@@ -20,8 +21,8 @@ export function UmwandlungPage() {
             <Editable as="span" id="umwandlung.hero.badge">Pflegekasse</Editable>
           </div>
           <h1 className="text-4xl sm:text-5xl font-medium tracking-tight text-[#111111] leading-[1.15] mb-6" style={jakarta}>
-            <Editable as="span" id="umwandlung.hero.title">Umwandlung von Geldleistungen</Editable> <br className="hidden lg:block" />
-            <span className="text-[#6FD3D1]"><Editable as="span" id="umwandlung.hero.title.accent">in Sachleistungen</Editable></span>
+            <Editable as="span" id="umwandlung.hero.title">Umwandlungsanspruch</Editable> <br className="hidden lg:block" />
+            <span className="text-[#6FD3D1]"><Editable as="span" id="umwandlung.hero.title.accent">nach § 45a SGB XI</Editable></span>
           </h1>
           <p className="text-lg text-[#5F6B73] leading-relaxed font-light">
             <Editable as="span" id="umwandlung.hero.subtitle">Mehr praktische Hilfe im Alltag – kombinieren Sie finanzielle Unterstützung mit konkreter Entlastung.</Editable>
@@ -87,24 +88,21 @@ export function UmwandlungPage() {
             <h2 className="text-2xl font-medium tracking-tight text-[#111111]" style={jakarta}><Editable as="span" id="umwandlung.funktion.heading">Wie funktioniert die Umwandlung?</Editable></h2>
           </div>
           <p className="text-[#5F6B73] font-light leading-relaxed mb-4">
-            <Editable as="span" id="umwandlung.funktion.paragraph">Die Pflegekasse erlaubt es, bis zu 40 % des Pflegegeldes für anerkannte Betreuungsleistungen zu verwenden. Wir beraten Sie gerne persönlich, wie Sie diese Möglichkeit optimal für sich nutzen können – und übernehmen auf Wunsch auch die Abstimmung mit der Pflegekasse.</Editable>
+            <Editable as="span" id="umwandlung.funktion.paragraph">Die Pflegekasse ermöglicht es, bis zu 40 % der nicht genutzten Pflegesachleistungen für anerkannte Angebote zur Unterstützung im Alltag einzusetzen. Dazu zählen beispielsweise Haushaltshilfe, Alltagsbegleitung oder Betreuungsleistungen.</Editable>
           </p>
-          <div className="cura-card-glow bg-[#F8FEFF] p-5 rounded-2xl border border-[#E5F4F5] flex items-start gap-3">
-            <Info size={20} className="text-[#6FD3D1] mt-0.5 shrink-0" />
-            <p className="text-[15px] text-[#5F6B73] font-light">
-              <Editable as="span" id="umwandlung.funktion.fazit" rich><strong>Fazit:</strong> Sie kombinieren finanzielle Unterstützung mit konkreter Entlastung – genau dort, wo Hilfe gebraucht wird.</Editable>
-            </p>
-          </div>
+          <p className="text-[#5F6B73] font-light leading-relaxed">
+            <Editable as="span" id="umwandlung.funktion.paragraph2">Wir beraten Sie gerne persönlich und unterstützen Sie bei der Abstimmung mit der Pflegekasse.</Editable>
+          </p>
         </div>
       </section>
 
       <section className="py-20 bg-[#F8FEFF]/80">
         <div className="max-w-6xl mx-auto px-6 lg:px-12">
           <h2 className="cura-reveal cura-reveal-up text-3xl font-medium tracking-tight text-[#111111] mb-3 text-center" style={jakarta}>
-            <Editable as="span" id="umwandlung.tabelle.heading" rich>Beispiele: Pflegegeld &amp; Umwandlung in Sachleistungen</Editable>
+            <Editable as="span" id="umwandlung.tabelle.heading" rich>Beispiele: Umwandlung von Pflegesachleistungen</Editable>
           </h2>
           <p className="cura-reveal cura-reveal-up text-[#5F6B73] font-light text-center mb-10">
-            <Editable as="span" id="umwandlung.tabelle.intro" rich>Übersicht der maximalen Umwandlung von 40&nbsp;% des Pflegegeldes.</Editable>
+            <Editable as="span" id="umwandlung.tabelle.intro" rich>Übersicht der maximalen Umwandlung von 40&nbsp;% der Pflegesachleistungen.</Editable>
           </p>
 
           {/* Desktop table */}
@@ -114,9 +112,8 @@ export function UmwandlungPage() {
                 <thead className="bg-[#DFF7F8] text-[#111111]">
                   <tr>
                     <th className="p-4 font-medium" style={jakarta}><Editable as="span" id="umwandlung.tabelle.head.grad">Pflegegrad</Editable></th>
-                    <th className="p-4 font-medium" style={jakarta}><Editable as="span" id="umwandlung.tabelle.head.geld">Pflegegeld pro Monat</Editable></th>
+                    <th className="p-4 font-medium" style={jakarta}><Editable as="span" id="umwandlung.tabelle.head.sach">Pflegesachleistung pro Monat</Editable></th>
                     <th className="p-4 font-medium" style={jakarta}><Editable as="span" id="umwandlung.tabelle.head.umw">Max. Umwandlungsbetrag (40 %)</Editable></th>
-                    <th className="p-4 font-medium" style={jakarta}><Editable as="span" id="umwandlung.tabelle.head.rest">Verbleibendes Pflegegeld</Editable></th>
                     <th className="p-4 font-medium" style={jakarta}><Editable as="span" id="umwandlung.tabelle.head.services">Mögliche Sachleistungen</Editable></th>
                   </tr>
                 </thead>
@@ -124,9 +121,8 @@ export function UmwandlungPage() {
                   {tableRows.map((r, i) => (
                     <tr key={i} className="border-t border-[#E5F4F5]">
                       <td className="p-4 font-medium text-[#111111]"><Editable as="span" id={`umwandlung.tabelle.rows.${i}.grad`}>{r.grad}</Editable></td>
-                      <td className="p-4"><Editable as="span" id={`umwandlung.tabelle.rows.${i}.geld`}>{r.geld}</Editable></td>
+                      <td className="p-4"><Editable as="span" id={`umwandlung.tabelle.rows.${i}.sach`}>{r.sach}</Editable></td>
                       <td className="p-4"><Editable as="span" id={`umwandlung.tabelle.rows.${i}.umw`}>{r.umw}</Editable></td>
-                      <td className="p-4"><Editable as="span" id={`umwandlung.tabelle.rows.${i}.rest`}>{r.rest}</Editable></td>
                       <td className="p-4"><Editable as="span" id={`umwandlung.tabelle.rows.${i}.services`}>{r.services}</Editable></td>
                     </tr>
                   ))}
@@ -141,9 +137,8 @@ export function UmwandlungPage() {
               <div key={i} className="cura-card-glow bg-white p-6 rounded-2xl border border-[#E5F4F5]">
                 <div className="text-base font-medium text-[#111111] mb-3" style={jakarta}><Editable as="span" id={`umwandlung.tabelle.rows.${i}.grad`}>{r.grad}</Editable></div>
                 <dl className="space-y-2 text-sm text-[#5F6B73] font-light">
-                  <div className="flex justify-between gap-3"><dt><Editable as="span" id="umwandlung.tabelle.mobile.label.geld">Pflegegeld / Monat</Editable></dt><dd className="text-right text-[#111111]"><Editable as="span" id={`umwandlung.tabelle.rows.${i}.geld`}>{r.geld}</Editable></dd></div>
+                  <div className="flex justify-between gap-3"><dt><Editable as="span" id="umwandlung.tabelle.mobile.label.sach">Pflegesachleistung / Monat</Editable></dt><dd className="text-right text-[#111111]"><Editable as="span" id={`umwandlung.tabelle.rows.${i}.sach`}>{r.sach}</Editable></dd></div>
                   <div className="flex justify-between gap-3"><dt><Editable as="span" id="umwandlung.tabelle.mobile.label.umw">Max. Umwandlung (40 %)</Editable></dt><dd className="text-right text-[#111111]"><Editable as="span" id={`umwandlung.tabelle.rows.${i}.umw`}>{r.umw}</Editable></dd></div>
-                  <div className="flex justify-between gap-3"><dt><Editable as="span" id="umwandlung.tabelle.mobile.label.rest">Verbleibendes Pflegegeld</Editable></dt><dd className="text-right text-[#111111]"><Editable as="span" id={`umwandlung.tabelle.rows.${i}.rest`}>{r.rest}</Editable></dd></div>
                   <div className="pt-2 border-t border-[#E5F4F5]"><dt className="text-xs uppercase tracking-wider mb-1"><Editable as="span" id="umwandlung.tabelle.mobile.label.services">Mögliche Sachleistungen</Editable></dt><dd><Editable as="span" id={`umwandlung.tabelle.rows.${i}.services`}>{r.services}</Editable></dd></div>
                 </dl>
               </div>
