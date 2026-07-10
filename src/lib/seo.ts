@@ -37,7 +37,7 @@ export const SEO_BY_PATH: Record<string, SeoMeta> = {
   "/verhinderungspflege": {
     title: "Verhinderungspflege Hameln & Paderborn | Cura Doma",
     description:
-      "Verhinderungspflege in Hameln, Paderborn & Umgebung: Bis zu 1.612 € pro Jahr (ab Pflegegrad 2), wenn die private Pflegeperson Urlaub, Krankheit oder eine Pause braucht.",
+      "Verhinderungspflege in Hameln, Paderborn & Umgebung: bis zu 3.539 € pro Jahr (gemeinsamer Jahresbetrag mit Kurzzeitpflege), wenn die private Pflegeperson eine Pause braucht.",
   },
   "/umwandlung-sachleistungen": {
     title: "Umwandlung von Pflegesachleistungen | Cura Doma Hameln",
