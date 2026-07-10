@@ -33,11 +33,11 @@ export function UmwandlungPage() {
       <section className="py-20 bg-white/80">
         <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 space-y-6 text-[17px] text-[#5F6B73] font-light leading-relaxed">
           <p>
-            <Editable as="span" id="umwandlung.intro.paragraph">Wer Pflegegrad 2 hat und zu Hause von Angehörigen gepflegt wird, erhält von der Pflegekasse ein sogenanntes Pflegegeld. Doch nicht immer reicht die Unterstützung im Alltag aus – besonders wenn die Belastung für Angehörige steigt oder zusätzliche Hilfe benötigt wird. In diesem Fall bietet sich eine sinnvolle Lösung an: die Umwandlung eines Teils des Pflegegeldes in sogenannte Sachleistungen.</Editable>
+            <Editable as="span" id="umwandlung.intro.paragraph">Wer Pflegegrad 2 oder höher hat und Pflegesachleistungen bezieht, nutzt diese im Alltag oft nicht vollständig aus. Genau hier setzt der Umwandlungsanspruch nach § 45a SGB XI an: Bis zu 40 % der nicht genutzten Pflegesachleistungen lassen sich in anerkannte Angebote zur Unterstützung im Alltag umwandeln – so verfällt ungenutztes Budget nicht, sondern wird zu konkreter Hilfe.</Editable>
           </p>
           <h2 className="text-2xl font-medium tracking-tight text-[#111111] pt-4" style={jakarta}><Editable as="span" id="umwandlung.intro.heading">Was bedeutet das für Sie?</Editable></h2>
           <p>
-            <Editable as="span" id="umwandlung.intro.paragraph2">Statt das Pflegegeld vollständig selbst zu verwenden, kann ein Teil davon in konkrete Unterstützungsleistungen durch unseren Betreuungsdienst umgewandelt werden. So erhalten Sie gezielte, praktische Entlastung – ganz nach Ihrem individuellen Bedarf.</Editable>
+            <Editable as="span" id="umwandlung.intro.paragraph2">Statt ungenutzte Sachleistungsbeträge verfallen zu lassen, wandeln Sie einen Teil davon in konkrete Unterstützung durch unseren Betreuungsdienst um. So erhalten Sie gezielte, praktische Entlastung – ganz nach Ihrem individuellen Bedarf und direkt mit der Pflegekasse abgerechnet.</Editable>
           </p>
         </div>
       </section>
@@ -48,7 +48,7 @@ export function UmwandlungPage() {
             <h3 className="text-xl font-medium text-[#111111] mb-4" style={jakarta}><Editable as="span" id="umwandlung.vorteile.title">Ihre Vorteile auf einen Blick</Editable></h3>
             <ul className="space-y-3 text-[15px] text-[#5F6B73] font-light">
               {[
-                "Sie behalten einen Teil Ihres Pflegegeldes und nutzen gleichzeitig professionelle Hilfe.",
+                "Sie setzen ungenutzte Pflegesachleistungen sinnvoll ein – statt sie verfallen zu lassen.",
                 "Die Leistungen werden direkt mit der Pflegekasse abgerechnet – Sie müssen sich um nichts kümmern.",
                 "Sie erhalten qualifizierte Unterstützung im Haushalt, bei der Alltagsbegleitung oder der Betreuung zu Hause.",
                 "Angehörige werden entlastet – Sie gewinnen mehr Zeit und Sicherheit.",
