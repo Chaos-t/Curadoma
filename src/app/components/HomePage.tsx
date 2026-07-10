@@ -233,11 +233,11 @@ export function HomePage() {
 
           <div className="cura-reveal cura-reveal-up grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
-              { icon: <Sparkles size={28} strokeWidth={1.5} />, title: "Entlastungsleistungen", desc: "Monatlich 131 € nach § 45a SGB XI für Alltagsbegleitung, Haushaltshilfe und Betreuung – direkt mit der Pflegekasse abgerechnet.", link: "/entlastung" },
+              { icon: <Sparkles size={28} strokeWidth={1.5} />, title: "Entlastungsleistungen", desc: "Monatlich 131 € nach § 45b SGB XI für Alltagsbegleitung, Haushaltshilfe und Betreuung – direkt mit der Pflegekasse abgerechnet.", link: "/entlastung" },
               { icon: <Brain size={28} strokeWidth={1.5} />, title: "Demenz- & Seniorenbetreuung", desc: "Einfühlsame, strukturierte Begleitung mit Empathie, Geduld und fachlicher Kompetenz – für Würde und Lebensqualität zu Hause.", link: "/demenzbetreuung" },
               { icon: <Home size={28} strokeWidth={1.5} />, title: "Haushaltsnahe Dienstleistungen", desc: "Reinigung, Wäschepflege, Einkaufshilfe und Zubereitung kleiner Mahlzeiten – damit Sie sich zu Hause weiterhin wohlfühlen.", link: "/haushaltsnahe-dienstleistungen" },
-              { icon: <Repeat size={28} strokeWidth={1.5} />, title: "Umwandlung in Sachleistungen", desc: "Bis zu 40 % Ihres Pflegegeldes (ab Pflegegrad 2) in konkrete Betreuungsleistungen umwandeln – mehr praktische Hilfe im Alltag.", link: "/umwandlung-sachleistungen" },
-              { icon: <Calendar size={28} strokeWidth={1.5} />, title: "Verhinderungspflege", desc: "Bis zu 1.612 € pro Jahr (ab Pflegegrad 2), wenn die private Pflegeperson Urlaub, Krankheit oder eine Pause braucht.", link: "/verhinderungspflege" },
+              { icon: <Repeat size={28} strokeWidth={1.5} />, title: "Umwandlungsanspruch", desc: "Bis zu 40 % Ihrer Pflegesachleistungen (ab Pflegegrad 2) in konkrete Betreuungsleistungen umwandeln – mehr praktische Hilfe im Alltag.", link: "/umwandlung-sachleistungen" },
+              { icon: <Calendar size={28} strokeWidth={1.5} />, title: "Verhinderungspflege", desc: "Bis zu 3.539 € pro Jahr (gemeinsamer Jahresbetrag für Verhinderungs- und Kurzzeitpflege), wenn die private Pflegeperson Urlaub, Krankheit oder eine Pause braucht.", link: "/verhinderungspflege" },
               { icon: <Users size={28} strokeWidth={1.5} />, title: "Entlastung für Angehörige", desc: "Verlässliche Übernahme der Betreuung, damit pflegende Familienmitglieder beruhigt neue Kraft schöpfen können.", link: "/leistungen" },
             ].map((service, i) => (
               <Link
