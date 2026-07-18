@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X, Mail, Phone, Download, Archive, Trash2 } from "lucide-react";
 import { useAdmin, type AdminType } from "../../../lib/admin";
 import { TYPE_META, STATUS_LABELS, fmtDate } from "./fields";
@@ -18,12 +18,29 @@ export function AdminDetail({ type, record, onClose, onChanged, onDeleted }: {
   const [note, setNote] = useState<string>(record.admin_note ?? "");
   const [busy, setBusy] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
 
-  // Esc schließt das Panel.
+  // Modal-Fokus: beim Öffnen Fokus ins Panel, Tab innerhalb einfangen, Esc
+  // schließt, beim Schließen Fokus auf den Auslöser zurückgeben (WCAG 2.4.3).
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const prevFocused = document.activeElement as HTMLElement | null;
+    closeBtnRef.current?.focus();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { onClose(); return; }
+      if (e.key !== "Tab") return;
+      const panel = panelRef.current;
+      if (!panel) return;
+      const f = panel.querySelectorAll<HTMLElement>(
+        'a[href],button:not([disabled]),textarea:not([disabled]),input:not([disabled]),[tabindex]:not([tabindex="-1"])',
+      );
+      if (f.length === 0) return;
+      const first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    return () => { window.removeEventListener("keydown", onKey); prevFocused?.focus?.(); };
   }, [onClose]);
 
   const patch = async (p: any, tag: string) => {
@@ -42,10 +59,15 @@ export function AdminDetail({ type, record, onClose, onChanged, onDeleted }: {
 
   const downloadCv = async () => {
     setBusy("cv"); setErr(null);
-    const url = await cvUrl(record.id);
-    setBusy(null);
-    if (url) window.open(url, "_blank", "noopener");
-    else setErr("Kein Lebenslauf vorhanden.");
+    try {
+      const url = await cvUrl(record.id);
+      if (url) window.open(url, "_blank", "noopener");
+      else setErr("Kein Lebenslauf vorhanden.");
+    } catch {
+      setErr("Lebenslauf konnte nicht geladen werden.");
+    } finally {
+      setBusy(null);
+    }
   };
 
   const st = record.admin_status ?? "neu";
@@ -53,18 +75,18 @@ export function AdminDetail({ type, record, onClose, onChanged, onDeleted }: {
   return (
     <div className="fixed inset-0 z-[120] flex" style={jakarta}>
       <div className="flex-1 bg-black/30" onClick={onClose} aria-hidden="true" />
-      <div className="w-full max-w-md bg-white h-full overflow-y-auto shadow-[-20px_0_60px_rgb(0,0,0,0.18)] p-6"
+      <div ref={panelRef} className="w-full max-w-md bg-white h-full overflow-y-auto shadow-[-20px_0_60px_rgb(0,0,0,0.18)] p-6"
         role="dialog" aria-modal="true" aria-label={`${meta.singular} · Detail`}>
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-medium text-[#111111]">{meta.singular} · Detail</h2>
-          <button onClick={onClose} aria-label="Schließen" className="text-[#5F6B73] hover:text-[#111111]">
+          <button ref={closeBtnRef} onClick={onClose} aria-label="Schließen" className="text-[#5F6B73] hover:text-[#111111]">
             <X size={20} strokeWidth={1.5} />
           </button>
         </div>
 
         {/* Status */}
         <div className="mb-4">
-          <p className="text-xs uppercase tracking-wide text-[#9AA3A8] mb-2">Status</p>
+          <p className="text-xs uppercase tracking-wide text-[#5F6B73] mb-2">Status</p>
           <div className="flex gap-2">
             {STATUSES.map((s) => (
               <button key={s} disabled={busy !== null} onClick={() => patch({ admin_status: s }, "st-" + s)}
@@ -116,8 +138,9 @@ export function AdminDetail({ type, record, onClose, onChanged, onDeleted }: {
 
         {/* Interne Notiz (Klartext; React/Textarea escapen bei der Ausgabe) */}
         <div className="mb-5">
-          <p className="text-xs uppercase tracking-wide text-[#9AA3A8] mb-2">Interne Notiz</p>
+          <p className="text-xs uppercase tracking-wide text-[#5F6B73] mb-2">Interne Notiz</p>
           <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} maxLength={2000}
+            aria-label="Interne Notiz"
             className="w-full px-3 py-2 rounded-xl border border-[#E5F4F5] bg-[#F8FEFF] text-sm outline-none focus:border-[#6FD3D1]" />
           <button onClick={() => patch({ admin_note: note }, "note")} disabled={busy !== null}
             className="mt-2 text-sm bg-[#0F7C77] text-white px-4 py-1.5 rounded-full hover:bg-[#0c6a66] disabled:opacity-50">

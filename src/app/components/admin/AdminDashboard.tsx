@@ -37,7 +37,7 @@ export function AdminDashboard() {
     <section className="max-w-5xl mx-auto px-6 py-14" style={jakarta}>
       <div className="flex items-center justify-between mb-8">
         <div>
-          <p className="text-xs tracking-[0.16em] uppercase text-[#9AA3A8] mb-1">Cura Doma</p>
+          <p className="text-xs tracking-[0.16em] uppercase text-[#5F6B73] mb-1">Cura Doma</p>
           <h1 className="text-3xl font-medium text-[#111111]">Verwaltung</h1>
         </div>
         <button onClick={logout}

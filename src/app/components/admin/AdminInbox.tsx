@@ -118,7 +118,9 @@ export function AdminInbox({ type }: { type: AdminType }) {
           onClose={() => setSelected(null)}
           onChanged={(updated) => {
             setItems((xs) => xs.map((x) => (x.id === updated.id ? updated : x)));
-            setSelected(updated);
+            // Nur aktualisieren, wenn das Panel noch dieses Element zeigt — sonst
+            // würde ein spät auflösender Request das geschlossene Panel neu öffnen.
+            setSelected((prev) => (prev && prev.id === updated.id ? updated : prev));
           }}
           onDeleted={(id) => {
             setItems((xs) => xs.filter((x) => x.id !== id));
