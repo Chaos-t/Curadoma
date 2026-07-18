@@ -42,16 +42,6 @@ export const router = createBrowserRouter([
       // { path: "termin", Component: TerminPage }, // TEMP deaktiviert – Termin-Bereich vorerst ausgeblendet
       { path: "termin-status", Component: TerminStatusPage }, // bleibt: Landeseite der Betreiber-Bestätigungs-Mails
       {
-        path: "admin",
-        Component: AdminArea, // noindex + Auth-Gate; rendert Login oder <Outlet/>
-        children: [
-          { index: true, Component: AdminDashboard },
-          { path: "anfragen", element: <AdminInbox type="contact" /> },
-          { path: "bewerbungen", element: <AdminInbox type="job" /> },
-          { path: "termine", element: <AdminInbox type="appointment" /> },
-        ],
-      },
-      {
         path: "*",
         Component: () => (
           <div className="py-32 text-center">
@@ -62,6 +52,18 @@ export const router = createBrowserRouter([
           </div>
         ),
       },
+    ],
+  },
+  // Admin/Verwaltung: BEWUSST außerhalb des Layout (kein öffentlicher Navi/Footer),
+  // damit der Footer nicht das Detail-Panel überdeckt und der Bereich clean wirkt.
+  {
+    path: "/admin",
+    Component: AdminArea, // noindex + Auth-Gate; rendert Login oder <Outlet/>
+    children: [
+      { index: true, Component: AdminDashboard },
+      { path: "anfragen", element: <AdminInbox type="contact" /> },
+      { path: "bewerbungen", element: <AdminInbox type="job" /> },
+      { path: "termine", element: <AdminInbox type="appointment" /> },
     ],
   },
 ], { basename });

@@ -15,5 +15,10 @@ export function AdminArea() {
     return () => { document.head.removeChild(m); };
   }, []);
 
-  return authed ? <Outlet /> : <AdminLoginForm />;
+  // Eigener, seitenfüllender Rahmen (der Admin läuft NICHT im öffentlichen Layout).
+  return (
+    <div className="min-h-screen bg-[#F8FEFF] text-[#111111] antialiased" style={{ fontFamily: "'Inter', sans-serif" }}>
+      {authed ? <Outlet /> : <AdminLoginForm />}
+    </div>
+  );
 }

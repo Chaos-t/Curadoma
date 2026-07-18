@@ -75,7 +75,7 @@ export function AdminDetail({ type, record, onClose, onChanged, onDeleted }: {
   return (
     <div className="fixed inset-0 z-[120] flex" style={jakarta}>
       <div className="flex-1 bg-black/30" onClick={onClose} aria-hidden="true" />
-      <div ref={panelRef} className="w-full max-w-md bg-white h-full overflow-y-auto shadow-[-20px_0_60px_rgb(0,0,0,0.18)] p-6"
+      <div ref={panelRef} className="w-full max-w-md bg-white h-dvh overflow-y-auto shadow-[-20px_0_60px_rgb(0,0,0,0.18)] p-6"
         role="dialog" aria-modal="true" aria-label={`${meta.singular} · Detail`}>
         <div className="flex items-center justify-between mb-5">
           <h2 className="text-lg font-medium text-[#111111]">{meta.singular} · Detail</h2>
