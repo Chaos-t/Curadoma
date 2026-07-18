@@ -84,6 +84,42 @@ export function isZoneKey(s: unknown): boolean {
   return typeof s === "string" && ZONE_KEY_RE.test(s);
 }
 
+// --- Struktur: dynamische Seiten + Menüpunkte -------------------------------
+// Nur Metadaten (slug, label, inMenu) — kein HTML. Der Inhalt der Seite läuft
+// über die sanitisierte <Editable>-Pipeline (page.<slug>.title/body/image).
+export const PAGE_SLUG_RE = /^[a-z][a-z0-9-]{1,40}$/;
+export const MAX_PAGES = 30;
+export const MAX_PAGE_LABEL = 40;
+// Reservierte Slugs: bestehende Routen + technische Pfade dürfen nicht überschrieben werden.
+export const RESERVED_SLUGS = new Set([
+  "leistungen", "entlastung", "demenzbetreuung", "haushaltsnahe-dienstleistungen",
+  "verhinderungspflege", "umwandlung-sachleistungen", "einzugsgebiet", "kontakt",
+  "impressum", "datenschutz", "karriere", "termin", "termin-status", "admin",
+  "api", "assets", "src", "index",
+]);
+
+export type DynPage = { slug: string; label: string; inMenu: boolean };
+
+export function validatePages(input: unknown):
+  { ok: true; pages: DynPage[] } | { ok: false; error: string } {
+  if (!Array.isArray(input)) return { ok: false, error: "bad_pages" };
+  if (input.length > MAX_PAGES) return { ok: false, error: "too_many_pages" };
+  const out: DynPage[] = [];
+  const seen = new Set<string>();
+  for (const p of input) {
+    if (!p || typeof p !== "object") return { ok: false, error: "bad_page" };
+    const slug = String((p as { slug?: unknown }).slug ?? "");
+    const label = String((p as { label?: unknown }).label ?? "").trim();
+    const inMenu = Boolean((p as { inMenu?: unknown }).inMenu);
+    if (!PAGE_SLUG_RE.test(slug) || RESERVED_SLUGS.has(slug)) return { ok: false, error: "bad_slug" };
+    if (seen.has(slug)) return { ok: false, error: "dup_slug" };
+    if (!label || label.length > MAX_PAGE_LABEL) return { ok: false, error: "bad_label" };
+    seen.add(slug);
+    out.push({ slug, label: label.slice(0, MAX_PAGE_LABEL), inMenu });
+  }
+  return { ok: true, pages: out };
+}
+
 export function validateZones(input: unknown):
   { ok: true; zones: Record<string, string[]> } | { ok: false; error: string } {
   if (!input || typeof input !== "object" || Array.isArray(input)) return { ok: false, error: "bad_zones" };

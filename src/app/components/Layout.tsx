@@ -6,6 +6,7 @@ import { CookieBanner } from "./CookieBanner";
 import { WhatsAppButton } from "./WhatsAppButton";
 import { CuraDomaLogo } from "./CuraDomaLogo";
 import { requestReopenBanner } from "../../lib/consent";
+import { useContent } from "../../lib/content";
 import { Editable } from "./editor/Editable";
 import { PhoneText, EmailText, AddressBlock } from "./editor/Shared";
 import { Seo } from "./Seo";
@@ -35,6 +36,8 @@ export function Layout() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileSubOpen, setMobileSubOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const { getPages } = useContent();
+  const extraPages = getPages().filter((p) => p.inMenu);
   const location = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<number | undefined>(undefined);
@@ -209,6 +212,11 @@ export function Layout() {
             <Link to="/kontakt" className={`text-sm font-light transition-colors ${isActive("/kontakt") ? "text-[#6FD3D1]" : "text-[#5F6B73] hover:text-[#6FD3D1]"}`}>
               <Editable as="span" id="shared.nav.kontakt">Kontakt</Editable>
             </Link>
+            {extraPages.map((p) => (
+              <Link key={p.slug} to={`/${p.slug}`} className={`text-sm font-light transition-colors ${isActive(`/${p.slug}`) ? "text-[#6FD3D1]" : "text-[#5F6B73] hover:text-[#6FD3D1]"}`}>
+                {p.label}
+              </Link>
+            ))}
             {/* TEMP deaktiviert – Termin-Bereich vorerst ausgeblendet
             <Link to="/termin" className={`text-sm font-light transition-colors ${isActive("/termin") ? "text-[#6FD3D1]" : "text-[#5F6B73] hover:text-[#6FD3D1]"}`}>
               <Editable as="span" id="shared.nav.termin">Termin</Editable>
@@ -279,6 +287,11 @@ export function Layout() {
             {topNav.slice(1).map((link, i) => (
               <Link key={link.path} to={link.path} style={{ animationDelay: `${140 + i * 50}ms` }} className={`block py-2 text-sm font-light ${itemAnim} ${isActive(link.path) ? "text-[#6FD3D1]" : "text-[#5F6B73]"}`}>
                 <Editable as="span" id={link.id}>{link.label}</Editable>
+              </Link>
+            ))}
+            {extraPages.map((p, i) => (
+              <Link key={p.slug} to={`/${p.slug}`} style={{ animationDelay: `${200 + i * 40}ms` }} className={`block py-2 text-sm font-light ${itemAnim} ${isActive(`/${p.slug}`) ? "text-[#6FD3D1]" : "text-[#5F6B73]"}`}>
+                {p.label}
               </Link>
             ))}
             <Link to="/kontakt" style={{ animationDelay: "290ms" }} className={`block mt-3 text-sm font-light text-white bg-[#6FD3D1] rounded-full py-2.5 px-6 text-center ${itemAnim}`}>

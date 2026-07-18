@@ -5,7 +5,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2.49.8";
 import * as kv from "./kv_store.ts";
 import {
   isAdminType, isAdminStatus, isUuid, keyFor, prefixFor,
-  sanitizeNote, buildCsv, CSV_COLUMNS, yesNo, validateZones, type AdminType,
+  sanitizeNote, buildCsv, CSV_COLUMNS, yesNo, validateZones, validatePages, type AdminType,
 } from "./admin_util.ts";
 
 const app = new Hono();
@@ -1783,6 +1783,25 @@ app.post("/make-server-ec6100a6/admin/zones/save", async (c) => {
   if (!v.ok) return c.json({ error: v.error }, 400);
   await kv.set("zones:current", v.zones);
   return c.json({ ok: true, count: Object.keys(v.zones).length });
+});
+
+// --- Struktur: dynamische Seiten + Menüpunkte ------------------------------
+app.get("/make-server-ec6100a6/pages", async (c) => {
+  try {
+    const pages = (await kv.get("pages:current")) as unknown;
+    return c.json({ pages: Array.isArray(pages) ? pages : [] });
+  } catch {
+    return c.json({ pages: [] });
+  }
+});
+
+app.post("/make-server-ec6100a6/admin/pages/save", async (c) => {
+  const g = await adminGate(c);
+  if ("res" in g) return g.res;
+  const v = validatePages(g.body.pages);
+  if (!v.ok) return c.json({ error: v.error }, 400);
+  await kv.set("pages:current", v.pages);
+  return c.json({ ok: true, count: v.pages.length });
 });
 
 Deno.serve(app.fetch);

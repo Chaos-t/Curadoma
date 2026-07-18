@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   ADMIN_TYPES, isAdminType, prefixFor, keyFor, isUuid,
   ADMIN_STATUSES, isAdminStatus, sanitizeNote, yesNo, csvCell, buildCsv, CSV_COLUMNS,
-  validateZones, isZoneKey,
+  validateZones, isZoneKey, validatePages,
 } from "./admin_util.ts";
 
 test("type guard + prefixes + key", () => {
@@ -78,4 +78,16 @@ test("isZoneKey", () => {
   assert.ok(!isZoneKey("../x"));
   assert.ok(!isZoneKey("UPPER"));
   assert.ok(!isZoneKey(5));
+});
+
+test("validatePages accepts good pages and rejects bad/reserved/dupes", () => {
+  const ok = validatePages([{ slug: "ueber-uns", label: "Über uns", inMenu: true }]);
+  assert.ok(ok.ok);
+  if (ok.ok) { assert.equal(ok.pages[0].slug, "ueber-uns"); assert.equal(ok.pages[0].inMenu, true); }
+  assert.ok(!validatePages("nope").ok);
+  assert.ok(!validatePages([{ slug: "Admin", label: "x", inMenu: false }]).ok);      // uppercase -> bad slug
+  assert.ok(!validatePages([{ slug: "kontakt", label: "x", inMenu: false }]).ok);    // reserved
+  assert.ok(!validatePages([{ slug: "../evil", label: "x", inMenu: false }]).ok);    // traversal
+  assert.ok(!validatePages([{ slug: "ok-slug", label: "", inMenu: false }]).ok);     // empty label
+  assert.ok(!validatePages([{ slug: "a", label: "x" }, { slug: "a", label: "y" }]).ok); // dup
 });

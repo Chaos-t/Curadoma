@@ -31,6 +31,8 @@ type Ctx = {
   addZoneItem: (zoneId: string, defaultKeys: string[]) => void;
   removeZoneItem: (zoneId: string, key: string, defaultKeys: string[]) => void;
   moveZoneItem: (zoneId: string, key: string, dir: -1 | 1, defaultKeys: string[]) => void;
+  /** Dynamisch angelegte Seiten (für Menü-Injektion + DynamicPage-Auflösung). */
+  getPages: () => Array<{ slug: string; label: string; inMenu: boolean }>;
 };
 const ContentContext = createContext<Ctx | null>(null);
 export function useContent(): Ctx {
@@ -61,6 +63,8 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   // Block-Zonen: Bestand/Reihenfolge je Zone (aus dem Server) + ungespeicherte Änderungen.
   const [zones, setZones] = useState<Record<string, string[]>>({});
   const [pendingZones, setPendingZones] = useState<Record<string, string[]>>({});
+  // Dynamisch angelegte Seiten (aus dem Server) — für Menü + DynamicPage.
+  const [pages, setPages] = useState<Array<{ slug: string; label: string; inMenu: boolean }>>([]);
   // Editier-Status NUR im Speicher (kein sessionStorage): der Bearbeitungsmodus
   // geht ausschliesslich ueber das Admin-Dashboard („Seite bearbeiten", nach
   // Passwort-Login im AdminProvider) an und ist nach jedem Reload/neuen Besuch
@@ -99,6 +103,10 @@ export function ContentProvider({ children }: { children: ReactNode }) {
       .then((r) => (r.ok ? r.json() : { zones: {} }))
       .then((d) => { if (alive) setZones((d && d.zones) || {}); })
       .catch(() => {}); // Zonen weg -> Code-Defaults greifen
+    fetch(`${FN_BASE}/pages`, { headers: { Authorization: `Bearer ${FN_ANON}` } })
+      .then((r) => (r.ok ? r.json() : { pages: [] }))
+      .then((d) => { if (alive) setPages(Array.isArray(d?.pages) ? d.pages : []); })
+      .catch(() => {}); // Seiten weg -> keine dynamischen Seiten
     return () => { alive = false; };
   }, []);
 
@@ -323,6 +331,8 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingZones, zones]);
 
+  const getPages = useCallback(() => pages, [pages]);
+
   // Schutz vor Datenverlust: Browser-Warnung beim Verlassen/Neuladen, solange es
   // ungespeicherte Änderungen gibt (nur im Bearbeitungsmodus).
   useEffect(() => {
@@ -364,7 +374,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     get, getStored, editMode,
     dirtyCount: Object.keys(pending).length + Object.keys(pendingZones).length,
     isDirty, registerField, undo, redo, canUndo, canRedo,
-    getZone, addZoneItem, removeZoneItem, moveZoneItem,
+    getZone, addZoneItem, removeZoneItem, moveZoneItem, getPages,
     saving, status, error,
     setPending, uploadImage, save, discard, exit, restore, enterEditMode,
   };

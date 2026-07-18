@@ -38,6 +38,8 @@ type AdminCtx = {
   exportCsv: (type: AdminType, includeArchived?: boolean) => Promise<void>;
   mediaList: () => Promise<any[]>;
   mediaDelete: (path: string) => Promise<void>;
+  pagesList: () => Promise<any[]>;
+  pagesSave: (pages: any[]) => Promise<void>;
 };
 
 const Ctx = createContext<AdminCtx | null>(null);
@@ -112,8 +114,19 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     if (!res.ok) throw new Error(String(res.status));
   }, []);
 
+  const pagesList = useCallback(async () => {
+    const res = await fetch(`${FN_BASE}/pages`, { headers: { Authorization: `Bearer ${FN_ANON}` } });
+    if (!res.ok) return [];
+    return ((await res.json()).pages ?? []) as any[];
+  }, []);
+
+  const pagesSave = useCallback(async (pages: any[]) => {
+    const res = await post("/admin/pages/save", { password: pwRef.current, pages });
+    if (!res.ok) throw new Error(String(res.status));
+  }, []);
+
   return (
-    <Ctx.Provider value={{ authed, login, logout, pw, list, update, remove, cvUrl, exportCsv, mediaList, mediaDelete }}>
+    <Ctx.Provider value={{ authed, login, logout, pw, list, update, remove, cvUrl, exportCsv, mediaList, mediaDelete, pagesList, pagesSave }}>
       {children}
     </Ctx.Provider>
   );

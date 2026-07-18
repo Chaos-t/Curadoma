@@ -14,10 +14,12 @@ import { DatenschutzPage } from "./components/DatenschutzPage";
 import { KarrierePage } from "./components/KarrierePage";
 import { TerminPage } from "./components/TerminPage";
 import { TerminStatusPage } from "./components/TerminStatusPage";
+import { DynamicPage } from "./components/DynamicPage";
 import { AdminArea } from "./components/admin/AdminArea";
 import { AdminDashboard } from "./components/admin/AdminDashboard";
 import { AdminInbox } from "./components/admin/AdminInbox";
 import { AdminMedia } from "./components/admin/AdminMedia";
+import { AdminPages } from "./components/admin/AdminPages";
 
 // import.meta.env.BASE_URL is "/" (served at the custom-domain root). Strip
 // any trailing slash so React Router treats it as a basename.
@@ -42,6 +44,7 @@ export const router = createBrowserRouter([
       { path: "karriere", Component: KarrierePage },
       // { path: "termin", Component: TerminPage }, // TEMP deaktiviert – Termin-Bereich vorerst ausgeblendet
       { path: "termin-status", Component: TerminStatusPage }, // bleibt: Landeseite der Betreiber-Bestätigungs-Mails
+      { path: ":slug", Component: DynamicPage }, // dynamisch angelegte Seiten (sonst 404)
       {
         path: "*",
         Component: () => (
@@ -66,6 +69,7 @@ export const router = createBrowserRouter([
       { path: "bewerbungen", element: <AdminInbox type="job" /> },
       { path: "termine", element: <AdminInbox type="appointment" /> },
       { path: "mediathek", Component: AdminMedia },
+      { path: "seiten", Component: AdminPages },
     ],
   },
 ], { basename });
