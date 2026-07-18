@@ -9,6 +9,8 @@ type Ctx = {
   getStored: (id: string) => string | undefined;
   editMode: boolean;
   dirtyCount: number;
+  /** True, wenn dieses Feld ungespeicherte Änderungen hat (für den Dirty-Marker). */
+  isDirty: (id: string) => boolean;
   saving: boolean;
   status: string | null;
   error: string | null;
@@ -72,6 +74,12 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   const pw = () => pwRef.current;
 
   const uploadImage = useCallback(async (id: string, file: File) => {
+    // Client-seitiger Größen-Check (spiegelt das Server-Limit MAX_IMG_BYTES = 3 MB):
+    // sofortige, verständliche Meldung statt Warten auf den Upload + Server-Fehler.
+    if (file.size > 3 * 1024 * 1024) {
+      setError("Bild ist zu groß (max. 3 MB). Bitte ein kleineres Bild wählen.");
+      return;
+    }
     setStatus("Bild wird hochgeladen …"); setError(null);
     try {
       const dataUrl = await fileToDataUrl(file);
@@ -136,8 +144,32 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     setEditMode(true);
   }, []);
 
+  const isDirty = useCallback((id: string) => id in pending, [pending]);
+
+  // Schutz vor Datenverlust: Browser-Warnung beim Verlassen/Neuladen, solange es
+  // ungespeicherte Änderungen gibt (nur im Bearbeitungsmodus).
+  useEffect(() => {
+    if (!editMode || Object.keys(pending).length === 0) return;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = ""; };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [editMode, pending]);
+
+  // Strg+S / Cmd+S speichert (statt den Browser-Speichern-Dialog zu öffnen).
+  useEffect(() => {
+    if (!editMode) return;
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && (e.key === "s" || e.key === "S")) {
+        e.preventDefault();
+        if (Object.keys(pending).length > 0) void save();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [editMode, pending, save]);
+
   const value: Ctx = {
-    get, getStored, editMode, dirtyCount: Object.keys(pending).length, saving, status, error,
+    get, getStored, editMode, dirtyCount: Object.keys(pending).length, isDirty, saving, status, error,
     setPending, uploadImage, save, discard, exit, restore, enterEditMode,
   };
   return <ContentContext.Provider value={value}>{children}</ContentContext.Provider>;

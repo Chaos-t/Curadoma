@@ -5,7 +5,7 @@ type Tag = keyof JSX.IntrinsicElements;
 export function Editable({ id, children, as = "span", rich = false, className, style }: {
   id: string; children: ReactNode; as?: Tag; rich?: boolean; className?: string; style?: React.CSSProperties;
 }) {
-  const { get, getStored, editMode, setPending } = useContent();
+  const { get, getStored, editMode, setPending, isDirty } = useContent();
   const override = get(id);
   // Seed nur einmal bei aktivem Edit-Modus erfassen; bei Verlassen zurücksetzen.
   // Seed kommt aus dem GESPEICHERTEN (server-sanitisierten) Wert, nie aus dem
@@ -34,7 +34,13 @@ export function Editable({ id, children, as = "span", rich = false, className, s
     return createElement(as, { className, style }, children);
   }
 
-  const editClass = `${className ?? ""} outline outline-1 outline-dashed outline-[#d7120a] outline-offset-2 rounded-sm cursor-text focus:outline-2 focus:outline-solid`.trim();
+  // Geänderte (ungespeicherte) Felder heben sich ab: durchgehender türkiser
+  // Rahmen + zarte Tönung. Unveränderte Felder tragen den roten gestrichelten
+  // „editierbar"-Rahmen.
+  const marker = isDirty(id)
+    ? "outline outline-2 outline-solid outline-[#0F7C77] bg-[#DFF7F8]"
+    : "outline outline-1 outline-dashed outline-[#d7120a]";
+  const editClass = `${className ?? ""} ${marker} outline-offset-2 rounded-sm cursor-text focus:outline-2 focus:outline-solid`.trim();
   const onInput = (e: React.FormEvent<HTMLElement>) => {
     const el = e.currentTarget;
     setPending(id, rich ? el.innerHTML : (el.innerText ?? ""), rich);
@@ -46,7 +52,7 @@ export function Editable({ id, children, as = "span", rich = false, className, s
   const onClick = (e: React.MouseEvent<HTMLElement>) => e.preventDefault();
   return createElement(
     as,
-    { "data-ed-id": id, contentEditable: true, suppressContentEditableWarning: true, className: editClass, style, onInput, onClick, title: id },
+    { "data-ed-id": id, contentEditable: true, suppressContentEditableWarning: true, className: editClass, style, onInput, onClick, title: import.meta.env.DEV ? id : "Zum Bearbeiten klicken" },
     seed.current,
   );
 }

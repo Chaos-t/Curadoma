@@ -12,14 +12,16 @@ export function EditToolbar() {
       <span className="text-xs text-[#5F6B73]">{dirtyCount} Änderung{dirtyCount === 1 ? "" : "en"}</span>
       <div className="flex-1" />
       {(status || error) && <span className={`text-xs ${error ? "text-[#d7120a]" : "text-[#5F6B73]"}`}>{error || status}</span>}
-      <button onClick={save} disabled={saving || dirtyCount === 0}
+      <button onClick={save} disabled={saving || dirtyCount === 0} title="Speichern (Strg+S)"
         className="bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] disabled:opacity-40 px-4 py-2 rounded-full text-sm font-medium transition-colors">
         {saving ? "…" : "Speichern"}
       </button>
       <button onClick={discard} disabled={dirtyCount === 0}
         className="text-[#5F6B73] hover:text-[#111111] disabled:opacity-40 px-3 py-2 rounded-full text-sm">Verwerfen</button>
       <button onClick={() => { if (confirm("Letzte gespeicherte Änderung rückgängig machen?")) restore(); }}
-        className="text-[#5F6B73] hover:text-[#111111] px-3 py-2 rounded-full text-sm">Rückgängig</button>
+        disabled={saving || dirtyCount > 0}
+        title={dirtyCount > 0 ? "Erst speichern oder verwerfen" : "Den letzten gespeicherten Stand zurücknehmen"}
+        className="text-[#5F6B73] hover:text-[#111111] disabled:opacity-40 px-3 py-2 rounded-full text-sm">Rückgängig</button>
       <button onClick={() => { if (dirtyCount === 0 || confirm("Ungespeicherte Änderungen verwerfen und verlassen?")) exit(); }}
         className="text-[#d7120a] hover:underline px-3 py-2 rounded-full text-sm">Verlassen</button>
     </div>
