@@ -3,6 +3,10 @@ import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
 import { createClient } from "jsr:@supabase/supabase-js@2.49.8";
 import * as kv from "./kv_store.ts";
+import {
+  isAdminType, isAdminStatus, isUuid, keyFor, prefixFor,
+  sanitizeNote, buildCsv, CSV_COLUMNS, yesNo, type AdminType,
+} from "./admin_util.ts";
 
 const app = new Hono();
 
@@ -1584,6 +1588,128 @@ app.post("/make-server-ec6100a6/site-content/image", async (c) => {
   if (upErr) { console.log("site-content image upload failed:", upErr.message); return c.json({ error: "upload_failed" }, 500); }
   const { data: pub } = supabase.storage.from(CONTENT_BUCKET).getPublicUrl(path);
   return c.json({ ok: true, url: pub.publicUrl });
+});
+
+// --- Backoffice (Admin) -----------------------------------------------------
+// Passwortgeschützte Verwaltung der im KV liegenden Anfragen/Bewerbungen/Termine.
+// Auth-Gate identisch zu site-content/save: EDIT_PW → Rate-Limit(fail-closed) → ctEq.
+
+// Gibt bei Erfolg {body}, sonst {res} (sofort zurückgeben).
+async function adminGate(c: any): Promise<{ body: any } | { res: Response }> {
+  if (!EDIT_PW) return { res: c.json({ error: "not_configured" }, 503) };
+  const ip = editorClientIp(c);
+  if (await editRateLimited(ip)) return { res: c.json({ error: "rate_limited" }, 429) };
+  let body: any;
+  try { body = await c.req.json(); } catch { return { res: c.json({ error: "bad_json" }, 400) }; }
+  if (typeof body.password !== "string" || !ctEq(body.password, EDIT_PW)) {
+    await editBumpFail(ip);
+    await new Promise((r) => setTimeout(r, 600));
+    return { res: c.json({ error: "unauthorized" }, 401) };
+  }
+  return { body };
+}
+
+// Felder entfernen, die der Admin-Client nie erhalten darf (Termin-Aktions-Token).
+function publicAdminRecord(type: AdminType, r: any): any {
+  if (type === "appointment" && r && typeof r === "object") {
+    const { token: _token, ...rest } = r;
+    return rest;
+  }
+  return r;
+}
+
+async function loadSorted(type: AdminType, includeArchived: boolean): Promise<any[]> {
+  let items = (await kv.getByPrefix(prefixFor(type))) as any[];
+  if (!includeArchived) items = items.filter((r) => !r?.admin_archived);
+  items.sort((a, b) => String(b?.created_at ?? "").localeCompare(String(a?.created_at ?? "")));
+  return items;
+}
+
+app.post("/make-server-ec6100a6/admin/list", async (c) => {
+  const g = await adminGate(c);
+  if ("res" in g) return g.res;
+  const type = g.body.type;
+  if (!isAdminType(type)) return c.json({ error: "bad_type" }, 400);
+  const items = await loadSorted(type, Boolean(g.body.includeArchived));
+  return c.json({ items: items.map((r) => publicAdminRecord(type, r)) });
+});
+
+app.post("/make-server-ec6100a6/admin/update", async (c) => {
+  const g = await adminGate(c);
+  if ("res" in g) return g.res;
+  const { type, id } = g.body;
+  if (!isAdminType(type)) return c.json({ error: "bad_type" }, 400);
+  if (!isUuid(id)) return c.json({ error: "bad_id" }, 400);
+  const key = keyFor(type, id);
+  const rec = await kv.get(key);
+  if (!rec) return c.json({ error: "not_found" }, 404);
+  if ("admin_status" in g.body) {
+    if (!isAdminStatus(g.body.admin_status)) return c.json({ error: "bad_status" }, 400);
+    rec.admin_status = g.body.admin_status;
+  }
+  if ("admin_note" in g.body) rec.admin_note = sanitizeNote(g.body.admin_note);
+  if ("admin_archived" in g.body) rec.admin_archived = Boolean(g.body.admin_archived);
+  rec.admin_updated_at = new Date().toISOString();
+  await kv.set(key, rec);
+  return c.json({ ok: true, item: publicAdminRecord(type, rec) });
+});
+
+app.post("/make-server-ec6100a6/admin/delete", async (c) => {
+  const g = await adminGate(c);
+  if ("res" in g) return g.res;
+  const { type, id } = g.body;
+  if (!isAdminType(type)) return c.json({ error: "bad_type" }, 400);
+  if (!isUuid(id)) return c.json({ error: "bad_id" }, 400);
+  const key = keyFor(type, id);
+  const rec = await kv.get(key);
+  if (rec && type === "job" && rec.cv_path) {
+    try {
+      const url = Deno.env.get("SUPABASE_URL"), sk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      if (url && sk) await createClient(url, sk).storage.from(CV_BUCKET).remove([rec.cv_path]);
+    } catch (e) { console.log("CV delete failed:", e); }
+  }
+  await kv.del(key); // idempotent: löscht auch, wenn rec fehlt
+  return c.json({ ok: true });
+});
+
+app.post("/make-server-ec6100a6/admin/cv-url", async (c) => {
+  const g = await adminGate(c);
+  if ("res" in g) return g.res;
+  const { id } = g.body;
+  if (!isUuid(id)) return c.json({ error: "bad_id" }, 400);
+  const rec = await kv.get(keyFor("job", id));
+  if (!rec || !rec.cv_path) return c.json({ error: "no_cv" }, 404);
+  const url = Deno.env.get("SUPABASE_URL"), sk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !sk) return c.json({ error: "storage_not_configured" }, 503);
+  const { data, error } = await createClient(url, sk).storage.from(CV_BUCKET)
+    .createSignedUrl(rec.cv_path, 600, { download: rec.cv_filename || true }); // 10 min
+  if (error || !data?.signedUrl) return c.json({ error: "sign_failed" }, 500);
+  return c.json({ url: data.signedUrl });
+});
+
+app.post("/make-server-ec6100a6/admin/export", async (c) => {
+  const g = await adminGate(c);
+  if ("res" in g) return g.res;
+  const type = g.body.type;
+  if (!isAdminType(type)) return c.json({ error: "bad_type" }, 400);
+  const items = await loadSorted(type, Boolean(g.body.includeArchived));
+  const cols = CSV_COLUMNS[type];
+  const boolKeys = new Set(["drivers_license", "has_car"]);
+  const headers = cols.map(([h]) => h);
+  const rows = items.map((r) => cols.map(([, k]) => {
+    if (k === "created_at") return r[k] ? fmtDateDe(String(r[k])) : "";
+    if (k === "admin_status") return String(r[k] ?? "neu");
+    if (boolKeys.has(k)) return yesNo(r[k]);
+    return r[k] == null ? "" : String(r[k]);
+  }));
+  const csv = "﻿" + buildCsv(headers, rows); // UTF-8 BOM für Excel
+  return new Response(csv, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/csv; charset=utf-8",
+      "Content-Disposition": `attachment; filename="cura-doma-${type}.csv"`,
+    },
+  });
 });
 
 Deno.serve(app.fetch);
