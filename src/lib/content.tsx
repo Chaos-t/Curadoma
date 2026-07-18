@@ -40,6 +40,8 @@ type Ctx = {
   removeBlock: (areaId: string, key: string) => void;
   moveBlock: (areaId: string, key: string, dir: -1 | 1) => void;
   setBlockHref: (areaId: string, key: string, href: string) => void;
+  /** Struktur (Seiten/Zonen/Blöcke) neu vom Server laden — z. B. nach dem Anlegen einer Seite. */
+  reloadStructure: () => Promise<void>;
 };
 const ContentContext = createContext<Ctx | null>(null);
 export function useContent(): Ctx {
@@ -361,6 +363,21 @@ export function ContentProvider({ children }: { children: ReactNode }) {
 
   const getPages = useCallback(() => pages, [pages]);
 
+  // Struktur frisch vom Server holen (nach Änderungen im Admin, ohne Voll-Reload).
+  const reloadStructure = useCallback(async () => {
+    const j = (path: string, fallback: unknown) =>
+      fetch(`${FN_BASE}${path}`, { headers: { Authorization: `Bearer ${FN_ANON}` } })
+        .then((r) => (r.ok ? r.json() : fallback)).catch(() => fallback);
+    const [z, p, b] = await Promise.all([
+      j("/zones", { zones: {} }) as Promise<{ zones?: Record<string, string[]> }>,
+      j("/pages", { pages: [] }) as Promise<{ pages?: Array<{ slug: string; label: string; inMenu: boolean }> }>,
+      j("/blocks", { blocks: {} }) as Promise<{ blocks?: Record<string, Block[]> }>,
+    ]);
+    setZones(z?.zones || {});
+    setPages(Array.isArray(p?.pages) ? p.pages : []);
+    setBlocks(b?.blocks || {});
+  }, []);
+
   // --- Typisierte Inhalts-Blöcke -----------------------------------------
   const curBlocks = (areaId: string) =>
     areaId in pendingBlocks ? pendingBlocks[areaId] : areaId in blocks ? blocks[areaId] : [];
@@ -435,7 +452,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     dirtyCount: Object.keys(pending).length + Object.keys(pendingZones).length + Object.keys(pendingBlocks).length,
     isDirty, registerField, undo, redo, canUndo, canRedo,
     getZone, addZoneItem, removeZoneItem, moveZoneItem, getPages,
-    getBlocks, addBlock, removeBlock, moveBlock, setBlockHref,
+    getBlocks, addBlock, removeBlock, moveBlock, setBlockHref, reloadStructure,
     saving, status, error,
     setPending, uploadImage, save, discard, exit, restore, enterEditMode,
   };

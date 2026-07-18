@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { Link, useNavigate } from "react-router";
+import { ArrowLeft, Plus, Trash2, Pencil } from "lucide-react";
 import { useAdmin, adminErrorText } from "../../../lib/admin";
+import { useContent } from "../../../lib/content";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 // Spiegel der Server-Validierung (admin_util.validatePages) — Defense in depth.
@@ -19,7 +20,9 @@ function slugify(s: string): string {
 }
 
 export function AdminPages() {
-  const { pagesList, pagesSave } = useAdmin();
+  const { pagesList, pagesSave, pw } = useAdmin();
+  const { enterEditMode, reloadStructure } = useContent();
+  const navigate = useNavigate();
   const [pages, setPages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
@@ -38,9 +41,20 @@ export function AdminPages() {
 
   const persist = async (next: any[]) => {
     setBusy(true); setErr(null);
-    try { await pagesSave(next); setPages(next); }
-    catch (e) { setErr(adminErrorText(e)); }
+    try {
+      await pagesSave(next);
+      setPages(next);
+      await reloadStructure(); // ContentProvider (Menü + DynamicPage) sofort synchronisieren
+    } catch (e) { setErr(adminErrorText(e)); }
     finally { setBusy(false); }
+  };
+
+  // Direkt in den Bearbeitungsmodus auf diese Seite springen (client-seitig,
+  // damit der Edit-Modus erhalten bleibt — ein URL-Aufruf würde neu laden).
+  const editPage = async (slug: string) => {
+    await reloadStructure();
+    enterEditMode(pw());
+    navigate(`/${slug}`);
   };
 
   const add = async () => {
@@ -66,7 +80,7 @@ export function AdminPages() {
         <ArrowLeft size={16} strokeWidth={1.5} /> Übersicht
       </Link>
       <h1 className="text-2xl font-medium text-[#111111] mb-1">Seiten &amp; Menü</h1>
-      <p className="text-sm text-[#5F6B73] mb-6">Eigene Seiten anlegen (z. B. „Über uns", „Team"). Nach dem Anlegen die Website einmal neu laden, damit die Seite im Menü erscheint. Den Inhalt bearbeitest du dann über „Seite bearbeiten".</p>
+      <p className="text-sm text-[#5F6B73] mb-6">Eigene Seiten anlegen (z. B. „Über uns", „Team"). Zum Befüllen einfach auf <b className="text-[#0F7C77]">„Bearbeiten"</b> klicken — du landest direkt im Bearbeitungsmodus auf der Seite und kannst dort Text/Button/Bild-Blöcke einfügen.</p>
 
       {/* Neue Seite */}
       <div className="bg-white rounded-2xl border border-[#E5F4F5] p-5 mb-6">
@@ -106,6 +120,10 @@ export function AdminPages() {
                   className="accent-[#0F7C77]" />
                 im Menü
               </label>
+              <button onClick={() => editPage(p.slug)} disabled={busy}
+                className="inline-flex items-center gap-1.5 text-sm text-[#0F7C77] border border-[#0F7C77] px-3 py-1.5 rounded-full hover:bg-[#0F7C77] hover:text-white transition-colors disabled:opacity-50">
+                <Pencil size={14} strokeWidth={1.7} /> Bearbeiten
+              </button>
               <button onClick={() => del(p.slug)} disabled={busy} aria-label="Seite entfernen" title="Seite entfernen"
                 className="text-[#d7120a] hover:bg-[#fdeceb] rounded-full p-1.5 disabled:opacity-50">
                 <Trash2 size={15} strokeWidth={1.7} />
