@@ -70,3 +70,39 @@ export const CSV_COLUMNS: Record<AdminType, Array<[string, string]>> = {
     ["Nachricht", "message"], ["Notiz", "admin_note"],
   ],
 };
+
+// --- Block-Zonen: Bestand + Reihenfolge von Einträgen je Zone ----------------
+// Gespeichert wird NUR die Struktur (Zone-ID -> geordnete Liste sicherer Keys),
+// kein HTML. Die Keys werden Teil von <Editable>-IDs (zone.key.field), daher
+// nur [a-z0-9]. Feld-INHALTE laufen weiter durch die sanitisierte Overrides-Pipeline.
+export const ZONE_ID_RE = /^[a-z0-9.\-]{1,64}$/;
+export const ZONE_KEY_RE = /^[a-z0-9]{1,16}$/;
+export const MAX_ZONES = 80;
+export const MAX_ZONE_ITEMS = 60;
+
+export function isZoneKey(s: unknown): boolean {
+  return typeof s === "string" && ZONE_KEY_RE.test(s);
+}
+
+export function validateZones(input: unknown):
+  { ok: true; zones: Record<string, string[]> } | { ok: false; error: string } {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return { ok: false, error: "bad_zones" };
+  const entries = Object.entries(input as Record<string, unknown>);
+  if (entries.length > MAX_ZONES) return { ok: false, error: "too_many_zones" };
+  const out: Record<string, string[]> = {};
+  for (const [zoneId, val] of entries) {
+    if (!ZONE_ID_RE.test(zoneId)) return { ok: false, error: "bad_zone_id" };
+    if (!Array.isArray(val)) return { ok: false, error: "bad_zone_value" };
+    if (val.length > MAX_ZONE_ITEMS) return { ok: false, error: "too_many_items" };
+    const keys: string[] = [];
+    const seen = new Set<string>();
+    for (const k of val) {
+      if (!isZoneKey(k)) return { ok: false, error: "bad_zone_key" };
+      if (seen.has(k as string)) return { ok: false, error: "dup_zone_key" };
+      seen.add(k as string);
+      keys.push(k as string);
+    }
+    out[zoneId] = keys;
+  }
+  return { ok: true, zones: out };
+}

@@ -6,6 +6,7 @@ import {
 import BorderGlow from "./BorderGlow";
 import { Editable } from "./editor/Editable";
 import { EditableImage } from "./editor/EditableImage";
+import { useZone, ZoneItemControls, ZoneAddButton } from "./editor/Zone";
 
 import carSide from "../../imports/WhatsApp_Image_2026-04-28_at_11.59.22-1.jpeg";
 import carRear from "../../imports/WhatsApp_Image_2026-04-28_at_11.59.22_(1)-1.jpeg";
@@ -84,7 +85,22 @@ const services = [
   },
 ];
 
+// Block-Zone „leistungen.services": Standard-Reihenfolge = die Code-Karten 0..n.
+// Neue (im Editor angelegte) Karten bekommen diese Platzhalter-Inhalte + Icon.
+const DEFAULT_SERVICE_KEYS = services.map((_, i) => String(i));
+const NEW_SERVICE = {
+  icon: <Sparkles size={28} strokeWidth={1.5} />,
+  title: "Neue Leistung",
+  desc: "Kurze Beschreibung dieser Leistung …",
+  details: ["Erster Punkt", "Zweiter Punkt", "Dritter Punkt"],
+};
+function serviceDefaults(key: string) {
+  const idx = Number(key);
+  return Number.isInteger(idx) && idx >= 0 && idx < services.length ? services[idx] : NEW_SERVICE;
+}
+
 export function LeistungenPage() {
+  const { keys } = useZone("leistungen.services", DEFAULT_SERVICE_KEYS);
   return (
     <>
       {/* Hero */}
@@ -115,33 +131,42 @@ export function LeistungenPage() {
       <section className="py-24 bg-white/80">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="cura-reveal cura-reveal-up grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {services.map((service, i) => (
-              <BorderGlow key={i} className="h-full">
-                <div className="p-8">
-                  <div className="flex items-start gap-5 mb-5">
-                    <div className="w-14 h-14 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] shrink-0">
-                      {service.icon}
+            {keys.map((key, i) => {
+              const service = serviceDefaults(key);
+              return (
+                <div key={key} className="relative h-full">
+                  <ZoneItemControls zoneId="leistungen.services" itemKey={key} index={i} count={keys.length} defaultKeys={DEFAULT_SERVICE_KEYS} label="Leistung" />
+                  <BorderGlow className="h-full">
+                    <div className="p-8">
+                      <div className="flex items-start gap-5 mb-5">
+                        <div className="w-14 h-14 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] shrink-0">
+                          {service.icon}
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-medium tracking-tight text-[#111111] mb-2" style={jakarta}>
+                            <Editable as="span" id={`leistungen.services.${key}.title`}>{service.title}</Editable>
+                          </h3>
+                          <p className="text-[15px] text-[#5F6B73] leading-relaxed font-light">
+                            <Editable as="span" id={`leistungen.services.${key}.desc`}>{service.desc}</Editable>
+                          </p>
+                        </div>
+                      </div>
+                      <ul className="space-y-2 ml-[4.75rem]">
+                        {service.details.map((detail, j) => (
+                          <li key={j} className="flex items-start gap-2 text-sm text-[#5F6B73] font-light">
+                            <CheckCircle size={16} className="text-[#6FD3D1] mt-0.5 shrink-0" />
+                            <Editable as="span" id={`leistungen.services.${key}.details.${j}`}>{detail}</Editable>
+                          </li>
+                        ))}
+                      </ul>
                     </div>
-                    <div>
-                      <h3 className="text-xl font-medium tracking-tight text-[#111111] mb-2" style={jakarta}>
-                        <Editable as="span" id={`leistungen.services.${i}.title`}>{service.title}</Editable>
-                      </h3>
-                      <p className="text-[15px] text-[#5F6B73] leading-relaxed font-light">
-                        <Editable as="span" id={`leistungen.services.${i}.desc`}>{service.desc}</Editable>
-                      </p>
-                    </div>
-                  </div>
-                  <ul className="space-y-2 ml-[4.75rem]">
-                    {service.details.map((detail, j) => (
-                      <li key={j} className="flex items-start gap-2 text-sm text-[#5F6B73] font-light">
-                        <CheckCircle size={16} className="text-[#6FD3D1] mt-0.5 shrink-0" />
-                        <Editable as="span" id={`leistungen.services.${i}.details.${j}`}>{detail}</Editable>
-                      </li>
-                    ))}
-                  </ul>
+                  </BorderGlow>
                 </div>
-              </BorderGlow>
-            ))}
+              );
+            })}
+          </div>
+          <div className="mt-8">
+            <ZoneAddButton zoneId="leistungen.services" defaultKeys={DEFAULT_SERVICE_KEYS} label="Leistung hinzufügen" />
           </div>
         </div>
       </section>

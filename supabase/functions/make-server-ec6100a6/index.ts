@@ -5,7 +5,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2.49.8";
 import * as kv from "./kv_store.ts";
 import {
   isAdminType, isAdminStatus, isUuid, keyFor, prefixFor,
-  sanitizeNote, buildCsv, CSV_COLUMNS, yesNo, type AdminType,
+  sanitizeNote, buildCsv, CSV_COLUMNS, yesNo, validateZones, type AdminType,
 } from "./admin_util.ts";
 
 const app = new Hono();
@@ -1761,6 +1761,28 @@ app.post("/make-server-ec6100a6/admin/media/delete", async (c) => {
   const { error } = await supabase.storage.from(CONTENT_BUCKET).remove([path]);
   if (error) { console.log("media delete failed:", error.message); return c.json({ error: "delete_failed" }, 500); }
   return c.json({ ok: true });
+});
+
+// --- Block-Zonen: Bestand + Reihenfolge von Einträgen ----------------------
+// Speichert NUR die Struktur (Zone -> geordnete Liste von Keys), validiert und
+// ohne HTML. Öffentlich lesbar (wie site-content); der Inhalt der Einträge liegt
+// weiter in den (sanitisierten) site-content-Overrides.
+app.get("/make-server-ec6100a6/zones", async (c) => {
+  try {
+    const zones = (await kv.get("zones:current")) as Record<string, string[]> | undefined;
+    return c.json({ zones: zones ?? {} });
+  } catch {
+    return c.json({ zones: {} });
+  }
+});
+
+app.post("/make-server-ec6100a6/admin/zones/save", async (c) => {
+  const g = await adminGate(c);
+  if ("res" in g) return g.res;
+  const v = validateZones(g.body.zones);
+  if (!v.ok) return c.json({ error: v.error }, 400);
+  await kv.set("zones:current", v.zones);
+  return c.json({ ok: true, count: Object.keys(v.zones).length });
 });
 
 Deno.serve(app.fetch);

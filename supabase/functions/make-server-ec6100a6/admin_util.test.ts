@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   ADMIN_TYPES, isAdminType, prefixFor, keyFor, isUuid,
   ADMIN_STATUSES, isAdminStatus, sanitizeNote, yesNo, csvCell, buildCsv, CSV_COLUMNS,
+  validateZones, isZoneKey,
 } from "./admin_util.ts";
 
 test("type guard + prefixes + key", () => {
@@ -58,4 +59,23 @@ test("yesNo + column specs", () => {
   assert.ok(CSV_COLUMNS.contact.length > 0);
   assert.ok(CSV_COLUMNS.job.some(([h]) => h === "Lebenslauf"));
   assert.ok(!JSON.stringify(CSV_COLUMNS.appointment).includes("token"));
+});
+
+test("validateZones accepts good structure and rejects bad", () => {
+  const ok = validateZones({ "leistungen.services": ["0", "1", "x1a"] });
+  assert.ok(ok.ok);
+  if (ok.ok) assert.equal(ok.zones["leistungen.services"].length, 3);
+  assert.ok(!validateZones("nope").ok);
+  assert.ok(!validateZones(["0"]).ok);
+  assert.ok(!validateZones({ "BAD ID!": ["0"] }).ok);       // bad zone id
+  assert.ok(!validateZones({ z: "notarray" }).ok);          // bad value
+  assert.ok(!validateZones({ z: ["ok", "no key!"] }).ok);   // bad key
+  assert.ok(!validateZones({ z: ["a", "a"] }).ok);          // duplicate
+});
+
+test("isZoneKey", () => {
+  assert.ok(isZoneKey("x1a2b3"));
+  assert.ok(!isZoneKey("../x"));
+  assert.ok(!isZoneKey("UPPER"));
+  assert.ok(!isZoneKey(5));
 });

@@ -27,6 +27,10 @@ type Ctx = {
   exit: () => void;
   restore: () => Promise<void>;
   enterEditMode: (pw: string) => void;
+  getZone: (zoneId: string, defaultKeys: string[]) => string[];
+  addZoneItem: (zoneId: string, defaultKeys: string[]) => void;
+  removeZoneItem: (zoneId: string, key: string, defaultKeys: string[]) => void;
+  moveZoneItem: (zoneId: string, key: string, dir: -1 | 1, defaultKeys: string[]) => void;
 };
 const ContentContext = createContext<Ctx | null>(null);
 export function useContent(): Ctx {
@@ -54,6 +58,9 @@ function samePending(a: Pending, b: Pending): boolean {
 export function ContentProvider({ children }: { children: ReactNode }) {
   const [overrides, setOverrides] = useState<Record<string, string>>({});
   const [pending, setPendingState] = useState<Pending>({});
+  // Block-Zonen: Bestand/Reihenfolge je Zone (aus dem Server) + ungespeicherte Änderungen.
+  const [zones, setZones] = useState<Record<string, string[]>>({});
+  const [pendingZones, setPendingZones] = useState<Record<string, string[]>>({});
   // Editier-Status NUR im Speicher (kein sessionStorage): der Bearbeitungsmodus
   // geht ausschliesslich ueber das Admin-Dashboard („Seite bearbeiten", nach
   // Passwort-Login im AdminProvider) an und ist nach jedem Reload/neuen Besuch
@@ -88,6 +95,10 @@ export function ContentProvider({ children }: { children: ReactNode }) {
       .then((r) => (r.ok ? r.json() : { content: {} }))
       .then((d) => { if (alive) setOverrides((d && d.content) || {}); })
       .catch(() => {}); // Supabase weg -> Defaults aus dem Code greifen
+    fetch(`${FN_BASE}/zones`, { headers: { Authorization: `Bearer ${FN_ANON}` } })
+      .then((r) => (r.ok ? r.json() : { zones: {} }))
+      .then((d) => { if (alive) setZones((d && d.zones) || {}); })
+      .catch(() => {}); // Zonen weg -> Code-Defaults greifen
     return () => { alive = false; };
   }, []);
 
@@ -197,37 +208,56 @@ export function ContentProvider({ children }: { children: ReactNode }) {
 
   const save = useCallback(async () => {
     const ids = Object.keys(pending);
-    if (!ids.length) return;
+    const zoneIds = Object.keys(pendingZones);
+    if (!ids.length && !zoneIds.length) return;
     setSaving(true); setError(null); setStatus("Speichern …");
+    let failed = false;
     try {
-      const overridesOut: Record<string, string> = {};
-      const rich: string[] = [];
-      for (const id of ids) { overridesOut[id] = pending[id].v; if (pending[id].rich) rich.push(id); }
-      const res = await fetch(`${FN_BASE}/site-content/save`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${FN_ANON}` },
-        body: JSON.stringify({ password: pw(), action: "save", overrides: overridesOut, rich }),
-      });
-      const d = await res.json().catch(() => ({}));
-      if (!res.ok) { setError("Speichern fehlgeschlagen (" + (d.error || res.status) + ")."); return; }
-      // Gespeicherte Werte werden zum neuen Ausgangswert (für spätere Undos).
-      for (const id of ids) baselineRef.current.set(id, overridesOut[id]);
-      setOverrides((o) => ({ ...o, ...overridesOut }));
-      setPendingState({});
-      resetHistory();
-      setStatus("Gespeichert ✓ — in 1–2 Min überall live.");
+      // 1) Texte/Bilder (site-content)
+      if (ids.length) {
+        const overridesOut: Record<string, string> = {};
+        const rich: string[] = [];
+        for (const id of ids) { overridesOut[id] = pending[id].v; if (pending[id].rich) rich.push(id); }
+        const res = await fetch(`${FN_BASE}/site-content/save`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${FN_ANON}` },
+          body: JSON.stringify({ password: pw(), action: "save", overrides: overridesOut, rich }),
+        });
+        const d = await res.json().catch(() => ({}));
+        if (!res.ok) { setError("Texte/Bilder speichern fehlgeschlagen (" + (d.error || res.status) + ")."); failed = true; }
+        else {
+          for (const id of ids) baselineRef.current.set(id, overridesOut[id]);
+          setOverrides((o) => ({ ...o, ...overridesOut }));
+          setPendingState({});
+          resetHistory();
+        }
+      }
+      // 2) Struktur (Block-Zonen) — nur wenn Teil 1 nicht fehlschlug
+      if (zoneIds.length && !failed) {
+        const nextZones = { ...zones, ...pendingZones };
+        const res = await fetch(`${FN_BASE}/admin/zones/save`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${FN_ANON}` },
+          body: JSON.stringify({ password: pw(), zones: nextZones }),
+        });
+        const d = await res.json().catch(() => ({}));
+        if (!res.ok) { setError("Struktur speichern fehlgeschlagen (" + (d.error || res.status) + ")."); failed = true; }
+        else { setZones(nextZones); setPendingZones({}); }
+      }
+      if (!failed) setStatus("Gespeichert ✓ — in 1–2 Min überall live.");
     } catch { setError("Speichern: Verbindungsfehler."); } finally { setSaving(false); }
-  }, [pending, resetHistory]);
+  }, [pending, pendingZones, zones, resetHistory]);
 
   const discard = useCallback(() => {
     applyPending({}); // DOM zurück auf die Ausgangswerte, dann Historie leeren
+    setPendingZones({}); // Zonen-Struktur reagiert von selbst (getZone re-liest)
     resetHistory();
     setStatus("Änderungen verworfen."); setError(null);
   }, [applyPending, resetHistory]);
 
   const exit = useCallback(() => {
     pwRef.current = "";
-    setEditMode(false); setPendingState({}); setStatus(null); setError(null);
+    setEditMode(false); setPendingState({}); setPendingZones({}); setStatus(null); setError(null);
     if (histTimerRef.current) { window.clearTimeout(histTimerRef.current); histTimerRef.current = undefined; }
     undoRef.current = []; redoRef.current = []; baseRef.current = {}; baselineRef.current = new Map();
     syncHist();
@@ -255,11 +285,43 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     // gehaltenen Passwort aufgerufen. Passwort bleibt nur im Speicher der Sitzung.
     pwRef.current = p;
     undoRef.current = []; redoRef.current = []; baseRef.current = {}; baselineRef.current = new Map();
+    setPendingZones({});
     syncHist();
     setEditMode(true);
   }, [syncHist]);
 
   const isDirty = useCallback((id: string) => id in pending, [pending]);
+
+  // --- Block-Zonen ---------------------------------------------------------
+  const getZone = useCallback((zoneId: string, defaultKeys: string[]) => {
+    if (zoneId in pendingZones) return pendingZones[zoneId];
+    if (zoneId in zones) return zones[zoneId];
+    return defaultKeys;
+  }, [pendingZones, zones]);
+
+  const curZone = (zoneId: string, defaultKeys: string[]) =>
+    zoneId in pendingZones ? pendingZones[zoneId] : zoneId in zones ? zones[zoneId] : defaultKeys;
+
+  const addZoneItem = useCallback((zoneId: string, defaultKeys: string[]) => {
+    const key = ("x" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6)).slice(0, 16);
+    setPendingZones((p) => ({ ...p, [zoneId]: [...curZone(zoneId, defaultKeys), key] }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingZones, zones]);
+
+  const removeZoneItem = useCallback((zoneId: string, key: string, defaultKeys: string[]) => {
+    setPendingZones((p) => ({ ...p, [zoneId]: curZone(zoneId, defaultKeys).filter((k) => k !== key) }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingZones, zones]);
+
+  const moveZoneItem = useCallback((zoneId: string, key: string, dir: -1 | 1, defaultKeys: string[]) => {
+    const arr = curZone(zoneId, defaultKeys).slice();
+    const i = arr.indexOf(key);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= arr.length) return;
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+    setPendingZones((p) => ({ ...p, [zoneId]: arr }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingZones, zones]);
 
   // Schutz vor Datenverlust: Browser-Warnung beim Verlassen/Neuladen, solange es
   // ungespeicherte Änderungen gibt (nur im Bearbeitungsmodus).
@@ -299,8 +361,10 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   }, [status]);
 
   const value: Ctx = {
-    get, getStored, editMode, dirtyCount: Object.keys(pending).length, isDirty,
-    registerField, undo, redo, canUndo, canRedo,
+    get, getStored, editMode,
+    dirtyCount: Object.keys(pending).length + Object.keys(pendingZones).length,
+    isDirty, registerField, undo, redo, canUndo, canRedo,
+    getZone, addZoneItem, removeZoneItem, moveZoneItem,
     saving, status, error,
     setPending, uploadImage, save, discard, exit, restore, enterEditMode,
   };
