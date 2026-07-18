@@ -14,7 +14,9 @@ import { DatenschutzPage } from "./components/DatenschutzPage";
 import { KarrierePage } from "./components/KarrierePage";
 import { TerminPage } from "./components/TerminPage";
 import { TerminStatusPage } from "./components/TerminStatusPage";
-import { AdminLoginPage } from "./components/AdminLoginPage";
+import { AdminArea } from "./components/admin/AdminArea";
+import { AdminDashboard } from "./components/admin/AdminDashboard";
+import { AdminInbox } from "./components/admin/AdminInbox";
 
 // import.meta.env.BASE_URL is "/" (served at the custom-domain root). Strip
 // any trailing slash so React Router treats it as a basename.
@@ -39,7 +41,16 @@ export const router = createBrowserRouter([
       { path: "karriere", Component: KarrierePage },
       // { path: "termin", Component: TerminPage }, // TEMP deaktiviert – Termin-Bereich vorerst ausgeblendet
       { path: "termin-status", Component: TerminStatusPage }, // bleibt: Landeseite der Betreiber-Bestätigungs-Mails
-      { path: "admin", Component: AdminLoginPage },
+      {
+        path: "admin",
+        Component: AdminArea, // noindex + Auth-Gate; rendert Login oder <Outlet/>
+        children: [
+          { index: true, Component: AdminDashboard },
+          { path: "anfragen", element: <AdminInbox type="contact" /> },
+          { path: "bewerbungen", element: <AdminInbox type="job" /> },
+          { path: "termine", element: <AdminInbox type="appointment" /> },
+        ],
+      },
       {
         path: "*",
         Component: () => (

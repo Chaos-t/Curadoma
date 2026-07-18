@@ -38,9 +38,10 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   const [overrides, setOverrides] = useState<Record<string, string>>({});
   const [pending, setPendingState] = useState<Pending>({});
   // Editier-Status NUR im Speicher (kein sessionStorage): der Bearbeitungsmodus
-  // geht ausschliesslich ueber den Passwort-Login (AdminLoginPage) an und ist nach
-  // jedem Reload/neuen Besuch wieder aus. So kann niemand ohne Login editieren —
-  // auch nicht per manuell gesetztem Flag in den DevTools.
+  // geht ausschliesslich ueber das Admin-Dashboard („Seite bearbeiten", nach
+  // Passwort-Login im AdminProvider) an und ist nach jedem Reload/neuen Besuch
+  // wieder aus. So kann niemand ohne Login editieren — auch nicht per manuell
+  // gesetztem Flag in den DevTools.
   const [editMode, setEditMode] = useState<boolean>(false);
   const pwRef = useRef<string>("");
   const [saving, setSaving] = useState(false);
@@ -129,8 +130,8 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     } catch { setError("Rückgängig: Verbindungsfehler."); } finally { setSaving(false); }
   }, []);
   const enterEditMode = useCallback((p: string) => {
-    // Wird nur von AdminLoginPage nach erfolgreicher (HTTP-200) Passwortpruefung
-    // aufgerufen. Passwort bleibt ausschliesslich im Speicher dieser Sitzung.
+    // Wird vom Admin-Dashboard („Seite bearbeiten") mit dem im AdminProvider
+    // gehaltenen Passwort aufgerufen. Passwort bleibt nur im Speicher der Sitzung.
     pwRef.current = p;
     setEditMode(true);
   }, []);
