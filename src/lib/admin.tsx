@@ -12,6 +12,18 @@ function post(path: string, body: unknown): Promise<Response> {
   });
 }
 
+// Übersetzt einen Fehler aus den Admin-Aufrufen (Error-Message = HTTP-Status,
+// oder ein fetch-Netzwerkfehler) in eine verständliche, PRÄZISE Meldung —
+// „neu anmelden" NUR bei echtem 401, nicht bei 404/Netz/Serverfehler.
+export function adminErrorText(e: unknown): string {
+  const code = e instanceof Error ? e.message : "";
+  if (code === "401") return "Sitzung abgelaufen — bitte neu anmelden.";
+  if (code === "503") return "Verwaltung ist auf dem Server noch nicht eingerichtet.";
+  if (code === "404") return "Backoffice-Funktion auf dem Server nicht gefunden (evtl. noch nicht aktualisiert).";
+  if (/^\d+$/.test(code)) return `Serverfehler (${code}) — bitte später erneut versuchen.`;
+  return "Keine Verbindung zum Server.";
+}
+
 type Patch = Partial<{ admin_status: string; admin_note: string; admin_archived: boolean }>;
 type AdminCtx = {
   authed: boolean;

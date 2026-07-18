@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
 import { ArrowLeft, Download, Search } from "lucide-react";
-import { useAdmin, type AdminType } from "../../../lib/admin";
+import { useAdmin, adminErrorText, type AdminType } from "../../../lib/admin";
 import { TYPE_META, STATUS_LABELS, STATUS_STYLE, fmtDate } from "./fields";
 import { AdminDetail } from "./AdminDetail";
 
@@ -30,7 +30,7 @@ export function AdminInbox({ type }: { type: AdminType }) {
     setLoading(true); setErr(null);
     list(type, true) // inkl. Archivierte; clientseitig gefiltert
       .then((rows) => { if (alive) setItems(rows); })
-      .catch(() => { if (alive) setErr("Konnte nicht laden — bitte neu anmelden."); })
+      .catch((e) => { if (alive) setErr(adminErrorText(e)); })
       .finally(() => { if (alive) setLoading(false); });
     return () => { alive = false; };
   }, [type, list]);
@@ -58,7 +58,7 @@ export function AdminInbox({ type }: { type: AdminType }) {
 
       <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
         <h1 className="text-2xl font-medium text-[#111111]">{meta.title}</h1>
-        <button onClick={() => exportCsv(type, true).catch(() => setErr("Export fehlgeschlagen."))}
+        <button onClick={() => exportCsv(type, true).catch((e) => setErr(adminErrorText(e)))}
           className="inline-flex items-center gap-2 text-sm text-[#0F7C77] hover:text-white hover:bg-[#0F7C77] border border-[#0F7C77] px-4 py-2 rounded-full transition-colors">
           <Download size={16} strokeWidth={1.5} /> CSV-Export
         </button>

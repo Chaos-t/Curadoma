@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { X, Mail, Phone, Download, Archive, Trash2 } from "lucide-react";
-import { useAdmin, type AdminType } from "../../../lib/admin";
+import { useAdmin, adminErrorText, type AdminType } from "../../../lib/admin";
 import { TYPE_META, STATUS_LABELS, fmtDate } from "./fields";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
@@ -46,7 +46,7 @@ export function AdminDetail({ type, record, onClose, onChanged, onDeleted }: {
   const patch = async (p: any, tag: string) => {
     setBusy(tag); setErr(null);
     try { onChanged(await update(type, record.id, p)); }
-    catch { setErr("Aktion fehlgeschlagen — ggf. neu anmelden."); }
+    catch (e) { setErr(adminErrorText(e)); }
     finally { setBusy(null); }
   };
 
@@ -54,7 +54,7 @@ export function AdminDetail({ type, record, onClose, onChanged, onDeleted }: {
     if (!confirm("Diesen Eintrag endgültig löschen? Das kann nicht rückgängig gemacht werden.")) return;
     setBusy("del"); setErr(null);
     try { await remove(type, record.id); onDeleted(record.id); }
-    catch { setErr("Löschen fehlgeschlagen."); setBusy(null); }
+    catch (e) { setErr(adminErrorText(e)); setBusy(null); }
   };
 
   const downloadCv = async () => {
