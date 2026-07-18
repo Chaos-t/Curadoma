@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowUp, ArrowDown, Trash2, Plus, Type, MousePointerClick, Image as ImageIcon } from "lucide-react";
 import { useContent, type Block } from "../../../lib/content";
 import { Editable } from "./Editable";
@@ -28,7 +28,6 @@ function BlockView({ areaId, block }: { areaId: string; block: Block }) {
     return (
       <div>
         {editMode ? (
-          // Im Editor als <div> (contentEditable in <a> ist unzuverlässig).
           <span className={`${btnCls} cursor-text`}>{label}</span>
         ) : (
           <a href={block.href || "#"} className={btnCls} {...(/^https?:/i.test(block.href || "") ? { target: "_blank", rel: "noopener noreferrer" } : {})}>{label}</a>
@@ -64,13 +63,58 @@ function BlockControls({ areaId, blockKey, index, count }: {
   );
 }
 
-/** Bereich aus typisierten Blöcken (Text/Button/Bild) mit „+"-Palette. */
+const PALETTE = [
+  { type: "text" as const, Icon: Type, label: "Textblock", hint: "Fließtext" },
+  { type: "button" as const, Icon: MousePointerClick, label: "Button", hint: "Link / CTA" },
+  { type: "image" as const, Icon: ImageIcon, label: "Bild", hint: "Foto einfügen" },
+];
+
+/** Bereich aus typisierten Blöcken (Text/Button/Bild). Die „+"-Palette öffnet
+ *  sich beim Drüberfahren (Hover) mit Animation und schwebt per fixed + hohem
+ *  z-Index über allem (sonst deckt der Footer sie zu). Klick/Tap für Touch. */
 export function BlockArea({ areaId }: { areaId: string }) {
   const { editMode, getBlocks, addBlock } = useContent();
   const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
+  const addBtnRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const closeTimer = useRef<number | undefined>(undefined);
   const blocks = getBlocks(areaId);
-  const pick = (type: "text" | "button" | "image") => { addBlock(areaId, type); setOpen(false); };
-  const item = "flex items-center gap-2 w-full px-3 py-2 rounded-lg text-sm text-[#111111] hover:bg-[#DFF7F8] text-left";
+
+  const openMenu = () => {
+    window.clearTimeout(closeTimer.current);
+    const el = addBtnRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    setPos({ top: r.bottom + 8, left: r.left + r.width / 2 });
+    setOpen(true);
+  };
+  const scheduleClose = () => {
+    window.clearTimeout(closeTimer.current);
+    closeTimer.current = window.setTimeout(() => setOpen(false), 180);
+  };
+  const pick = (type: "text" | "button" | "image") => { window.clearTimeout(closeTimer.current); addBlock(areaId, type); setOpen(false); };
+
+  // Schließen bei Scroll/Resize und bei Klick außerhalb (Touch).
+  useEffect(() => {
+    if (!open) return;
+    const close = () => setOpen(false);
+    const onDown = (e: MouseEvent) => {
+      const t = e.target as Node;
+      if (menuRef.current?.contains(t) || addBtnRef.current?.contains(t)) return;
+      setOpen(false);
+    };
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("resize", close);
+    document.addEventListener("mousedown", onDown);
+    return () => {
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("resize", close);
+      document.removeEventListener("mousedown", onDown);
+    };
+  }, [open]);
+
+  useEffect(() => () => window.clearTimeout(closeTimer.current), []);
 
   return (
     <div className="space-y-5" style={jakarta}>
@@ -82,19 +126,42 @@ export function BlockArea({ areaId }: { areaId: string }) {
       ))}
 
       {editMode && (
-        <div className="relative">
-          <button type="button" onClick={() => setOpen((v) => !v)}
-            className="inline-flex items-center justify-center gap-2 w-full py-4 rounded-2xl border-2 border-dashed border-[#6FD3D1] text-[#0F7C77] hover:bg-[#DFF7F8] transition-colors text-sm font-medium">
-            <Plus size={18} strokeWidth={2} /> Block hinzufügen
+        <>
+          <button ref={addBtnRef} type="button"
+            onMouseEnter={openMenu} onMouseLeave={scheduleClose}
+            onClick={() => (open ? setOpen(false) : openMenu())}
+            aria-haspopup="true" aria-expanded={open}
+            className="group inline-flex items-center justify-center gap-2 w-full py-4 rounded-2xl border-2 border-dashed border-[#6FD3D1] text-[#0F7C77] hover:bg-[#DFF7F8] transition-colors text-sm font-medium">
+            <Plus size={18} strokeWidth={2} className="transition-transform group-hover:rotate-90" /> Block hinzufügen
           </button>
-          {open && (
-            <div className="absolute left-1/2 -translate-x-1/2 mt-2 w-56 bg-white rounded-2xl border border-[#E5F4F5] shadow-[0_12px_40px_rgb(191,234,242,0.5)] p-2 z-30">
-              <button type="button" onClick={() => pick("text")} className={item}><Type size={16} strokeWidth={1.7} className="text-[#0F7C77]" /> Textblock</button>
-              <button type="button" onClick={() => pick("button")} className={item}><MousePointerClick size={16} strokeWidth={1.7} className="text-[#0F7C77]" /> Button</button>
-              <button type="button" onClick={() => pick("image")} className={item}><ImageIcon size={16} strokeWidth={1.7} className="text-[#0F7C77]" /> Bild</button>
+
+          {open && pos && (
+            <div ref={menuRef}
+              onMouseEnter={() => window.clearTimeout(closeTimer.current)} onMouseLeave={scheduleClose}
+              className="fixed z-[200]" style={{ top: pos.top, left: pos.left, transform: "translateX(-50%)" }}
+              role="menu" aria-label="Block-Typ wählen">
+              <div className="w-64 bg-white rounded-2xl border border-[#E5F4F5] shadow-[0_18px_50px_rgb(16,60,58,0.22)] p-2 motion-safe:animate-[curaBlockPop_220ms_cubic-bezier(0.22,1,0.36,1)_both]">
+                {PALETTE.map(({ type, Icon, label, hint }, i) => (
+                  <button key={type} type="button" role="menuitem" onClick={() => pick(type)}
+                    style={{ animationDelay: `${i * 45}ms` }}
+                    className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-left hover:bg-[#DFF7F8] transition-colors motion-safe:animate-[curaBlockItem_260ms_ease-out_both]">
+                    <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-[#DFF7F8] text-[#0F7C77] shrink-0">
+                      <Icon size={17} strokeWidth={1.7} />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-sm font-medium text-[#111111]">{label}</span>
+                      <span className="block text-xs text-[#5F6B73]">{hint}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+              <style>{`
+                @keyframes curaBlockPop  { from { opacity: 0; transform: translateY(-8px) scale(0.96); } to { opacity: 1; transform: none; } }
+                @keyframes curaBlockItem { from { opacity: 0; transform: translateY(6px); }            to { opacity: 1; transform: none; } }
+              `}</style>
             </div>
           )}
-        </div>
+        </>
       )}
     </div>
   );
