@@ -20,6 +20,7 @@ export function adminErrorText(e: unknown): string {
   if (code === "401") return "Sitzung abgelaufen — bitte neu anmelden.";
   if (code === "503") return "Verwaltung ist auf dem Server noch nicht eingerichtet.";
   if (code === "404") return "Backoffice-Funktion auf dem Server nicht gefunden (evtl. noch nicht aktualisiert).";
+  if (code === "409") return "Wird noch auf der Seite verwendet — Löschen nicht möglich.";
   if (/^\d+$/.test(code)) return `Serverfehler (${code}) — bitte später erneut versuchen.`;
   return "Keine Verbindung zum Server.";
 }
@@ -35,6 +36,8 @@ type AdminCtx = {
   remove: (type: AdminType, id: string) => Promise<void>;
   cvUrl: (id: string) => Promise<string | null>;
   exportCsv: (type: AdminType, includeArchived?: boolean) => Promise<void>;
+  mediaList: () => Promise<any[]>;
+  mediaDelete: (path: string) => Promise<void>;
 };
 
 const Ctx = createContext<AdminCtx | null>(null);
@@ -98,8 +101,19 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     URL.revokeObjectURL(url);
   }, []);
 
+  const mediaList = useCallback(async () => {
+    const res = await post("/admin/media/list", { password: pwRef.current });
+    if (!res.ok) throw new Error(String(res.status));
+    return ((await res.json()).items ?? []) as any[];
+  }, []);
+
+  const mediaDelete = useCallback(async (path: string) => {
+    const res = await post("/admin/media/delete", { password: pwRef.current, path });
+    if (!res.ok) throw new Error(String(res.status));
+  }, []);
+
   return (
-    <Ctx.Provider value={{ authed, login, logout, pw, list, update, remove, cvUrl, exportCsv }}>
+    <Ctx.Provider value={{ authed, login, logout, pw, list, update, remove, cvUrl, exportCsv, mediaList, mediaDelete }}>
       {children}
     </Ctx.Provider>
   );

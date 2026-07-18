@@ -1712,4 +1712,55 @@ app.post("/make-server-ec6100a6/admin/export", async (c) => {
   });
 });
 
+// --- Mediathek (Bildverwaltung) --------------------------------------------
+// Listet die Bilder im öffentlichen Content-Bucket und markiert, welche aktuell
+// verwendet werden (ihre öffentliche URL steht als Wert in site_content:current).
+// „inUse" schützt vor versehentlichem Löschen benutzter Bilder.
+
+app.post("/make-server-ec6100a6/admin/media/list", async (c) => {
+  const g = await adminGate(c);
+  if ("res" in g) return g.res;
+  const url = Deno.env.get("SUPABASE_URL"), sk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !sk) return c.json({ error: "storage_not_configured" }, 503);
+  const supabase = createClient(url, sk);
+  const { data: files, error } = await supabase.storage.from(CONTENT_BUCKET)
+    .list("img", { limit: 1000, sortBy: { column: "created_at", order: "desc" } });
+  if (error) { console.log("media list failed:", error.message); return c.json({ error: "list_failed" }, 500); }
+  const content = ((await kv.get(CONTENT_KEY)) as Record<string, string> | undefined) ?? {};
+  const usedUrls = new Set(Object.values(content));
+  const items = (files ?? [])
+    .filter((f) => f.name && !f.name.startsWith("."))
+    .map((f) => {
+      const path = `img/${f.name}`;
+      const pub = supabase.storage.from(CONTENT_BUCKET).getPublicUrl(path).data.publicUrl;
+      return {
+        path,
+        url: pub,
+        name: f.name,
+        size: (f as { metadata?: { size?: number } }).metadata?.size ?? null,
+        updatedAt: f.updated_at ?? f.created_at ?? null,
+        inUse: usedUrls.has(pub),
+      };
+    });
+  return c.json({ items });
+});
+
+app.post("/make-server-ec6100a6/admin/media/delete", async (c) => {
+  const g = await adminGate(c);
+  if ("res" in g) return g.res;
+  const path = String(g.body.path ?? "");
+  // Nur Dateien im img/-Ordner des Content-Buckets, kein Path-Traversal.
+  if (!/^img\/[\w.\-]+$/.test(path)) return c.json({ error: "bad_path" }, 400);
+  const url = Deno.env.get("SUPABASE_URL"), sk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !sk) return c.json({ error: "storage_not_configured" }, 503);
+  const supabase = createClient(url, sk);
+  const pub = supabase.storage.from(CONTENT_BUCKET).getPublicUrl(path).data.publicUrl;
+  const content = ((await kv.get(CONTENT_KEY)) as Record<string, string> | undefined) ?? {};
+  // Nutzungs-Schutz: benutzte Bilder nicht löschen.
+  if (Object.values(content).includes(pub)) return c.json({ error: "in_use" }, 409);
+  const { error } = await supabase.storage.from(CONTENT_BUCKET).remove([path]);
+  if (error) { console.log("media delete failed:", error.message); return c.json({ error: "delete_failed" }, 500); }
+  return c.json({ ok: true });
+});
+
 Deno.serve(app.fetch);

@@ -17,6 +17,7 @@ import { TerminStatusPage } from "./components/TerminStatusPage";
 import { AdminArea } from "./components/admin/AdminArea";
 import { AdminDashboard } from "./components/admin/AdminDashboard";
 import { AdminInbox } from "./components/admin/AdminInbox";
+import { AdminMedia } from "./components/admin/AdminMedia";
 
 // import.meta.env.BASE_URL is "/" (served at the custom-domain root). Strip
 // any trailing slash so React Router treats it as a basename.
@@ -64,6 +65,7 @@ export const router = createBrowserRouter([
       { path: "anfragen", element: <AdminInbox type="contact" /> },
       { path: "bewerbungen", element: <AdminInbox type="job" /> },
       { path: "termine", element: <AdminInbox type="appointment" /> },
+      { path: "mediathek", Component: AdminMedia },
     ],
   },
 ], { basename });

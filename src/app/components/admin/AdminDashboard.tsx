@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router";
-import { Inbox, FileText, CalendarDays, Pencil, LogOut } from "lucide-react";
+import { Inbox, FileText, CalendarDays, Images, Pencil, LogOut } from "lucide-react";
 import { useAdmin, type AdminType } from "../../../lib/admin";
 import { useContent } from "../../../lib/content";
 
@@ -63,6 +63,15 @@ export function AdminDashboard() {
             </div>
           </Link>
         ))}
+
+        <Link to="/admin/mediathek"
+          className="group bg-white rounded-2xl border border-[#E5F4F5] shadow-[0_10px_30px_rgb(191,234,242,0.25)] p-6 hover:border-[#6FD3D1] transition-colors">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-[#DFF7F8] text-[#0F7C77]"><Images size={20} strokeWidth={1.5} /></span>
+            <span className="text-lg font-medium text-[#111111]">Mediathek</span>
+          </div>
+          <div className="text-sm text-[#5F6B73]">Bilder verwalten &amp; ungenutzte löschen</div>
+        </Link>
 
         <button onClick={() => { enterEditMode(pw()); navigate("/"); }}
           className="text-left bg-white rounded-2xl border border-[#E5F4F5] shadow-[0_10px_30px_rgb(191,234,242,0.25)] p-6 hover:border-[#6FD3D1] transition-colors">
