@@ -1,12 +1,13 @@
-import { createElement, useRef, type ReactNode } from "react";
+import { createElement, useEffect, useRef, type ReactNode } from "react";
 import { useContent } from "../../../lib/content";
 
 type Tag = keyof JSX.IntrinsicElements;
 export function Editable({ id, children, as = "span", rich = false, className, style }: {
   id: string; children: ReactNode; as?: Tag; rich?: boolean; className?: string; style?: React.CSSProperties;
 }) {
-  const { get, getStored, editMode, setPending, isDirty } = useContent();
+  const { get, getStored, editMode, setPending, isDirty, registerField } = useContent();
   const override = get(id);
+  const elRef = useRef<HTMLElement | null>(null);
   // Seed nur einmal bei aktivem Edit-Modus erfassen; bei Verlassen zurücksetzen.
   // Seed kommt aus dem GESPEICHERTEN (server-sanitisierten) Wert, nie aus dem
   // ungespeicherten `pending` — so kann kein roh getipptes innerHTML einen
@@ -24,6 +25,13 @@ export function Editable({ id, children, as = "span", rich = false, className, s
   } else {
     seed.current = undefined;
   }
+
+  // Ausgangswert des Feldes einmal registrieren (für die Undo-Rücksetzung).
+  useEffect(() => {
+    if (editMode && elRef.current) {
+      registerField(id, rich ? elRef.current.innerHTML : (elRef.current.textContent ?? ""));
+    }
+  }, [editMode, id, rich, registerField]);
 
   if (!editMode) {
     if (override != null) {
@@ -52,7 +60,7 @@ export function Editable({ id, children, as = "span", rich = false, className, s
   const onClick = (e: React.MouseEvent<HTMLElement>) => e.preventDefault();
   return createElement(
     as,
-    { "data-ed-id": id, "data-ed-rich": rich ? "true" : undefined, contentEditable: true, suppressContentEditableWarning: true, className: editClass, style, onInput, onClick, title: import.meta.env.DEV ? id : "Zum Bearbeiten klicken" },
+    { ref: elRef, "data-ed-id": id, "data-ed-rich": rich ? "true" : undefined, contentEditable: true, suppressContentEditableWarning: true, className: editClass, style, onInput, onClick, title: import.meta.env.DEV ? id : "Zum Bearbeiten klicken" },
     seed.current,
   );
 }

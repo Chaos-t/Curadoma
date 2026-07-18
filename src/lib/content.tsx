@@ -11,6 +11,12 @@ type Ctx = {
   dirtyCount: number;
   /** True, wenn dieses Feld ungespeicherte Änderungen hat (für den Dirty-Marker). */
   isDirty: (id: string) => boolean;
+  /** Editable meldet beim Mounten seinen Ausgangswert (für Undo-Rücksetzung). */
+  registerField: (id: string, initial: string) => void;
+  undo: () => void;
+  redo: () => void;
+  canUndo: boolean;
+  canRedo: boolean;
   saving: boolean;
   status: string | null;
   error: string | null;
@@ -36,6 +42,15 @@ function fileToDataUrl(file: File): Promise<string> {
     r.readAsDataURL(file);
   });
 }
+// Zwei Pending-Schnappschüsse inhaltlich vergleichen (für die Undo-Historie).
+function samePending(a: Pending, b: Pending): boolean {
+  const ka = Object.keys(a), kb = Object.keys(b);
+  if (ka.length !== kb.length) return false;
+  for (const k of ka) {
+    if (!(k in b) || a[k].v !== b[k].v || a[k].rich !== b[k].rich) return false;
+  }
+  return true;
+}
 export function ContentProvider({ children }: { children: ReactNode }) {
   const [overrides, setOverrides] = useState<Record<string, string>>({});
   const [pending, setPendingState] = useState<Pending>({});
@@ -49,6 +64,23 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // --- Undo/Redo-Historie -------------------------------------------------
+  // Schnappschüsse des gesamten `pending`-Objekts. baseRef = Stand am letzten
+  // Checkpoint; Tipp-Bursts werden per Debounce zu einem Schritt gruppiert.
+  const pendingRef = useRef<Pending>({});
+  useEffect(() => { pendingRef.current = pending; }, [pending]);
+  const baselineRef = useRef<Map<string, string>>(new Map()); // Ausgangswert je Feld
+  const undoRef = useRef<Pending[]>([]);
+  const redoRef = useRef<Pending[]>([]);
+  const baseRef = useRef<Pending>({});
+  const histTimerRef = useRef<number | undefined>(undefined);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+  const syncHist = useCallback(() => {
+    setCanUndo(undoRef.current.length > 0);
+    setCanRedo(redoRef.current.length > 0);
+  }, []);
 
   useEffect(() => {
     let alive = true;
@@ -67,9 +99,77 @@ export function ContentProvider({ children }: { children: ReactNode }) {
 
   const getStored = useCallback((id: string) => (id in overrides ? overrides[id] : undefined), [overrides]);
 
+  // Einen Pending-Schnappschuss anwenden: contentEditable-Texte direkt ins DOM
+  // zurückschreiben (React fasst das stabile `seed` nicht an, wie beim Tippen);
+  // Bilder aktualisieren sich über den State (EditableImage liest get(id)) selbst.
+  const applyPending = useCallback((target: Pending) => {
+    if (typeof document !== "undefined") {
+      document.querySelectorAll<HTMLElement>("[data-ed-id]").forEach((el) => {
+        const id = el.getAttribute("data-ed-id");
+        if (!id) return;
+        const rich = el.getAttribute("data-ed-rich") === "true";
+        const val = id in target ? target[id].v : baselineRef.current.get(id);
+        if (val === undefined) return;
+        if (rich) { if (el.innerHTML !== val) el.innerHTML = val; }
+        else { if (el.textContent !== val) el.textContent = val; }
+      });
+    }
+    setPendingState(target);
+  }, []);
+
+  const commitCheckpoint = useCallback(() => {
+    const cur = pendingRef.current;
+    if (samePending(cur, baseRef.current)) return;
+    undoRef.current.push(baseRef.current);
+    if (undoRef.current.length > 100) undoRef.current.shift(); // Deckel
+    baseRef.current = { ...cur };
+    redoRef.current = [];
+    syncHist();
+  }, [syncHist]);
+
+  const scheduleCheckpoint = useCallback(() => {
+    if (histTimerRef.current) window.clearTimeout(histTimerRef.current);
+    histTimerRef.current = window.setTimeout(() => { histTimerRef.current = undefined; commitCheckpoint(); }, 700);
+  }, [commitCheckpoint]);
+
+  const flushCheckpoint = useCallback(() => {
+    if (histTimerRef.current) { window.clearTimeout(histTimerRef.current); histTimerRef.current = undefined; }
+    commitCheckpoint();
+  }, [commitCheckpoint]);
+
+  const resetHistory = useCallback(() => {
+    if (histTimerRef.current) { window.clearTimeout(histTimerRef.current); histTimerRef.current = undefined; }
+    undoRef.current = []; redoRef.current = []; baseRef.current = {};
+    syncHist();
+  }, [syncHist]);
+
   const setPending = useCallback((id: string, v: string, rich: boolean) => {
     setPendingState((p) => ({ ...p, [id]: { v, rich } }));
+    scheduleCheckpoint();
+  }, [scheduleCheckpoint]);
+
+  const registerField = useCallback((id: string, initial: string) => {
+    if (!baselineRef.current.has(id)) baselineRef.current.set(id, initial);
   }, []);
+
+  const undo = useCallback(() => {
+    flushCheckpoint(); // laufenden Tipp-Burst zuerst als Schritt festhalten
+    if (undoRef.current.length === 0) return;
+    redoRef.current.push(baseRef.current);
+    const prev = undoRef.current.pop() as Pending;
+    baseRef.current = prev;
+    applyPending(prev);
+    syncHist();
+  }, [applyPending, flushCheckpoint, syncHist]);
+
+  const redo = useCallback(() => {
+    if (redoRef.current.length === 0) return;
+    undoRef.current.push(baseRef.current);
+    const next = redoRef.current.pop() as Pending;
+    baseRef.current = next;
+    applyPending(next);
+    syncHist();
+  }, [applyPending, syncHist]);
 
   const pw = () => pwRef.current;
 
@@ -110,17 +210,29 @@ export function ContentProvider({ children }: { children: ReactNode }) {
       });
       const d = await res.json().catch(() => ({}));
       if (!res.ok) { setError("Speichern fehlgeschlagen (" + (d.error || res.status) + ")."); return; }
+      // Gespeicherte Werte werden zum neuen Ausgangswert (für spätere Undos).
+      for (const id of ids) baselineRef.current.set(id, overridesOut[id]);
       setOverrides((o) => ({ ...o, ...overridesOut }));
       setPendingState({});
+      resetHistory();
       setStatus("Gespeichert ✓ — in 1–2 Min überall live.");
     } catch { setError("Speichern: Verbindungsfehler."); } finally { setSaving(false); }
-  }, [pending]);
+  }, [pending, resetHistory]);
 
-  const discard = useCallback(() => { setPendingState({}); setStatus("Änderungen verworfen."); setError(null); }, []);
+  const discard = useCallback(() => {
+    applyPending({}); // DOM zurück auf die Ausgangswerte, dann Historie leeren
+    resetHistory();
+    setStatus("Änderungen verworfen."); setError(null);
+  }, [applyPending, resetHistory]);
+
   const exit = useCallback(() => {
     pwRef.current = "";
     setEditMode(false); setPendingState({}); setStatus(null); setError(null);
-  }, []);
+    if (histTimerRef.current) { window.clearTimeout(histTimerRef.current); histTimerRef.current = undefined; }
+    undoRef.current = []; redoRef.current = []; baseRef.current = {}; baselineRef.current = new Map();
+    syncHist();
+  }, [syncHist]);
+
   const restore = useCallback(async () => {
     setSaving(true); setError(null); setStatus("Setze zurück …");
     try {
@@ -130,19 +242,22 @@ export function ContentProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify({ password: pw(), action: "restore" }),
       });
       const d = await res.json().catch(() => ({}));
-      if (!res.ok) { setError("Rückgängig fehlgeschlagen (" + (d.error || res.status) + ")."); return; }
+      if (!res.ok) { setError("Zurücksetzen fehlgeschlagen (" + (d.error || res.status) + ")."); return; }
       const r2 = await fetch(`${FN_BASE}/site-content`, { headers: { Authorization: `Bearer ${FN_ANON}` } });
       const c2 = await r2.json().catch(() => ({ content: {} }));
       setOverrides((c2 && c2.content) || {});
-      setStatus("Letzter Stand wiederhergestellt.");
-    } catch { setError("Rückgängig: Verbindungsfehler."); } finally { setSaving(false); }
+      setStatus("Letzter veröffentlichter Stand wiederhergestellt — Seite neu laden.");
+    } catch { setError("Zurücksetzen: Verbindungsfehler."); } finally { setSaving(false); }
   }, []);
+
   const enterEditMode = useCallback((p: string) => {
     // Wird vom Admin-Dashboard („Seite bearbeiten") mit dem im AdminProvider
     // gehaltenen Passwort aufgerufen. Passwort bleibt nur im Speicher der Sitzung.
     pwRef.current = p;
+    undoRef.current = []; redoRef.current = []; baseRef.current = {}; baselineRef.current = new Map();
+    syncHist();
     setEditMode(true);
-  }, []);
+  }, [syncHist]);
 
   const isDirty = useCallback((id: string) => id in pending, [pending]);
 
@@ -155,18 +270,25 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
   }, [editMode, pending]);
 
-  // Strg+S / Cmd+S speichert (statt den Browser-Speichern-Dialog zu öffnen).
+  // Tastenkürzel im Bearbeitungsmodus: Strg+S speichern, Strg+Z rückgängig,
+  // Strg+Umschalt+Z / Strg+Y wiederholen.
   useEffect(() => {
     if (!editMode) return;
     const onKey = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && (e.key === "s" || e.key === "S")) {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      const k = e.key.toLowerCase();
+      if (k === "s") {
         e.preventDefault();
-        if (Object.keys(pending).length > 0) void save();
+        if (Object.keys(pendingRef.current).length > 0) void save();
+      } else if (k === "z" && !e.shiftKey) {
+        e.preventDefault(); undo();
+      } else if ((k === "z" && e.shiftKey) || k === "y") {
+        e.preventDefault(); redo();
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [editMode, pending, save]);
+  }, [editMode, save, undo, redo]);
 
   // Statusmeldungen (z. B. „Gespeichert ✓") nach ein paar Sekunden ausblenden,
   // damit sie nicht dauerhaft stehen bleiben. Fehler (`error`) bleiben bestehen.
@@ -177,7 +299,9 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   }, [status]);
 
   const value: Ctx = {
-    get, getStored, editMode, dirtyCount: Object.keys(pending).length, isDirty, saving, status, error,
+    get, getStored, editMode, dirtyCount: Object.keys(pending).length, isDirty,
+    registerField, undo, redo, canUndo, canRedo,
+    saving, status, error,
     setPending, uploadImage, save, discard, exit, restore, enterEditMode,
   };
   return <ContentContext.Provider value={value}>{children}</ContentContext.Provider>;
