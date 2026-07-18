@@ -84,6 +84,60 @@ export function isZoneKey(s: unknown): boolean {
   return typeof s === "string" && ZONE_KEY_RE.test(s);
 }
 
+// --- Typisierte Inhalts-Blöcke (Text/Button/Bild) ---------------------------
+// Struktur je Bereich: geordnete Liste von Blöcken {k, t, href?}. Nur Metadaten
+// (Typ + validiertes Link-Ziel) — kein HTML. Text/Bild-Inhalt läuft über die
+// sanitisierte <Editable>/<EditableImage>-Pipeline.
+export const BLOCK_TYPES = ["text", "button", "image"] as const;
+export function isBlockType(t: unknown): boolean {
+  return typeof t === "string" && (BLOCK_TYPES as readonly string[]).includes(t);
+}
+export const MAX_BLOCK_AREAS = 60;
+export const MAX_BLOCKS_PER_AREA = 60;
+
+// Erlaubte Link-Ziele (identisch zur safeHref-Prüfung der Rich-Text-Links):
+// http(s), mailto, tel, seiteninterne /-Pfade (kein //), #anker. Blockt u. a.
+// javascript: und protokoll-relative //fremdhost.
+export function safeHref(h: unknown): boolean {
+  const s = String(h ?? "").trim();
+  return /^https?:\/\//i.test(s) || /^mailto:/i.test(s) || /^tel:/i.test(s) ||
+    /^\/(?!\/)[\w./-]*$/.test(s) || /^#[\w-]+$/.test(s);
+}
+
+export type Block = { k: string; t: string; href?: string };
+
+export function validateBlocks(input: unknown):
+  { ok: true; blocks: Record<string, Block[]> } | { ok: false; error: string } {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return { ok: false, error: "bad_blocks" };
+  const entries = Object.entries(input as Record<string, unknown>);
+  if (entries.length > MAX_BLOCK_AREAS) return { ok: false, error: "too_many_areas" };
+  const out: Record<string, Block[]> = {};
+  for (const [areaId, val] of entries) {
+    if (!ZONE_ID_RE.test(areaId)) return { ok: false, error: "bad_area_id" };
+    if (!Array.isArray(val)) return { ok: false, error: "bad_area_value" };
+    if (val.length > MAX_BLOCKS_PER_AREA) return { ok: false, error: "too_many_blocks" };
+    const arr: Block[] = [];
+    const seen = new Set<string>();
+    for (const b of val) {
+      if (!b || typeof b !== "object") return { ok: false, error: "bad_block" };
+      const k = (b as { k?: unknown }).k;
+      const t = (b as { t?: unknown }).t;
+      if (!isZoneKey(k)) return { ok: false, error: "bad_block_key" };
+      if (!isBlockType(t)) return { ok: false, error: "bad_block_type" };
+      if (seen.has(k as string)) return { ok: false, error: "dup_block_key" };
+      seen.add(k as string);
+      const block: Block = { k: k as string, t: t as string };
+      if (t === "button") {
+        const href = String((b as { href?: unknown }).href ?? "").trim();
+        block.href = safeHref(href) ? href : "#"; // ungültiges Ziel -> No-op statt Fehler
+      }
+      arr.push(block);
+    }
+    out[areaId] = arr;
+  }
+  return { ok: true, blocks: out };
+}
+
 // --- Struktur: dynamische Seiten + Menüpunkte -------------------------------
 // Nur Metadaten (slug, label, inMenu) — kein HTML. Der Inhalt der Seite läuft
 // über die sanitisierte <Editable>-Pipeline (page.<slug>.title/body/image).

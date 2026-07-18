@@ -5,7 +5,7 @@ import { createClient } from "jsr:@supabase/supabase-js@2.49.8";
 import * as kv from "./kv_store.ts";
 import {
   isAdminType, isAdminStatus, isUuid, keyFor, prefixFor,
-  sanitizeNote, buildCsv, CSV_COLUMNS, yesNo, validateZones, validatePages, type AdminType,
+  sanitizeNote, buildCsv, CSV_COLUMNS, yesNo, validateZones, validatePages, validateBlocks, type AdminType,
 } from "./admin_util.ts";
 
 const app = new Hono();
@@ -1802,6 +1802,25 @@ app.post("/make-server-ec6100a6/admin/pages/save", async (c) => {
   if (!v.ok) return c.json({ error: v.error }, 400);
   await kv.set("pages:current", v.pages);
   return c.json({ ok: true, count: v.pages.length });
+});
+
+// --- Typisierte Inhalts-Blöcke (Text/Button/Bild) --------------------------
+app.get("/make-server-ec6100a6/blocks", async (c) => {
+  try {
+    const blocks = (await kv.get("blocks:current")) as unknown;
+    return c.json({ blocks: blocks && typeof blocks === "object" ? blocks : {} });
+  } catch {
+    return c.json({ blocks: {} });
+  }
+});
+
+app.post("/make-server-ec6100a6/admin/blocks/save", async (c) => {
+  const g = await adminGate(c);
+  if ("res" in g) return g.res;
+  const v = validateBlocks(g.body.blocks);
+  if (!v.ok) return c.json({ error: v.error }, 400);
+  await kv.set("blocks:current", v.blocks);
+  return c.json({ ok: true, count: Object.keys(v.blocks).length });
 });
 
 Deno.serve(app.fetch);

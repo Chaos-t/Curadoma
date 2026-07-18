@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   ADMIN_TYPES, isAdminType, prefixFor, keyFor, isUuid,
   ADMIN_STATUSES, isAdminStatus, sanitizeNote, yesNo, csvCell, buildCsv, CSV_COLUMNS,
-  validateZones, isZoneKey, validatePages,
+  validateZones, isZoneKey, validatePages, validateBlocks, safeHref,
 } from "./admin_util.ts";
 
 test("type guard + prefixes + key", () => {
@@ -78,6 +78,37 @@ test("isZoneKey", () => {
   assert.ok(!isZoneKey("../x"));
   assert.ok(!isZoneKey("UPPER"));
   assert.ok(!isZoneKey(5));
+});
+
+test("safeHref allows safe targets, blocks dangerous ones", () => {
+  assert.ok(safeHref("https://x.de/a?b=1&c=2"));
+  assert.ok(safeHref("mailto:a@b.de"));
+  assert.ok(safeHref("tel:+49123"));
+  assert.ok(safeHref("/kontakt"));
+  assert.ok(safeHref("#anker"));
+  assert.ok(!safeHref("javascript:alert(1)"));
+  assert.ok(!safeHref("//evil.com"));
+  assert.ok(!safeHref("ftp://x"));
+});
+
+test("validateBlocks accepts typed blocks and coerces bad button hrefs", () => {
+  const ok = validateBlocks({ "page.x.blocks": [
+    { k: "a1", t: "text" },
+    { k: "b2", t: "button", href: "https://x.de?a=1&b=2" },
+    { k: "c3", t: "button", href: "javascript:alert(1)" },
+    { k: "d4", t: "image" },
+  ] });
+  assert.ok(ok.ok);
+  if (ok.ok) {
+    const arr = ok.blocks["page.x.blocks"];
+    assert.equal(arr[1].href, "https://x.de?a=1&b=2"); // gültig, nicht escaped
+    assert.equal(arr[2].href, "#");                     // gefährlich -> No-op
+  }
+  assert.ok(!validateBlocks("nope").ok);
+  assert.ok(!validateBlocks({ "BAD ID": [] }).ok);
+  assert.ok(!validateBlocks({ "a": [{ k: "x", t: "video" }] }).ok);  // bad type
+  assert.ok(!validateBlocks({ "a": [{ k: "UP", t: "text" }] }).ok);  // bad key
+  assert.ok(!validateBlocks({ "a": [{ k: "x", t: "text" }, { k: "x", t: "image" }] }).ok); // dup
 });
 
 test("validatePages accepts good pages and rejects bad/reserved/dupes", () => {

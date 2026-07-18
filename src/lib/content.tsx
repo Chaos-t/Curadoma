@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import { FN_BASE, FN_ANON } from "./booking";
 
 type Pending = Record<string, { v: string; rich: boolean }>;
+export type Block = { k: string; t: string; href?: string };
 type Ctx = {
   get: (id: string) => string | undefined;
   /** Committed value only (ignores unsaved pending) — used to seed edit mode
@@ -33,6 +34,12 @@ type Ctx = {
   moveZoneItem: (zoneId: string, key: string, dir: -1 | 1, defaultKeys: string[]) => void;
   /** Dynamisch angelegte Seiten (für Menü-Injektion + DynamicPage-Auflösung). */
   getPages: () => Array<{ slug: string; label: string; inMenu: boolean }>;
+  /** Typisierte Inhalts-Blöcke (Text/Button/Bild) je Bereich. */
+  getBlocks: (areaId: string) => Block[];
+  addBlock: (areaId: string, type: "text" | "button" | "image") => void;
+  removeBlock: (areaId: string, key: string) => void;
+  moveBlock: (areaId: string, key: string, dir: -1 | 1) => void;
+  setBlockHref: (areaId: string, key: string, href: string) => void;
 };
 const ContentContext = createContext<Ctx | null>(null);
 export function useContent(): Ctx {
@@ -65,6 +72,9 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   const [pendingZones, setPendingZones] = useState<Record<string, string[]>>({});
   // Dynamisch angelegte Seiten (aus dem Server) — für Menü + DynamicPage.
   const [pages, setPages] = useState<Array<{ slug: string; label: string; inMenu: boolean }>>([]);
+  // Typisierte Inhalts-Blöcke je Bereich (aus dem Server) + ungespeicherte Änderungen.
+  const [blocks, setBlocks] = useState<Record<string, Block[]>>({});
+  const [pendingBlocks, setPendingBlocks] = useState<Record<string, Block[]>>({});
   // Editier-Status NUR im Speicher (kein sessionStorage): der Bearbeitungsmodus
   // geht ausschliesslich ueber das Admin-Dashboard („Seite bearbeiten", nach
   // Passwort-Login im AdminProvider) an und ist nach jedem Reload/neuen Besuch
@@ -107,6 +117,10 @@ export function ContentProvider({ children }: { children: ReactNode }) {
       .then((r) => (r.ok ? r.json() : { pages: [] }))
       .then((d) => { if (alive) setPages(Array.isArray(d?.pages) ? d.pages : []); })
       .catch(() => {}); // Seiten weg -> keine dynamischen Seiten
+    fetch(`${FN_BASE}/blocks`, { headers: { Authorization: `Bearer ${FN_ANON}` } })
+      .then((r) => (r.ok ? r.json() : { blocks: {} }))
+      .then((d) => { if (alive) setBlocks((d && d.blocks) || {}); })
+      .catch(() => {}); // Blöcke weg -> keine Blöcke
     return () => { alive = false; };
   }, []);
 
@@ -217,7 +231,8 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   const save = useCallback(async () => {
     const ids = Object.keys(pending);
     const zoneIds = Object.keys(pendingZones);
-    if (!ids.length && !zoneIds.length) return;
+    const blockAreas = Object.keys(pendingBlocks);
+    if (!ids.length && !zoneIds.length && !blockAreas.length) return;
     setSaving(true); setError(null); setStatus("Speichern …");
     let failed = false;
     try {
@@ -252,20 +267,33 @@ export function ContentProvider({ children }: { children: ReactNode }) {
         if (!res.ok) { setError("Struktur speichern fehlgeschlagen (" + (d.error || res.status) + ")."); failed = true; }
         else { setZones(nextZones); setPendingZones({}); }
       }
+      // 3) Inhalts-Blöcke (Text/Button/Bild)
+      if (blockAreas.length && !failed) {
+        const nextBlocks = { ...blocks, ...pendingBlocks };
+        const res = await fetch(`${FN_BASE}/admin/blocks/save`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${FN_ANON}` },
+          body: JSON.stringify({ password: pw(), blocks: nextBlocks }),
+        });
+        const d = await res.json().catch(() => ({}));
+        if (!res.ok) { setError("Blöcke speichern fehlgeschlagen (" + (d.error || res.status) + ")."); failed = true; }
+        else { setBlocks(nextBlocks); setPendingBlocks({}); }
+      }
       if (!failed) setStatus("Gespeichert ✓ — in 1–2 Min überall live.");
     } catch { setError("Speichern: Verbindungsfehler."); } finally { setSaving(false); }
-  }, [pending, pendingZones, zones, resetHistory]);
+  }, [pending, pendingZones, zones, pendingBlocks, blocks, resetHistory]);
 
   const discard = useCallback(() => {
     applyPending({}); // DOM zurück auf die Ausgangswerte, dann Historie leeren
     setPendingZones({}); // Zonen-Struktur reagiert von selbst (getZone re-liest)
+    setPendingBlocks({});
     resetHistory();
     setStatus("Änderungen verworfen."); setError(null);
   }, [applyPending, resetHistory]);
 
   const exit = useCallback(() => {
     pwRef.current = "";
-    setEditMode(false); setPendingState({}); setPendingZones({}); setStatus(null); setError(null);
+    setEditMode(false); setPendingState({}); setPendingZones({}); setPendingBlocks({}); setStatus(null); setError(null);
     if (histTimerRef.current) { window.clearTimeout(histTimerRef.current); histTimerRef.current = undefined; }
     undoRef.current = []; redoRef.current = []; baseRef.current = {}; baselineRef.current = new Map();
     syncHist();
@@ -333,6 +361,38 @@ export function ContentProvider({ children }: { children: ReactNode }) {
 
   const getPages = useCallback(() => pages, [pages]);
 
+  // --- Typisierte Inhalts-Blöcke -----------------------------------------
+  const curBlocks = (areaId: string) =>
+    areaId in pendingBlocks ? pendingBlocks[areaId] : areaId in blocks ? blocks[areaId] : [];
+  const getBlocks = useCallback((areaId: string) => curBlocks(areaId), [pendingBlocks, blocks]);
+
+  const addBlock = useCallback((areaId: string, type: "text" | "button" | "image") => {
+    const k = ("b" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6)).slice(0, 16);
+    const block: Block = type === "button" ? { k, t: type, href: "#" } : { k, t: type };
+    setPendingBlocks((p) => ({ ...p, [areaId]: [...curBlocks(areaId), block] }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingBlocks, blocks]);
+
+  const removeBlock = useCallback((areaId: string, key: string) => {
+    setPendingBlocks((p) => ({ ...p, [areaId]: curBlocks(areaId).filter((b) => b.k !== key) }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingBlocks, blocks]);
+
+  const moveBlock = useCallback((areaId: string, key: string, dir: -1 | 1) => {
+    const arr = curBlocks(areaId).slice();
+    const i = arr.findIndex((b) => b.k === key);
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= arr.length) return;
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+    setPendingBlocks((p) => ({ ...p, [areaId]: arr }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingBlocks, blocks]);
+
+  const setBlockHref = useCallback((areaId: string, key: string, href: string) => {
+    setPendingBlocks((p) => ({ ...p, [areaId]: curBlocks(areaId).map((b) => (b.k === key ? { ...b, href } : b)) }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingBlocks, blocks]);
+
   // Schutz vor Datenverlust: Browser-Warnung beim Verlassen/Neuladen, solange es
   // ungespeicherte Änderungen gibt (nur im Bearbeitungsmodus).
   useEffect(() => {
@@ -372,9 +432,10 @@ export function ContentProvider({ children }: { children: ReactNode }) {
 
   const value: Ctx = {
     get, getStored, editMode,
-    dirtyCount: Object.keys(pending).length + Object.keys(pendingZones).length,
+    dirtyCount: Object.keys(pending).length + Object.keys(pendingZones).length + Object.keys(pendingBlocks).length,
     isDirty, registerField, undo, redo, canUndo, canRedo,
     getZone, addZoneItem, removeZoneItem, moveZoneItem, getPages,
+    getBlocks, addBlock, removeBlock, moveBlock, setBlockHref,
     saving, status, error,
     setPending, uploadImage, save, discard, exit, restore, enterEditMode,
   };

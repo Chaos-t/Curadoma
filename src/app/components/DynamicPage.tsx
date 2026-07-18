@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useParams } from "react-router";
 import { useContent } from "../../lib/content";
 import { Editable } from "./editor/Editable";
+import { BlockArea } from "./editor/BlockArea";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
@@ -34,11 +35,8 @@ export function DynamicPage() {
       <h1 className="text-4xl sm:text-5xl font-medium tracking-tight text-[#111111] leading-[1.15] mb-8" style={jakarta}>
         <Editable as="span" id={`${base}.title`}>{page.label}</Editable>
       </h1>
-      <div className="text-lg text-[#5F6B73] leading-relaxed font-light space-y-4 [&_a]:text-[#6FD3D1] [&_a:hover]:underline [&_strong]:text-[#111111] [&_strong]:font-medium">
-        <Editable as="div" id={`${base}.body`} rich>
-          Hier steht der Inhalt dieser Seite. Im Bearbeitungsmodus diesen Text anklicken und ändern — Text markieren für Fett/Kursiv/Link.
-        </Editable>
-      </div>
+      {/* Frei aus Blöcken baubar: Text, Button, Bild (im Bearbeitungsmodus „+ Block hinzufügen"). */}
+      <BlockArea areaId={`${base}.blocks`} />
     </section>
   );
 }
