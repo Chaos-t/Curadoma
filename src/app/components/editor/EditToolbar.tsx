@@ -1,4 +1,5 @@
 import { useContent } from "../../../lib/content";
+import { OPEN_HELP_EVENT } from "./EditOnboarding";
 
 export function EditToolbar() {
   const { editMode, dirtyCount, saving, status, error, save, discard, exit, restore } = useContent();
@@ -22,6 +23,9 @@ export function EditToolbar() {
         disabled={saving || dirtyCount > 0}
         title={dirtyCount > 0 ? "Erst speichern oder verwerfen" : "Den letzten gespeicherten Stand zurücknehmen"}
         className="text-[#5F6B73] hover:text-[#111111] disabled:opacity-40 px-3 py-2 rounded-full text-sm">Rückgängig</button>
+      <button onClick={() => window.dispatchEvent(new Event(OPEN_HELP_EVENT))}
+        title="Kurz-Anleitung öffnen"
+        className="text-[#5F6B73] hover:text-[#111111] px-3 py-2 rounded-full text-sm">❓ Hilfe</button>
       <button onClick={() => { if (dirtyCount === 0 || confirm("Ungespeicherte Änderungen verwerfen und verlassen?")) exit(); }}
         className="text-[#d7120a] hover:underline px-3 py-2 rounded-full text-sm">Verlassen</button>
     </div>

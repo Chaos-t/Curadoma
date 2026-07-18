@@ -168,6 +168,14 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [editMode, pending, save]);
 
+  // Statusmeldungen (z. B. „Gespeichert ✓") nach ein paar Sekunden ausblenden,
+  // damit sie nicht dauerhaft stehen bleiben. Fehler (`error`) bleiben bestehen.
+  useEffect(() => {
+    if (!status) return;
+    const t = window.setTimeout(() => setStatus(null), 4000);
+    return () => window.clearTimeout(t);
+  }, [status]);
+
   const value: Ctx = {
     get, getStored, editMode, dirtyCount: Object.keys(pending).length, isDirty, saving, status, error,
     setPending, uploadImage, save, discard, exit, restore, enterEditMode,

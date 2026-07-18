@@ -52,7 +52,7 @@ export function Editable({ id, children, as = "span", rich = false, className, s
   const onClick = (e: React.MouseEvent<HTMLElement>) => e.preventDefault();
   return createElement(
     as,
-    { "data-ed-id": id, contentEditable: true, suppressContentEditableWarning: true, className: editClass, style, onInput, onClick, title: import.meta.env.DEV ? id : "Zum Bearbeiten klicken" },
+    { "data-ed-id": id, "data-ed-rich": rich ? "true" : undefined, contentEditable: true, suppressContentEditableWarning: true, className: editClass, style, onInput, onClick, title: import.meta.env.DEV ? id : "Zum Bearbeiten klicken" },
     seed.current,
   );
 }
