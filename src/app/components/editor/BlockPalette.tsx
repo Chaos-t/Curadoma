@@ -1,26 +1,28 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Plus, Type, MousePointerClick, Image as ImageIcon, ListChecks } from "lucide-react";
-
-export type BlockType = "text" | "image" | "button" | "card";
+import { Plus, Type, Heading, Image as ImageIcon, MousePointerClick, ListChecks, Quote, Minus } from "lucide-react";
+import { type BlockType } from "../../../lib/content";
 
 // Reihenfolge = Anordnung im Bogen von links nach rechts.
 const OPTIONS: { type: BlockType; Icon: typeof Type; label: string; hint: string }[] = [
   { type: "text", Icon: Type, label: "Text", hint: "Fließtext" },
+  { type: "title", Icon: Heading, label: "Titel", hint: "Überschrift" },
   { type: "image", Icon: ImageIcon, label: "Bild", hint: "Foto" },
   { type: "button", Icon: MousePointerClick, label: "Button", hint: "Link / CTA" },
   { type: "card", Icon: ListChecks, label: "Karte", hint: "Titel + Liste" },
+  { type: "quote", Icon: Quote, label: "Zitat", hint: "Hervorheben" },
+  { type: "divider", Icon: Minus, label: "Linie", hint: "Trenner" },
 ];
-
-const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 
 /**
  * Rundes „+", das beim Drauffahren (oder Tippen) die Block-Typen in einem
  * Bogen darüber auffächert — im de-Vries-Stil. Das Menü wird per Portal an
  * <body> gerendert, damit es NICHT im Stacking-Kontext von <main> (z-10)
  * gefangen ist und garantiert über Footer und Bearbeiten-Leiste liegt.
- * Bogen nach oben; ist oben zu wenig Platz, klappt er nach unten. Positionen
- * werden an den Viewport geklammert (nichts wird abgeschnitten). Touch: Tippen
+ *
+ * Symmetrie: der Radius wird so gewählt, dass der GANZE Bogen in den Viewport
+ * passt (statt einzelne Kacheln zu verschieben) — dadurch ist er immer exakt
+ * ums „+" zentriert. Oben zu wenig Platz → klappt nach unten. Touch: Tippen
  * öffnet/schließt, Tippen daneben schließt.
  */
 export function BlockPalette({ onPick }: { onPick: (type: BlockType) => void }) {
@@ -38,21 +40,26 @@ export function BlockPalette({ onPick }: { onPick: (type: BlockType) => void }) 
     const cy = r.top + r.height / 2;
     const vw = window.innerWidth, vh = window.innerHeight;
     const n = OPTIONS.length;
-    const half = 44;                                  // halbe Kachelgröße + Rand
-    const radius = clamp(vw < 560 ? 96 : 132, 84, vw / 2 - 56);
-    const spread = (vw < 560 ? 120 : 152) * (Math.PI / 180);
-    // Genug Platz oben? sonst nach unten auffächern.
-    const dir = cy - radius - half > 8 ? -1 : 1;
-    const start = -spread / 2;
+    const half = 46, pad = 10;
+    const spread = (n <= 1 ? 0 : Math.min(176, 26 * (n - 1))) * (Math.PI / 180);
+    const maxA = spread / 2;
+    const sinMax = Math.sin(maxA) || 1;
+    // Radius so wählen, dass die äußersten Kacheln horizontal und die oberste
+    // Kachel vertikal in den Viewport passen — Bogen bleibt so IMMER symmetrisch.
+    const radiusX = (Math.min(cx, vw - cx) - half - pad) / sinMax;
+    const roomUp = cy - half - pad;
+    const roomDown = vh - cy - half - pad;
+    const desired = vw < 560 ? 104 : 140;
+    let dir: -1 | 1 = -1;
+    let radius = Math.min(desired, radiusX, roomUp);
+    if (radius < 78 && roomDown > roomUp) { dir = 1; radius = Math.min(desired, radiusX, roomDown); }
+    radius = Math.max(radius, 64);
+    const start = -maxA;
     const step = n <= 1 ? 0 : spread / (n - 1);
-    const pts = OPTIONS.map((_, i) => {
-      const a = start + i * step;                     // 0 = senkrecht vom „+"
-      return {
-        x: clamp(cx + radius * Math.sin(a), half + 4, vw - half - 4),
-        y: clamp(cy + dir * radius * Math.cos(a), half + 4, vh - half - 4),
-      };
-    });
-    setTiles(pts);
+    setTiles(OPTIONS.map((_, i) => {
+      const a = start + i * step;
+      return { x: cx + radius * Math.sin(a), y: cy + dir * radius * Math.cos(a) };
+    }));
   }, []);
 
   const openMenu = useCallback(() => { window.clearTimeout(closeTimer.current); compute(); setOpen(true); }, [compute]);
@@ -62,7 +69,6 @@ export function BlockPalette({ onPick }: { onPick: (type: BlockType) => void }) 
   }, []);
   const pick = (type: BlockType) => { window.clearTimeout(closeTimer.current); setOpen(false); onPick(type); };
 
-  // Schließen bei Scroll/Resize (Position würde sonst verrutschen), Klick daneben, Esc.
   useEffect(() => {
     if (!open) return;
     const close = () => setOpen(false);
@@ -105,7 +111,7 @@ export function BlockPalette({ onPick }: { onPick: (type: BlockType) => void }) 
             const { Icon, label, hint, type } = o;
             return (
               <button key={type} type="button" role="menuitem" onClick={() => pick(type)}
-                style={{ left: p.x, top: p.y, animationDelay: `${i * 50}ms` }}
+                style={{ left: p.x, top: p.y, animationDelay: `${i * 45}ms` }}
                 className="pointer-events-auto absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center gap-1 w-[84px] h-[84px] rounded-2xl bg-white border border-[#E5F4F5] shadow-[0_16px_40px_rgb(16,60,58,0.22)] hover:bg-[#DFF7F8] hover:border-[#6FD3D1] transition-colors motion-safe:animate-[curaTilePop_240ms_cubic-bezier(0.22,1,0.36,1)_both]">
                 <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-[#DFF7F8] text-[#0F7C77]">
                   <Icon size={19} strokeWidth={1.7} />
@@ -115,7 +121,12 @@ export function BlockPalette({ onPick }: { onPick: (type: BlockType) => void }) 
               </button>
             );
           })}
-          <style>{`@keyframes curaTilePop { from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }`}</style>
+          {/* Nur `transform: scale` animieren — die Zentrierung übernimmt Tailwinds
+              `translate`-Property (-translate-x/y-1/2). Beides sind getrennte CSS-
+              Properties; würde der Keyframe zusätzlich `translate(-50%,-50%)` im
+              transform setzen, addierte sich das zum translate → doppelte
+              Verschiebung (−100% statt −50%, die berüchtigten 42px daneben). */}
+          <style>{`@keyframes curaTilePop { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }`}</style>
         </div>,
         document.body,
       )}

@@ -1,0 +1,12 @@
+/* Echte Platzhalter für editierbare Blöcke: ein grauer Hinweis, der NUR im
+   leeren Zustand erscheint, beim Tippen verschwindet und nie als Inhalt
+   gespeichert wird (das Feld selbst bleibt leer). Wird von <Editable placeholder>
+   über das data-ph-Attribut gesetzt. */
+[data-ph]:empty::before {
+  content: attr(data-ph);
+  color: #9AA3A8;
+  font-style: italic;
+  font-weight: 400;
+  opacity: 0.95;
+  pointer-events: none;
+}

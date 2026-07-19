@@ -2,8 +2,12 @@ import { createElement, useEffect, useRef, type ReactNode } from "react";
 import { useContent } from "../../../lib/content";
 
 type Tag = keyof JSX.IntrinsicElements;
-export function Editable({ id, children, as = "span", rich = false, className, style }: {
-  id: string; children: ReactNode; as?: Tag; rich?: boolean; className?: string; style?: React.CSSProperties;
+export function Editable({ id, children, as = "span", rich = false, className, style, placeholder }: {
+  id: string; children?: ReactNode; as?: Tag; rich?: boolean; className?: string; style?: React.CSSProperties;
+  /** Echter Platzhalter: grauer Hinweis (was der Block macht), der NUR im leeren
+   *  Zustand erscheint, beim Tippen verschwindet und nie als Inhalt gespeichert
+   *  wird. Wenn gesetzt, wird `children` nicht als Startinhalt verwendet. */
+  placeholder?: string;
 }) {
   const { get, getStored, editMode, setPending, isDirty, registerField } = useContent();
   const override = get(id);
@@ -51,6 +55,13 @@ export function Editable({ id, children, as = "span", rich = false, className, s
   const editClass = `${className ?? ""} ${marker} outline-offset-2 rounded-sm cursor-text focus:outline-2 focus:outline-solid`.trim();
   const onInput = (e: React.FormEvent<HTMLElement>) => {
     const el = e.currentTarget;
+    // Platzhalter-Felder: bei komplett geleertem Feld das übrig gebliebene <br>
+    // entfernen, damit `:empty` (und damit der Hinweis) wieder greift.
+    if (placeholder && (el.innerText ?? "").replace(/​/g, "").trim() === "") {
+      if (el.innerHTML !== "") el.innerHTML = "";
+      setPending(id, "", rich);
+      return;
+    }
     setPending(id, rich ? el.innerHTML : (el.innerText ?? ""), rich);
   };
   // Im Edit-Modus Klicks NICHT navigieren lassen: viele editierbare Labels
@@ -60,7 +71,7 @@ export function Editable({ id, children, as = "span", rich = false, className, s
   const onClick = (e: React.MouseEvent<HTMLElement>) => e.preventDefault();
   return createElement(
     as,
-    { ref: elRef, "data-ed-id": id, "data-ed-rich": rich ? "true" : undefined, contentEditable: true, suppressContentEditableWarning: true, className: editClass, style, onInput, onClick, title: import.meta.env.DEV ? id : "Zum Bearbeiten klicken" },
+    { ref: elRef, "data-ed-id": id, "data-ed-rich": rich ? "true" : undefined, "data-ph": placeholder || undefined, contentEditable: true, suppressContentEditableWarning: true, className: editClass, style, onInput, onClick, title: import.meta.env.DEV ? id : "Zum Bearbeiten klicken" },
     seed.current,
   );
 }

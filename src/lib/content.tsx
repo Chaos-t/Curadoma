@@ -2,7 +2,9 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import { FN_BASE, FN_ANON } from "./booking";
 
 type Pending = Record<string, { v: string; rich: boolean }>;
-export type Block = { k: string; t: string; href?: string };
+export type BlockType = "text" | "button" | "image" | "card" | "title" | "quote" | "divider";
+export type BlockAlign = "left" | "center" | "right";
+export type Block = { k: string; t: string; href?: string; align?: "center" | "right" };
 type Ctx = {
   get: (id: string) => string | undefined;
   /** Committed value only (ignores unsaved pending) — used to seed edit mode
@@ -39,10 +41,11 @@ type Ctx = {
   structureLoaded: boolean;
   /** Typisierte Inhalts-Blöcke (Text/Button/Bild) je Bereich. */
   getBlocks: (areaId: string) => Block[];
-  addBlock: (areaId: string, type: "text" | "button" | "image" | "card") => void;
+  addBlock: (areaId: string, type: BlockType) => void;
   removeBlock: (areaId: string, key: string) => void;
   moveBlock: (areaId: string, key: string, dir: -1 | 1) => void;
   setBlockHref: (areaId: string, key: string, href: string) => void;
+  setBlockAlign: (areaId: string, key: string, align: BlockAlign) => void;
   /** Struktur (Seiten/Zonen/Blöcke) neu vom Server laden — z. B. nach dem Anlegen einer Seite. */
   reloadStructure: () => Promise<void>;
 };
@@ -390,7 +393,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     areaId in pendingBlocks ? pendingBlocks[areaId] : areaId in blocks ? blocks[areaId] : [];
   const getBlocks = useCallback((areaId: string) => curBlocks(areaId), [pendingBlocks, blocks]);
 
-  const addBlock = useCallback((areaId: string, type: "text" | "button" | "image" | "card") => {
+  const addBlock = useCallback((areaId: string, type: BlockType) => {
     const k = ("b" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6)).slice(0, 16);
     const block: Block = type === "button" ? { k, t: type, href: "#" } : { k, t: type };
     setPendingBlocks((p) => ({ ...p, [areaId]: [...curBlocks(areaId), block] }));
@@ -414,6 +417,16 @@ export function ContentProvider({ children }: { children: ReactNode }) {
 
   const setBlockHref = useCallback((areaId: string, key: string, href: string) => {
     setPendingBlocks((p) => ({ ...p, [areaId]: curBlocks(areaId).map((b) => (b.k === key ? { ...b, href } : b)) }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingBlocks, blocks]);
+
+  const setBlockAlign = useCallback((areaId: string, key: string, align: BlockAlign) => {
+    setPendingBlocks((p) => ({ ...p, [areaId]: curBlocks(areaId).map((b) => {
+      if (b.k !== key) return b;
+      const nb: Block = { ...b };
+      if (align === "center" || align === "right") nb.align = align; else delete nb.align;
+      return nb;
+    }) }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingBlocks, blocks]);
 
@@ -459,7 +472,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     dirtyCount: Object.keys(pending).length + Object.keys(pendingZones).length + Object.keys(pendingBlocks).length,
     isDirty, registerField, undo, redo, canUndo, canRedo,
     getZone, addZoneItem, removeZoneItem, moveZoneItem, getPages, structureLoaded,
-    getBlocks, addBlock, removeBlock, moveBlock, setBlockHref, reloadStructure,
+    getBlocks, addBlock, removeBlock, moveBlock, setBlockHref, setBlockAlign, reloadStructure,
     saving, status, error,
     setPending, uploadImage, save, discard, exit, restore, enterEditMode,
   };

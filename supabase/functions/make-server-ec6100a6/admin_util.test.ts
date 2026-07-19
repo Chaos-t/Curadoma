@@ -91,20 +91,29 @@ test("safeHref allows safe targets, blocks dangerous ones", () => {
   assert.ok(!safeHref("ftp://x"));
 });
 
-test("validateBlocks accepts typed blocks (inkl. card) and coerces bad button hrefs", () => {
+test("validateBlocks accepts typed blocks (card/title/quote/divider) + align, coerces bad hrefs", () => {
   const ok = validateBlocks({ "page.x.blocks": [
-    { k: "a1", t: "text" },
-    { k: "b2", t: "button", href: "https://x.de?a=1&b=2" },
+    { k: "a1", t: "text", align: "center" },
+    { k: "b2", t: "button", href: "https://x.de?a=1&b=2", align: "right" },
     { k: "c3", t: "button", href: "javascript:alert(1)" },
     { k: "d4", t: "image" },
     { k: "e5", t: "card" },
+    { k: "f6", t: "title", align: "left" },   // left = Default -> nicht gespeichert
+    { k: "g7", t: "quote" },
+    { k: "h8", t: "divider" },
+    { k: "i9", t: "text", align: "middle" },  // ungültige Ausrichtung -> ignoriert
   ] });
   assert.ok(ok.ok);
   if (ok.ok) {
     const arr = ok.blocks["page.x.blocks"];
+    assert.equal(arr[0].align, "center");
     assert.equal(arr[1].href, "https://x.de?a=1&b=2"); // gültig, nicht escaped
+    assert.equal(arr[1].align, "right");
     assert.equal(arr[2].href, "#");                     // gefährlich -> No-op
-    assert.equal(arr[4].t, "card");                     // Karte akzeptiert
+    assert.equal(arr[4].t, "card");
+    assert.equal(arr[5].align, undefined);              // left nicht gespeichert
+    assert.equal(arr[7].t, "divider");
+    assert.equal(arr[8].align, undefined);              // "middle" verworfen
   }
   assert.ok(!validateBlocks("nope").ok);
   assert.ok(!validateBlocks({ "BAD ID": [] }).ok);

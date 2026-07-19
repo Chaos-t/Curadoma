@@ -92,12 +92,18 @@ export function isZoneKey(s: unknown): boolean {
 // sanitisierte <Editable>/<EditableImage>-Pipeline. „card" (Überschrift +
 // Stichpunkt-Liste) speichert seine Stichpunkte als eigene, validierte Zone
 // (`<area>.<key>.bullets`) — die Liste ist Struktur, der Text bleibt Inhalt.
-export const BLOCK_TYPES = ["text", "button", "image", "card"] as const;
+export const BLOCK_TYPES = ["text", "button", "image", "card", "title", "quote", "divider"] as const;
 export function isBlockType(t: unknown): boolean {
   return typeof t === "string" && (BLOCK_TYPES as readonly string[]).includes(t);
 }
 export const MAX_BLOCK_AREAS = 60;
 export const MAX_BLOCKS_PER_AREA = 60;
+// Ausrichtung je Block (Struktur, kein Inhalt). „left" ist Default und wird nicht
+// gespeichert; nur „center"/„right" werden vermerkt.
+export const BLOCK_ALIGNS = ["left", "center", "right"] as const;
+export function isBlockAlign(a: unknown): a is "center" | "right" {
+  return a === "center" || a === "right";
+}
 
 // Erlaubte Link-Ziele (identisch zur safeHref-Prüfung der Rich-Text-Links):
 // http(s), mailto, tel, seiteninterne /-Pfade (kein //), #anker. Blockt u. a.
@@ -108,7 +114,7 @@ export function safeHref(h: unknown): boolean {
     /^\/(?!\/)[\w./-]*$/.test(s) || /^#[\w-]+$/.test(s);
 }
 
-export type Block = { k: string; t: string; href?: string };
+export type Block = { k: string; t: string; href?: string; align?: "center" | "right" };
 
 export function validateBlocks(input: unknown):
   { ok: true; blocks: Record<string, Block[]> } | { ok: false; error: string } {
@@ -135,6 +141,8 @@ export function validateBlocks(input: unknown):
         const href = String((b as { href?: unknown }).href ?? "").trim();
         block.href = safeHref(href) ? href : "#"; // ungültiges Ziel -> No-op statt Fehler
       }
+      const align = (b as { align?: unknown }).align;
+      if (isBlockAlign(align)) block.align = align; // nur center/right (left = Default)
       arr.push(block);
     }
     out[areaId] = arr;
