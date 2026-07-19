@@ -48,7 +48,13 @@ type Ctx = {
   setBlockAlign: (areaId: string, key: string, align: BlockAlign) => void;
   /** Struktur (Seiten/Zonen/Blöcke) neu vom Server laden — z. B. nach dem Anlegen einer Seite. */
   reloadStructure: () => Promise<void>;
+  /** Struktur einer Seite (Blöcke + verschachtelte Zonen) löschen — gibt einen
+   *  Schnappschuss für die Session-Rückgängig-Funktion zurück. Overrides bleiben
+   *  unangetastet (harmlos + für Undo nötig; verwaiste zählen nicht als „in Verwendung"). */
+  deletePageStructure: (slug: string, password: string) => Promise<PageStructSnap>;
+  restorePageStructure: (snap: PageStructSnap, password: string) => Promise<void>;
 };
+export type PageStructSnap = { areaId: string; blocks?: Block[]; zones: Record<string, string[]> };
 const ContentContext = createContext<Ctx | null>(null);
 export function useContent(): Ctx {
   const c = useContext(ContentContext);
@@ -388,6 +394,38 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     setBlocks(b?.blocks || {});
   }, []);
 
+  const postJson = (path: string, body: unknown) =>
+    fetch(`${FN_BASE}${path}`, { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${FN_ANON}` }, body: JSON.stringify(body) });
+
+  const deletePageStructure = useCallback(async (slug: string, password: string): Promise<PageStructSnap> => {
+    const areaId = `page.${slug}.blocks`;
+    const zonePrefix = `${areaId}.`;
+    const snapBlocks = blocks[areaId];
+    const snapZones: Record<string, string[]> = {};
+    for (const [k, v] of Object.entries(zones)) if (k.startsWith(zonePrefix)) snapZones[k] = v;
+    const nextBlocks = { ...blocks }; delete nextBlocks[areaId];
+    const nextZones: Record<string, string[]> = {};
+    for (const [k, v] of Object.entries(zones)) if (!k.startsWith(zonePrefix)) nextZones[k] = v;
+    const rb = await postJson("/admin/blocks/save", { password, blocks: nextBlocks });
+    if (!rb.ok) throw new Error(String(rb.status));
+    const rz = await postJson("/admin/zones/save", { password, zones: nextZones });
+    if (!rz.ok) throw new Error(String(rz.status));
+    setBlocks(nextBlocks); setZones(nextZones);
+    return { areaId, blocks: snapBlocks, zones: snapZones };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [blocks, zones]);
+
+  const restorePageStructure = useCallback(async (snap: PageStructSnap, password: string) => {
+    const nextBlocks = { ...blocks }; if (snap.blocks) nextBlocks[snap.areaId] = snap.blocks;
+    const nextZones = { ...zones, ...snap.zones };
+    const rb = await postJson("/admin/blocks/save", { password, blocks: nextBlocks });
+    if (!rb.ok) throw new Error(String(rb.status));
+    const rz = await postJson("/admin/zones/save", { password, zones: nextZones });
+    if (!rz.ok) throw new Error(String(rz.status));
+    setBlocks(nextBlocks); setZones(nextZones);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [blocks, zones]);
+
   // --- Typisierte Inhalts-Blöcke -----------------------------------------
   const curBlocks = (areaId: string) =>
     areaId in pendingBlocks ? pendingBlocks[areaId] : areaId in blocks ? blocks[areaId] : [];
@@ -473,6 +511,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     isDirty, registerField, undo, redo, canUndo, canRedo,
     getZone, addZoneItem, removeZoneItem, moveZoneItem, getPages, structureLoaded,
     getBlocks, addBlock, removeBlock, moveBlock, setBlockHref, setBlockAlign, reloadStructure,
+    deletePageStructure, restorePageStructure,
     saving, status, error,
     setPending, uploadImage, save, discard, exit, restore, enterEditMode,
   };

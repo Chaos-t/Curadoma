@@ -37,9 +37,15 @@ type AdminCtx = {
   cvUrl: (id: string) => Promise<string | null>;
   exportCsv: (type: AdminType, includeArchived?: boolean) => Promise<void>;
   mediaList: () => Promise<any[]>;
-  mediaDelete: (path: string) => Promise<void>;
+  mediaDelete: (path: string, force?: boolean) => Promise<void>;
+  mediaRestore: (path: string, dataBase64: string) => Promise<void>;
   pagesList: () => Promise<any[]>;
   pagesSave: (pages: any[]) => Promise<void>;
+  /** Session-Papierkorb: die letzte Löschung mit einer Rückgängig-Aktion. Nur im
+   *  Speicher — nach Reload/Verlassen ist die Löschung endgültig. */
+  trash: { label: string; undo: () => Promise<void> } | null;
+  pushTrash: (label: string, undo: () => Promise<void>) => void;
+  clearTrash: () => void;
 };
 
 const Ctx = createContext<AdminCtx | null>(null);
@@ -109,10 +115,21 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     return ((await res.json()).items ?? []) as any[];
   }, []);
 
-  const mediaDelete = useCallback(async (path: string) => {
-    const res = await post("/admin/media/delete", { password: pwRef.current, path });
+  const mediaDelete = useCallback(async (path: string, force = false) => {
+    const res = await post("/admin/media/delete", { password: pwRef.current, path, force });
     if (!res.ok) throw new Error(String(res.status));
   }, []);
+
+  const mediaRestore = useCallback(async (path: string, dataBase64: string) => {
+    const res = await post("/admin/media/restore", { password: pwRef.current, path, dataBase64 });
+    if (!res.ok) throw new Error(String(res.status));
+  }, []);
+
+  // Session-Papierkorb (nur im Speicher): hält die zuletzt gelöschte Sache samt
+  // Rückgängig-Aktion. Nach Reload weg -> Löschung endgültig.
+  const [trash, setTrashState] = useState<{ label: string; undo: () => Promise<void> } | null>(null);
+  const pushTrash = useCallback((label: string, undo: () => Promise<void>) => setTrashState({ label, undo }), []);
+  const clearTrash = useCallback(() => setTrashState(null), []);
 
   const pagesList = useCallback(async () => {
     // WICHTIG: bei Fehler WERFEN, nicht still [] liefern. Ein verschlucktes []
@@ -129,7 +146,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <Ctx.Provider value={{ authed, login, logout, pw, list, update, remove, cvUrl, exportCsv, mediaList, mediaDelete, pagesList, pagesSave }}>
+    <Ctx.Provider value={{ authed, login, logout, pw, list, update, remove, cvUrl, exportCsv, mediaList, mediaDelete, mediaRestore, pagesList, pagesSave, trash, pushTrash, clearTrash }}>
       {children}
     </Ctx.Provider>
   );

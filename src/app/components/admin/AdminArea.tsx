@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Outlet } from "react-router";
 import { useAdmin } from "../../../lib/admin";
 import { AdminLoginForm } from "./AdminLoginForm";
+import { TrashToast } from "./TrashToast";
 
 export function AdminArea() {
   const { authed } = useAdmin();
@@ -18,7 +19,7 @@ export function AdminArea() {
   // Eigener, seitenfüllender Rahmen (der Admin läuft NICHT im öffentlichen Layout).
   return (
     <div className="min-h-screen bg-[#F8FEFF] text-[#111111] antialiased" style={{ fontFamily: "'Inter', sans-serif" }}>
-      {authed ? <Outlet /> : <AdminLoginForm />}
+      {authed ? <><Outlet /><TrashToast /></> : <AdminLoginForm />}
     </div>
   );
 }

@@ -20,8 +20,8 @@ function slugify(s: string): string {
 }
 
 export function AdminPages() {
-  const { pagesSave, pw } = useAdmin();
-  const { enterEditMode, reloadStructure, getPages, structureLoaded } = useContent();
+  const { pagesSave, pagesList, pw, pushTrash } = useAdmin();
+  const { enterEditMode, reloadStructure, getPages, structureLoaded, deletePageStructure, restorePageStructure } = useContent();
   const navigate = useNavigate();
   const [pages, setPages] = useState<any[]>(() => getPages());
   const [err, setErr] = useState<string | null>(null);
@@ -68,9 +68,31 @@ export function AdminPages() {
     setLabel(""); setSlug("");
   };
   const del = async (s: string) => {
-    if (confirm("Diese Seite entfernen? Sie ist danach nicht mehr erreichbar (der eingegebene Inhalt bleibt aber gespeichert).")) {
-      await persist(pages.filter((p) => p.slug !== s));
-    }
+    if (!structureLoaded) { setErr("Seiten werden noch geladen — bitte einen Moment."); return; }
+    const page = pages.find((p) => p.slug === s);
+    if (!page) return;
+    if (!confirm(`Seite „${page.label}" löschen? Du kannst das in dieser Sitzung noch rückgängig machen — nach dem Verlassen ist es endgültig.`)) return;
+    setBusy(true); setErr(null);
+    try {
+      // Struktur (Blöcke + Zonen) der Seite entfernen, Schnappschuss für Undo behalten.
+      const snap = await deletePageStructure(s, pw());
+      const nextPages = pages.filter((p) => p.slug !== s);
+      await pagesSave(nextPages);
+      setPages(nextPages);
+      await reloadStructure();
+      // Session-Rückgängig: Struktur zurückspielen + Seite wieder eintragen.
+      pushTrash(`Seite „${page.label}" gelöscht`, async () => {
+        await restorePageStructure(snap, pw());
+        // Frischen Serverstand holen (nicht das evtl. veraltete getPages aus der
+        // Closure), dann die gelöschte Seite wieder eintragen.
+        const cur = await pagesList();
+        if (!cur.some((p) => p.slug === s)) await pagesSave([...cur, page]);
+        await reloadStructure();
+      });
+    } catch (e) {
+      setErr(adminErrorText(e));
+      await reloadStructure().catch(() => {});
+    } finally { setBusy(false); }
   };
   const toggleMenu = async (s: string) =>
     persist(pages.map((p) => (p.slug === s ? { ...p, inMenu: !p.inMenu } : p)));

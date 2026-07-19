@@ -1717,6 +1717,23 @@ app.post("/make-server-ec6100a6/admin/export", async (c) => {
 // verwendet werden (ihre öffentliche URL steht als Wert in site_content:current).
 // „inUse" schützt vor versehentlichem Löschen benutzter Bilder.
 
+// Aktuell WIRKLICH verwendete Bild-URLs: alle Override-Werte, ABER Referenzen
+// aus gelöschten Seiten (page.<slug>.*, deren Seite nicht mehr in pages:current
+// steht) werden als verwaiste Karteileichen ignoriert — sonst gilt ein Bild
+// fälschlich als „in Verwendung" und lässt sich nicht löschen.
+async function liveUsedImageUrls(): Promise<Set<string>> {
+  const content = ((await kv.get(CONTENT_KEY)) as Record<string, string> | undefined) ?? {};
+  const pages = ((await kv.get("pages:current")) as Array<{ slug?: string }> | undefined) ?? [];
+  const livePages = new Set(pages.map((p) => p?.slug).filter(Boolean) as string[]);
+  const used = new Set<string>();
+  for (const [k, v] of Object.entries(content)) {
+    const m = k.match(/^page\.([a-z0-9-]+)\./);
+    if (m && !livePages.has(m[1])) continue; // verwaiste Seiten-Referenz -> nicht zählen
+    used.add(v);
+  }
+  return used;
+}
+
 app.post("/make-server-ec6100a6/admin/media/list", async (c) => {
   const g = await adminGate(c);
   if ("res" in g) return g.res;
@@ -1726,8 +1743,7 @@ app.post("/make-server-ec6100a6/admin/media/list", async (c) => {
   const { data: files, error } = await supabase.storage.from(CONTENT_BUCKET)
     .list("img", { limit: 1000, sortBy: { column: "created_at", order: "desc" } });
   if (error) { console.log("media list failed:", error.message); return c.json({ error: "list_failed" }, 500); }
-  const content = ((await kv.get(CONTENT_KEY)) as Record<string, string> | undefined) ?? {};
-  const usedUrls = new Set(Object.values(content));
+  const usedUrls = await liveUsedImageUrls();
   const items = (files ?? [])
     .filter((f) => f.name && !f.name.startsWith("."))
     .map((f) => {
@@ -1755,11 +1771,40 @@ app.post("/make-server-ec6100a6/admin/media/delete", async (c) => {
   if (!url || !sk) return c.json({ error: "storage_not_configured" }, 503);
   const supabase = createClient(url, sk);
   const pub = supabase.storage.from(CONTENT_BUCKET).getPublicUrl(path).data.publicUrl;
-  const content = ((await kv.get(CONTENT_KEY)) as Record<string, string> | undefined) ?? {};
-  // Nutzungs-Schutz: benutzte Bilder nicht löschen.
-  if (Object.values(content).includes(pub)) return c.json({ error: "in_use" }, 409);
+  // Nutzungs-Schutz: benutzte Bilder nicht löschen — außer der Betreiber erzwingt
+  // es bewusst (`force`). Verwaiste Referenzen gelöschter Seiten zählen NICHT als
+  // Verwendung. Session-Undo (media/restore) macht das Löschen rückgängig.
+  const force = g.body.force === true;
+  const usedUrls = await liveUsedImageUrls();
+  if (!force && usedUrls.has(pub)) return c.json({ error: "in_use" }, 409);
   const { error } = await supabase.storage.from(CONTENT_BUCKET).remove([path]);
   if (error) { console.log("media delete failed:", error.message); return c.json({ error: "delete_failed" }, 500); }
+  return c.json({ ok: true });
+});
+
+// Ein gelöschtes Bild wieder herstellen (Session-Undo): lädt die zuvor im Client
+// gesicherten Bytes an DENSELBEN Pfad hoch (upsert), damit bestehende Referenzen
+// gültig bleiben. Gleiche Prüfungen wie beim Upload (Pfad, Magic-Bytes, Größe).
+app.post("/make-server-ec6100a6/admin/media/restore", async (c) => {
+  const g = await adminGate(c);
+  if ("res" in g) return g.res;
+  const path = String(g.body.path ?? "");
+  if (!/^img\/[\w.\-]+$/.test(path)) return c.json({ error: "bad_path" }, 400);
+  const data = g.body.dataBase64;
+  if (typeof data !== "string" || data.length > Math.ceil(MAX_IMG_BYTES * 1.4)) return c.json({ error: "image_too_big" }, 400);
+  const bytes = decodeBase64(data);
+  if (bytes.length === 0 || bytes.length > MAX_IMG_BYTES) return c.json({ error: "image_too_big" }, 400);
+  const isJpg = bytes[0] === 0xff && bytes[1] === 0xd8;
+  const isPng = bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47;
+  const isWebp = bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 &&
+                 bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50;
+  if (!(isJpg || isPng || isWebp)) return c.json({ error: "not_image" }, 400);
+  const url = Deno.env.get("SUPABASE_URL"), sk = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !sk) return c.json({ error: "storage_not_configured" }, 503);
+  const supabase = createClient(url, sk);
+  const contentType = isPng ? "image/png" : isWebp ? "image/webp" : "image/jpeg";
+  const { error } = await supabase.storage.from(CONTENT_BUCKET).upload(path, bytes, { contentType, upsert: true });
+  if (error) { console.log("media restore failed:", error.message); return c.json({ error: "restore_failed" }, 500); }
   return c.json({ ok: true });
 });
 

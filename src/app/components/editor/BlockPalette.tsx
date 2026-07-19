@@ -30,7 +30,6 @@ export function BlockPalette({ onPick }: { onPick: (type: BlockType) => void }) 
   const [tiles, setTiles] = useState<{ x: number; y: number }[]>([]);
   const btnRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const closeTimer = useRef<number | undefined>(undefined);
 
   const compute = useCallback(() => {
     const el = btnRef.current;
@@ -41,7 +40,7 @@ export function BlockPalette({ onPick }: { onPick: (type: BlockType) => void }) 
     const vw = window.innerWidth, vh = window.innerHeight;
     const n = OPTIONS.length;
     const half = 46, pad = 10;
-    const spread = (n <= 1 ? 0 : Math.min(176, 26 * (n - 1))) * (Math.PI / 180);
+    const spread = (n <= 1 ? 0 : Math.min(168, 27 * (n - 1))) * (Math.PI / 180);
     const maxA = spread / 2;
     const sinMax = Math.sin(maxA) || 1;
     // Radius so wählen, dass die äußersten Kacheln horizontal und die oberste
@@ -49,7 +48,8 @@ export function BlockPalette({ onPick }: { onPick: (type: BlockType) => void }) 
     const radiusX = (Math.min(cx, vw - cx) - half - pad) / sinMax;
     const roomUp = cy - half - pad;
     const roomDown = vh - cy - half - pad;
-    const desired = vw < 560 ? 104 : 140;
+    // Größerer Radius = mehr Luft zwischen den Kacheln (weniger „gestapelt").
+    const desired = vw < 560 ? 122 : 190;
     let dir: -1 | 1 = -1;
     let radius = Math.min(desired, radiusX, roomUp);
     if (radius < 78 && roomDown > roomUp) { dir = 1; radius = Math.min(desired, radiusX, roomDown); }
@@ -62,12 +62,8 @@ export function BlockPalette({ onPick }: { onPick: (type: BlockType) => void }) 
     }));
   }, []);
 
-  const openMenu = useCallback(() => { window.clearTimeout(closeTimer.current); compute(); setOpen(true); }, [compute]);
-  const scheduleClose = useCallback(() => {
-    window.clearTimeout(closeTimer.current);
-    closeTimer.current = window.setTimeout(() => setOpen(false), 220);
-  }, []);
-  const pick = (type: BlockType) => { window.clearTimeout(closeTimer.current); setOpen(false); onPick(type); };
+  const openMenu = useCallback(() => { compute(); setOpen(true); }, [compute]);
+  const pick = (type: BlockType) => { setOpen(false); onPick(type); };
 
   useEffect(() => {
     if (!open) return;
@@ -90,12 +86,10 @@ export function BlockPalette({ onPick }: { onPick: (type: BlockType) => void }) 
     };
   }, [open]);
 
-  useEffect(() => () => window.clearTimeout(closeTimer.current), []);
-
   return (
     <div className="flex justify-center py-2">
       <button ref={btnRef} type="button"
-        onMouseEnter={openMenu} onMouseLeave={scheduleClose}
+        onMouseEnter={openMenu}
         onClick={() => (open ? setOpen(false) : openMenu())}
         aria-haspopup="menu" aria-expanded={open} aria-label="Element hinzufügen"
         className="group relative inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#0F7C77] text-white shadow-[0_10px_30px_rgb(15,124,119,0.35)] hover:bg-[#0c6a66] hover:scale-105 transition-all">
@@ -103,7 +97,7 @@ export function BlockPalette({ onPick }: { onPick: (type: BlockType) => void }) 
       </button>
 
       {open && createPortal(
-        <div ref={menuRef} onMouseEnter={() => window.clearTimeout(closeTimer.current)} onMouseLeave={scheduleClose}
+        <div ref={menuRef}
           className="fixed inset-0 z-[300] pointer-events-none" role="menu" aria-label="Block-Typ wählen">
           {OPTIONS.map((o, i) => {
             const p = tiles[i];
@@ -112,7 +106,7 @@ export function BlockPalette({ onPick }: { onPick: (type: BlockType) => void }) 
             return (
               <button key={type} type="button" role="menuitem" onClick={() => pick(type)}
                 style={{ left: p.x, top: p.y, animationDelay: `${i * 45}ms` }}
-                className="pointer-events-auto absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center gap-1 w-[84px] h-[84px] rounded-2xl bg-white border border-[#E5F4F5] shadow-[0_16px_40px_rgb(16,60,58,0.22)] hover:bg-[#DFF7F8] hover:border-[#6FD3D1] transition-colors motion-safe:animate-[curaTilePop_240ms_cubic-bezier(0.22,1,0.36,1)_both]">
+                className="pointer-events-auto absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center gap-1 w-20 h-20 rounded-2xl bg-white border border-[#E5F4F5] shadow-[0_14px_36px_rgb(16,60,58,0.20)] hover:bg-[#DFF7F8] hover:border-[#6FD3D1] hover:scale-[1.16] hover:z-10 hover:shadow-[0_24px_60px_rgb(16,60,58,0.34)] transition-[transform,box-shadow,background-color,border-color] duration-150 motion-safe:animate-[curaTilePop_260ms_cubic-bezier(0.22,1,0.36,1)_backwards]">
                 <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-[#DFF7F8] text-[#0F7C77]">
                   <Icon size={19} strokeWidth={1.7} />
                 </span>

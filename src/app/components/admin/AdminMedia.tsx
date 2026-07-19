@@ -6,6 +6,20 @@ import { useAdmin, adminErrorText } from "../../../lib/admin";
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 const FILTERS = ["alle", "verwendet", "ungenutzt"] as const;
 
+// Öffentliches Bild als Base64 laden (für die Session-Rückgängig-Funktion:
+// vor dem Löschen die Bytes sichern, damit media/restore es zurückspielen kann).
+async function fetchAsBase64(url: string): Promise<string> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("fetch_failed");
+  const blob = await res.blob();
+  return await new Promise<string>((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => { const s = String(r.result); const i = s.indexOf(","); resolve(i >= 0 ? s.slice(i + 1) : s); };
+    r.onerror = () => reject(r.error);
+    r.readAsDataURL(blob);
+  });
+}
+
 function fmtSize(n?: number | null): string {
   if (!n || n <= 0) return "";
   if (n < 1024) return `${n} B`;
@@ -14,7 +28,7 @@ function fmtSize(n?: number | null): string {
 }
 
 export function AdminMedia() {
-  const { mediaList, mediaDelete } = useAdmin();
+  const { mediaList, mediaDelete, mediaRestore, pushTrash } = useAdmin();
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState<string | null>(null);
@@ -39,12 +53,25 @@ export function AdminMedia() {
   const orphanCount = items.length - usedCount;
 
   const del = async (it: any) => {
-    if (it.inUse) return; // benutzte Bilder sind geschützt
-    if (!confirm(`Bild „${it.name}" endgültig löschen?`)) return;
+    const msg = it.inUse
+      ? `Bild „${it.name}" wird laut Prüfung noch verwendet. Trotzdem löschen? (In dieser Sitzung rückgängig machbar — nach dem Verlassen endgültig.)`
+      : `Bild „${it.name}" löschen? (In dieser Sitzung rückgängig machbar — nach dem Verlassen endgültig.)`;
+    if (!confirm(msg)) return;
     setBusy(it.path); setErr(null);
+    // Vor dem Löschen die Bytes sichern (für Session-Undo). Klappt das nicht, wird
+    // trotzdem gelöscht — dann eben ohne Wiederherstellen-Möglichkeit.
+    let base64: string | null = null;
+    try { base64 = await fetchAsBase64(it.url); } catch { base64 = null; }
     try {
-      await mediaDelete(it.path);
+      await mediaDelete(it.path, !!it.inUse); // „force" nur, wenn als benutzt markiert
       setItems((xs) => xs.filter((x) => x.path !== it.path));
+      if (base64) {
+        const b64 = base64;
+        pushTrash(`Bild „${it.name}" gelöscht`, async () => {
+          await mediaRestore(it.path, b64);
+          setItems((xs) => (xs.some((x) => x.path === it.path) ? xs : [it, ...xs]));
+        });
+      }
     } catch (e) {
       setErr(adminErrorText(e));
     } finally {
@@ -59,7 +86,7 @@ export function AdminMedia() {
       </Link>
       <h1 className="text-2xl font-medium text-[#111111] mb-1">Mediathek</h1>
       <p className="text-sm text-[#5F6B73] mb-5">
-        {items.length} Bilder · {usedCount} in Verwendung · {orphanCount} ungenutzt. Ungenutzte Bilder lassen sich löschen; benutzte sind geschützt.
+        {items.length} Bilder · {usedCount} in Verwendung · {orphanCount} ungenutzt. Löschen ist immer möglich (bei „in Verwendung" mit Warnung) und in dieser Sitzung per „Rückgängig" wiederherstellbar.
       </p>
 
       <div className="flex flex-wrap items-center gap-2 mb-5">
@@ -93,10 +120,10 @@ export function AdminMedia() {
                   ) : (
                     <span className="text-xs font-medium text-[#5C6B69] bg-[#E9EDEC] px-2 py-0.5 rounded-full">ungenutzt</span>
                   )}
-                  <button onClick={() => del(it)} disabled={it.inUse || busy === it.path}
+                  <button onClick={() => del(it)} disabled={busy === it.path}
                     aria-label="Bild löschen"
-                    title={it.inUse ? "Wird verwendet — geschützt" : "Löschen"}
-                    className="text-[#d7120a] disabled:text-[#c9cccb] disabled:cursor-not-allowed hover:bg-[#fdeceb] rounded-full p-1.5 transition-colors">
+                    title={it.inUse ? "Wird verwendet — trotzdem löschen (in dieser Sitzung rückgängig machbar)" : "Löschen"}
+                    className="text-[#d7120a] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#fdeceb] rounded-full p-1.5 transition-colors">
                     <Trash2 size={15} strokeWidth={1.7} />
                   </button>
                 </div>
