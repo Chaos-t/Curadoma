@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import {
   ADMIN_TYPES, isAdminType, prefixFor, keyFor, isUuid,
   ADMIN_STATUSES, isAdminStatus, sanitizeNote, yesNo, csvCell, buildCsv, CSV_COLUMNS,
-  validateZones, isZoneKey, validatePages, validateBlocks, safeHref,
+  validateZones, isZoneKey, validatePages, validateBlocks, safeHref, validateSeo,
 } from "./admin_util.ts";
 
 test("type guard + prefixes + key", () => {
@@ -130,6 +130,28 @@ test("validateZones accepts long nested list-zone ids (card bullets) but caps at
   assert.ok(validateZones({ [nested]: ["0", "1"] }).ok);
   const tooLong = "z".repeat(121);
   assert.ok(!validateZones({ [tooLong]: ["0"] }).ok);
+});
+
+test("validateSeo: plain-text caps, safe image, key regex, empty-drop", () => {
+  const ok = validateSeo({
+    "/": { title: "Start <b>x</b>", description: "Hallo   Welt", image: "https://x.de/og.png" },
+    "/leistungen": { title: "  Leistungen  " },
+    "/ueber-uns": { image: "javascript:alert(1)" },   // böses Bild -> verworfen -> Eintrag leer -> weg
+    "/leer": {},                                        // leer -> weg
+  });
+  assert.ok(ok.ok);
+  if (ok.ok) {
+    assert.equal(ok.seo["/"].title, "Start x");        // Tags entfernt
+    assert.equal(ok.seo["/"].description, "Hallo Welt"); // Whitespace geglättet
+    assert.equal(ok.seo["/"].image, "https://x.de/og.png");
+    assert.equal(ok.seo["/leistungen"].title, "Leistungen");
+    assert.ok(!("/ueber-uns" in ok.seo));               // nur böses Bild -> Eintrag entfällt
+    assert.ok(!("/leer" in ok.seo));
+  }
+  assert.ok(!validateSeo("nope").ok);
+  assert.ok(!validateSeo({ "kein-slash": { title: "x" } }).ok);   // bad key
+  assert.ok(!validateSeo({ "/UPPER": { title: "x" } }).ok);       // uppercase key
+  assert.ok(!validateSeo({ "/x": "notobj" }).ok);                 // bad entry
 });
 
 test("validatePages accepts good pages and rejects bad/reserved/dupes", () => {

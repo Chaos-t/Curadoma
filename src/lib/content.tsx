@@ -56,8 +56,14 @@ type Ctx = {
   /** Storage-Bildpfade (img/…), die von den Overrides einer Seite referenziert
    *  werden — zum Mitlöschen der Bilddateien beim Seiten-Löschen. */
   getPageImagePaths: (slug: string) => Array<{ path: string; url: string }>;
+  /** Editierbare SEO-Meta pro Route (Overlay über die Code-Defaults in lib/seo). */
+  getSeo: () => Record<string, SeoEntry>;
+  /** Speichert und gibt den SERVER-validierten Stand zurück (gedeckelt/gefiltert),
+   *  damit das Panel exakt anzeigen kann, was wirklich live ist. */
+  saveSeo: (map: Record<string, SeoEntry>, password: string) => Promise<Record<string, SeoEntry>>;
 };
 export type PageStructSnap = { areaId: string; blocks?: Block[]; zones: Record<string, string[]> };
+export type SeoEntry = { title?: string; description?: string; image?: string };
 const ContentContext = createContext<Ctx | null>(null);
 export function useContent(): Ctx {
   const c = useContext(ContentContext);
@@ -95,6 +101,8 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   // Typisierte Inhalts-Blöcke je Bereich (aus dem Server) + ungespeicherte Änderungen.
   const [blocks, setBlocks] = useState<Record<string, Block[]>>({});
   const [pendingBlocks, setPendingBlocks] = useState<Record<string, Block[]>>({});
+  // Editierbare SEO-Meta pro Route (Overlay über die Code-Defaults).
+  const [seo, setSeo] = useState<Record<string, SeoEntry>>({});
   // Editier-Status NUR im Speicher (kein sessionStorage): der Bearbeitungsmodus
   // geht ausschliesslich ueber das Admin-Dashboard („Seite bearbeiten", nach
   // Passwort-Login im AdminProvider) an und ist nach jedem Reload/neuen Besuch
@@ -142,6 +150,10 @@ export function ContentProvider({ children }: { children: ReactNode }) {
       .then((r) => (r.ok ? r.json() : { blocks: {} }))
       .then((d) => { if (alive) setBlocks((d && d.blocks) || {}); })
       .catch(() => {}); // Blöcke weg -> keine Blöcke
+    fetch(`${FN_BASE}/seo`, { headers: { Authorization: `Bearer ${FN_ANON}` } })
+      .then((r) => (r.ok ? r.json() : { seo: {} }))
+      .then((d) => { if (alive) setSeo((d && d.seo) || {}); })
+      .catch(() => {}); // SEO weg -> Code-Defaults greifen
     return () => { alive = false; };
   }, []);
 
@@ -520,13 +532,25 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     return () => window.clearTimeout(t);
   }, [status]);
 
+  const getSeo = useCallback(() => seo, [seo]);
+  const saveSeo = useCallback(async (map: Record<string, SeoEntry>, password: string) => {
+    const res = await postJson("/admin/seo/save", { password, seo: map });
+    if (!res.ok) throw new Error(String(res.status));
+    // Authoritativen (validiert/gedeckelten) Stand neu laden + zurückgeben.
+    const r2 = await fetch(`${FN_BASE}/seo`, { headers: { Authorization: `Bearer ${FN_ANON}` } });
+    const d2 = await r2.json().catch(() => ({ seo: map }));
+    const next: Record<string, SeoEntry> = (d2 && d2.seo) || map;
+    setSeo(next);
+    return next;
+  }, []);
+
   const value: Ctx = {
     get, getStored, editMode,
     dirtyCount: Object.keys(pending).length + Object.keys(pendingZones).length + Object.keys(pendingBlocks).length,
     isDirty, registerField, undo, redo, canUndo, canRedo,
     getZone, addZoneItem, removeZoneItem, moveZoneItem, getPages, structureLoaded,
     getBlocks, addBlock, removeBlock, moveBlock, setBlockHref, setBlockAlign, reloadStructure,
-    deletePageStructure, restorePageStructure, getPageImagePaths,
+    deletePageStructure, restorePageStructure, getPageImagePaths, getSeo, saveSeo,
     saving, status, error,
     setPending, uploadImage, save, discard, exit, restore, enterEditMode,
   };

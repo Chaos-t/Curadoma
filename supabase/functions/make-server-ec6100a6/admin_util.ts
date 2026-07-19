@@ -186,6 +186,45 @@ export function validatePages(input: unknown):
   return { ok: true, pages: out };
 }
 
+// --- SEO: pro Route editierbare Meta (Titel/Beschreibung/OG-Bild) ------------
+// Overlay über die statischen Defaults (lib/seo.ts). NUR Klartext (keine Tags),
+// gedeckelt; das OG-Bild muss eine absolute http(s)-URL sein (z. B. Storage).
+export const SEO_KEY_RE = /^\/([a-z0-9-]{1,60}(\/[a-z0-9-]{1,60})*)?$/; // "/", "/leistungen", "/ueber-uns"
+export const MAX_SEO_ENTRIES = 80;
+export const MAX_SEO_TITLE = 120;
+export const MAX_SEO_DESC = 320;
+export type SeoEntry = { title?: string; description?: string; image?: string };
+
+function seoPlain(s: unknown, max: number): string {
+  // Klartext: erst ganze Tags entfernen, dann evtl. übrige Winkelklammern, dann
+  // Whitespace glätten und deckeln (kein HTML in <title>/<meta>).
+  return String(s ?? "").replace(/<[^>]*>/g, "").replace(/[<>]/g, "").replace(/\s+/g, " ").trim().slice(0, max);
+}
+
+export function validateSeo(input: unknown):
+  { ok: true; seo: Record<string, SeoEntry> } | { ok: false; error: string } {
+  if (!input || typeof input !== "object" || Array.isArray(input)) return { ok: false, error: "bad_seo" };
+  const entries = Object.entries(input as Record<string, unknown>);
+  if (entries.length > MAX_SEO_ENTRIES) return { ok: false, error: "too_many_seo" };
+  const out: Record<string, SeoEntry> = {};
+  for (const [key, val] of entries) {
+    if (!SEO_KEY_RE.test(key)) return { ok: false, error: "bad_seo_key" };
+    if (!val || typeof val !== "object" || Array.isArray(val)) return { ok: false, error: "bad_seo_entry" };
+    const v = val as { title?: unknown; description?: unknown; image?: unknown };
+    const title = seoPlain(v.title, MAX_SEO_TITLE);
+    const description = seoPlain(v.description, MAX_SEO_DESC);
+    const imageRaw = String(v.image ?? "").trim();
+    // OG-Bild muss absolut sein; safeHref sperrt javascript:/data: etc.
+    const image = /^https?:\/\//i.test(imageRaw) && safeHref(imageRaw) ? imageRaw : "";
+    const entry: SeoEntry = {};
+    if (title) entry.title = title;
+    if (description) entry.description = description;
+    if (image) entry.image = image;
+    if (Object.keys(entry).length) out[key] = entry; // leere Einträge weglassen
+  }
+  return { ok: true, seo: out };
+}
+
 export function validateZones(input: unknown):
   { ok: true; zones: Record<string, string[]> } | { ok: false; error: string } {
   if (!input || typeof input !== "object" || Array.isArray(input)) return { ok: false, error: "bad_zones" };

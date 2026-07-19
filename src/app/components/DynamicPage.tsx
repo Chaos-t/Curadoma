@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useParams } from "react-router";
 import { useContent } from "../../lib/content";
 import { Editable } from "./editor/Editable";
@@ -12,10 +11,7 @@ export function DynamicPage() {
   const { slug } = useParams();
   const { getPages, structureLoaded } = useContent();
   const page = getPages().find((p) => p.slug === slug);
-
-  useEffect(() => {
-    if (page) document.title = `${page.label} – Cura Doma`;
-  }, [page]);
+  // Title/SEO übernimmt der zentrale <Seo/>-Head-Manager (nutzt Override oder Seiten-Titel).
 
   if (!page) {
     // Solange die Seitenliste noch nicht vom Server da ist, KEIN „nicht gefunden"

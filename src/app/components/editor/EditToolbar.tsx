@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Undo2, Redo2, Pencil } from "lucide-react";
 import { useContent } from "../../../lib/content";
 import { OPEN_HELP_EVENT } from "./EditOnboarding";
+import { OPEN_SEO_EVENT } from "./SeoPanel";
 import { router } from "../../routes";
 
 /**
@@ -48,6 +49,8 @@ export function EditToolbar() {
             disabled={saving || dirtyCount > 0}
             title={dirtyCount > 0 ? "Erst speichern oder verwerfen" : "Den zuletzt veröffentlichten Stand wiederherstellen (Server)"}
             className={`${rowBtn} text-[#5F6B73] hover:text-[#111111] hover:bg-[#F8FEFF] disabled:opacity-40 disabled:hover:bg-transparent`}>↺ Zurücksetzen</button>
+          <button onClick={() => window.dispatchEvent(new Event(OPEN_SEO_EVENT))} title="SEO & Titel dieser Seite bearbeiten"
+            className={`${rowBtn} text-[#0F7C77] hover:bg-[#DFF7F8] font-medium`}>🔍 SEO &amp; Titel</button>
           <button onClick={() => window.dispatchEvent(new Event(OPEN_HELP_EVENT))} title="Kurz-Anleitung öffnen"
             className={`${rowBtn} text-[#5F6B73] hover:text-[#111111] hover:bg-[#F8FEFF]`}>❓ Hilfe</button>
           <button onClick={() => { if (dirtyCount === 0 || confirm("Ungespeicherte Änderungen verwerfen und verlassen?")) { exit(); router.navigate("/"); } }}

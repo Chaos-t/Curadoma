@@ -10,6 +10,7 @@ import { useContent } from "../../lib/content";
 import { Editable } from "./editor/Editable";
 import { PhoneText, EmailText, AddressBlock } from "./editor/Shared";
 import { PageBlocks } from "./editor/PageBlocks";
+import { SeoPanel } from "./editor/SeoPanel";
 import { Seo } from "./Seo";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
@@ -384,6 +385,8 @@ export function Layout() {
 
       <WhatsAppButton />
       <CookieBanner />
+      <SeoPanel />
+
 
       <style>{`
         @keyframes curaMenuOpen {
