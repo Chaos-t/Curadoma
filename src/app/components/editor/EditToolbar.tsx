@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Undo2, Redo2, Pencil } from "lucide-react";
 import { useContent } from "../../../lib/content";
 import { OPEN_HELP_EVENT } from "./EditOnboarding";
+import { router } from "../../routes";
 
 /**
  * Bearbeiten-Leiste als LINKES, vertikales Panel im „Edge-Panel"-Stil: normal
@@ -49,7 +50,7 @@ export function EditToolbar() {
             className={`${rowBtn} text-[#5F6B73] hover:text-[#111111] hover:bg-[#F8FEFF] disabled:opacity-40 disabled:hover:bg-transparent`}>↺ Zurücksetzen</button>
           <button onClick={() => window.dispatchEvent(new Event(OPEN_HELP_EVENT))} title="Kurz-Anleitung öffnen"
             className={`${rowBtn} text-[#5F6B73] hover:text-[#111111] hover:bg-[#F8FEFF]`}>❓ Hilfe</button>
-          <button onClick={() => { if (dirtyCount === 0 || confirm("Ungespeicherte Änderungen verwerfen und verlassen?")) exit(); }}
+          <button onClick={() => { if (dirtyCount === 0 || confirm("Ungespeicherte Änderungen verwerfen und verlassen?")) { exit(); router.navigate("/"); } }}
             className={`${rowBtn} text-[#d7120a] hover:bg-[#fdeceb]`}>Verlassen</button>
         </div>
 

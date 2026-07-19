@@ -53,6 +53,9 @@ type Ctx = {
    *  unangetastet (harmlos + für Undo nötig; verwaiste zählen nicht als „in Verwendung"). */
   deletePageStructure: (slug: string, password: string) => Promise<PageStructSnap>;
   restorePageStructure: (snap: PageStructSnap, password: string) => Promise<void>;
+  /** Storage-Bildpfade (img/…), die von den Overrides einer Seite referenziert
+   *  werden — zum Mitlöschen der Bilddateien beim Seiten-Löschen. */
+  getPageImagePaths: (slug: string) => Array<{ path: string; url: string }>;
 };
 export type PageStructSnap = { areaId: string; blocks?: Block[]; zones: Record<string, string[]> };
 const ContentContext = createContext<Ctx | null>(null);
@@ -415,6 +418,18 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [blocks, zones]);
 
+  const getPageImagePaths = useCallback((slug: string): Array<{ path: string; url: string }> => {
+    const prefix = `page.${slug}.`;
+    const out: Array<{ path: string; url: string }> = [];
+    const seen = new Set<string>();
+    for (const [k, v] of Object.entries(overrides)) {
+      if (!k.startsWith(prefix) || typeof v !== "string") continue;
+      const m = v.match(/\/storage\/v1\/object\/public\/site-content\/(img\/[\w.\-]+)/);
+      if (m && !seen.has(m[1])) { seen.add(m[1]); out.push({ path: m[1], url: v }); }
+    }
+    return out;
+  }, [overrides]);
+
   const restorePageStructure = useCallback(async (snap: PageStructSnap, password: string) => {
     const nextBlocks = { ...blocks }; if (snap.blocks) nextBlocks[snap.areaId] = snap.blocks;
     const nextZones = { ...zones, ...snap.zones };
@@ -511,7 +526,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     isDirty, registerField, undo, redo, canUndo, canRedo,
     getZone, addZoneItem, removeZoneItem, moveZoneItem, getPages, structureLoaded,
     getBlocks, addBlock, removeBlock, moveBlock, setBlockHref, setBlockAlign, reloadStructure,
-    deletePageStructure, restorePageStructure,
+    deletePageStructure, restorePageStructure, getPageImagePaths,
     saving, status, error,
     setPending, uploadImage, save, discard, exit, restore, enterEditMode,
   };

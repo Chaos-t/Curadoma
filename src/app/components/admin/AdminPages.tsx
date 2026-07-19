@@ -19,9 +19,23 @@ function slugify(s: string): string {
     .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 40);
 }
 
+// Öffentliches Bild als Base64 laden (Bytes für das Session-Undo sichern, bevor
+// die Datei gelöscht wird).
+async function fetchAsBase64(url: string): Promise<string> {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("fetch_failed");
+  const blob = await res.blob();
+  return await new Promise<string>((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = () => { const s = String(r.result); const i = s.indexOf(","); resolve(i >= 0 ? s.slice(i + 1) : s); };
+    r.onerror = () => reject(r.error);
+    r.readAsDataURL(blob);
+  });
+}
+
 export function AdminPages() {
-  const { pagesSave, pagesList, pw, pushTrash } = useAdmin();
-  const { enterEditMode, reloadStructure, getPages, structureLoaded, deletePageStructure, restorePageStructure } = useContent();
+  const { pagesSave, pagesList, pw, pushTrash, mediaDelete, mediaRestore } = useAdmin();
+  const { enterEditMode, reloadStructure, getPages, structureLoaded, deletePageStructure, restorePageStructure, getPageImagePaths } = useContent();
   const navigate = useNavigate();
   const [pages, setPages] = useState<any[]>(() => getPages());
   const [err, setErr] = useState<string | null>(null);
@@ -74,14 +88,25 @@ export function AdminPages() {
     if (!confirm(`Seite „${page.label}" löschen? Du kannst das in dieser Sitzung noch rückgängig machen — nach dem Verlassen ist es endgültig.`)) return;
     setBusy(true); setErr(null);
     try {
+      // Bilder DIESER Seite finden + ihre Bytes für das Undo sichern.
+      const imgs = getPageImagePaths(s);
+      const savedImgs: Array<{ path: string; base64: string }> = [];
+      for (const img of imgs) {
+        const b64 = await fetchAsBase64(img.url).catch(() => null);
+        if (b64) savedImgs.push({ path: img.path, base64: b64 });
+      }
       // Struktur (Blöcke + Zonen) der Seite entfernen, Schnappschuss für Undo behalten.
       const snap = await deletePageStructure(s, pw());
       const nextPages = pages.filter((p) => p.slug !== s);
       await pagesSave(nextPages);
       setPages(nextPages);
+      // Bilddateien der Seite endgültig aus dem Storage löschen (nichts Ungenutztes
+      // bleibt liegen). Fehler ignorieren — der Undo-Snapshot kann sie zurückspielen.
+      for (const img of imgs) await mediaDelete(img.path, true).catch(() => {});
       await reloadStructure();
-      // Session-Rückgängig: Struktur zurückspielen + Seite wieder eintragen.
+      // Session-Rückgängig: Bilder zurückspielen, Struktur + Seite wieder eintragen.
       pushTrash(`Seite „${page.label}" gelöscht`, async () => {
+        for (const im of savedImgs) await mediaRestore(im.path, im.base64).catch(() => {});
         await restorePageStructure(snap, pw());
         // Frischen Serverstand holen (nicht das evtl. veraltete getPages aus der
         // Closure), dann die gelöschte Seite wieder eintragen.
