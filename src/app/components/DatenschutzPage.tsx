@@ -113,13 +113,6 @@ export function DatenschutzPage() {
           <Section title={<Editable as="span" id="datenschutz.section9.title">9. Kontakt für Datenschutzanfragen</Editable>}>
             <p className="flex items-center gap-2"><Mail size={16} className="text-[#6FD3D1]" /><EmailText className="hover:text-[#6FD3D1]" /></p>
           </Section>
-
-          <p className="cura-reveal cura-reveal-up text-xs text-[#9AA3A8] font-light italic pt-4 border-t border-[#E5F4F5]">
-            <Editable as="span" id="datenschutz.footer.hinweis">
-              Hinweis: Diese Datenschutzerklärung ist eine Vorlage und sollte vor Veröffentlichung rechtlich geprüft
-              und an die tatsächlich eingesetzten Dienste angepasst werden.
-            </Editable>
-          </p>
         </div>
       </section>
 
