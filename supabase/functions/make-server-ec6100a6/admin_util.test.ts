@@ -91,24 +91,36 @@ test("safeHref allows safe targets, blocks dangerous ones", () => {
   assert.ok(!safeHref("ftp://x"));
 });
 
-test("validateBlocks accepts typed blocks and coerces bad button hrefs", () => {
+test("validateBlocks accepts typed blocks (inkl. card) and coerces bad button hrefs", () => {
   const ok = validateBlocks({ "page.x.blocks": [
     { k: "a1", t: "text" },
     { k: "b2", t: "button", href: "https://x.de?a=1&b=2" },
     { k: "c3", t: "button", href: "javascript:alert(1)" },
     { k: "d4", t: "image" },
+    { k: "e5", t: "card" },
   ] });
   assert.ok(ok.ok);
   if (ok.ok) {
     const arr = ok.blocks["page.x.blocks"];
     assert.equal(arr[1].href, "https://x.de?a=1&b=2"); // gültig, nicht escaped
     assert.equal(arr[2].href, "#");                     // gefährlich -> No-op
+    assert.equal(arr[4].t, "card");                     // Karte akzeptiert
   }
   assert.ok(!validateBlocks("nope").ok);
   assert.ok(!validateBlocks({ "BAD ID": [] }).ok);
   assert.ok(!validateBlocks({ "a": [{ k: "x", t: "video" }] }).ok);  // bad type
   assert.ok(!validateBlocks({ "a": [{ k: "UP", t: "text" }] }).ok);  // bad key
   assert.ok(!validateBlocks({ "a": [{ k: "x", t: "text" }, { k: "x", t: "image" }] }).ok); // dup
+});
+
+test("validateZones accepts long nested list-zone ids (card bullets) but caps at 120", () => {
+  const slug = "a".repeat(40);                                   // max slug length
+  const key = "b".repeat(16);                                    // max zone key
+  const nested = `page.${slug}.blocks.${key}.bullets`;           // ~77 chars
+  assert.ok(nested.length <= 120);
+  assert.ok(validateZones({ [nested]: ["0", "1"] }).ok);
+  const tooLong = "z".repeat(121);
+  assert.ok(!validateZones({ [tooLong]: ["0"] }).ok);
 });
 
 test("validatePages accepts good pages and rejects bad/reserved/dupes", () => {

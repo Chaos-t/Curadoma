@@ -75,7 +75,9 @@ export const CSV_COLUMNS: Record<AdminType, Array<[string, string]>> = {
 // Gespeichert wird NUR die Struktur (Zone-ID -> geordnete Liste sicherer Keys),
 // kein HTML. Die Keys werden Teil von <Editable>-IDs (zone.key.field), daher
 // nur [a-z0-9]. Feld-INHALTE laufen weiter durch die sanitisierte Overrides-Pipeline.
-export const ZONE_ID_RE = /^[a-z0-9.\-]{1,64}$/;
+// Länge großzügig: verschachtelte Listen-Zonen (z. B. die Stichpunkte einer
+// Karte: `page.<slug>.blocks.<key>.bullets`) werden länger als eine flache Zone.
+export const ZONE_ID_RE = /^[a-z0-9.\-]{1,120}$/;
 export const ZONE_KEY_RE = /^[a-z0-9]{1,16}$/;
 export const MAX_ZONES = 80;
 export const MAX_ZONE_ITEMS = 60;
@@ -84,11 +86,13 @@ export function isZoneKey(s: unknown): boolean {
   return typeof s === "string" && ZONE_KEY_RE.test(s);
 }
 
-// --- Typisierte Inhalts-Blöcke (Text/Button/Bild) ---------------------------
+// --- Typisierte Inhalts-Blöcke (Text/Button/Bild/Karte) ---------------------
 // Struktur je Bereich: geordnete Liste von Blöcken {k, t, href?}. Nur Metadaten
 // (Typ + validiertes Link-Ziel) — kein HTML. Text/Bild-Inhalt läuft über die
-// sanitisierte <Editable>/<EditableImage>-Pipeline.
-export const BLOCK_TYPES = ["text", "button", "image"] as const;
+// sanitisierte <Editable>/<EditableImage>-Pipeline. „card" (Überschrift +
+// Stichpunkt-Liste) speichert seine Stichpunkte als eigene, validierte Zone
+// (`<area>.<key>.bullets`) — die Liste ist Struktur, der Text bleibt Inhalt.
+export const BLOCK_TYPES = ["text", "button", "image", "card"] as const;
 export function isBlockType(t: unknown): boolean {
   return typeof t === "string" && (BLOCK_TYPES as readonly string[]).includes(t);
 }

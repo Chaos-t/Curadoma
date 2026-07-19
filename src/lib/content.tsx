@@ -39,7 +39,7 @@ type Ctx = {
   structureLoaded: boolean;
   /** Typisierte Inhalts-Blöcke (Text/Button/Bild) je Bereich. */
   getBlocks: (areaId: string) => Block[];
-  addBlock: (areaId: string, type: "text" | "button" | "image") => void;
+  addBlock: (areaId: string, type: "text" | "button" | "image" | "card") => void;
   removeBlock: (areaId: string, key: string) => void;
   moveBlock: (areaId: string, key: string, dir: -1 | 1) => void;
   setBlockHref: (areaId: string, key: string, href: string) => void;
@@ -390,7 +390,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     areaId in pendingBlocks ? pendingBlocks[areaId] : areaId in blocks ? blocks[areaId] : [];
   const getBlocks = useCallback((areaId: string) => curBlocks(areaId), [pendingBlocks, blocks]);
 
-  const addBlock = useCallback((areaId: string, type: "text" | "button" | "image") => {
+  const addBlock = useCallback((areaId: string, type: "text" | "button" | "image" | "card") => {
     const k = ("b" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6)).slice(0, 16);
     const block: Block = type === "button" ? { k, t: type, href: "#" } : { k, t: type };
     setPendingBlocks((p) => ({ ...p, [areaId]: [...curBlocks(areaId), block] }));

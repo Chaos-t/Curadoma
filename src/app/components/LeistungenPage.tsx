@@ -1,12 +1,13 @@
 import { Link } from "react-router";
 import {
   Coffee, Home, Route, Brain, Users, ClipboardList, Heart, ShieldCheck,
-  ArrowRight, Phone, CheckCircle, Sparkles, BookOpen, UtensilsCrossed,
+  ArrowRight, Phone, Sparkles, BookOpen, UtensilsCrossed,
 } from "lucide-react";
 import BorderGlow from "./BorderGlow";
 import { Editable } from "./editor/Editable";
 import { EditableImage } from "./editor/EditableImage";
 import { useZone, ZoneItemControls, ZoneAddButton } from "./editor/Zone";
+import { EditableList } from "./editor/EditableList";
 
 import carSide from "../../imports/WhatsApp_Image_2026-04-28_at_11.59.22-1.jpeg";
 import carRear from "../../imports/WhatsApp_Image_2026-04-28_at_11.59.22_(1)-1.jpeg";
@@ -98,6 +99,16 @@ function serviceDefaults(key: string) {
   const idx = Number(key);
   return Number.isInteger(idx) && idx >= 0 && idx < services.length ? services[idx] : NEW_SERVICE;
 }
+// Stichpunkte je Karte sind jetzt eine eigene Zone (frei erweiterbar). Standard-
+// Schlüssel = die Indizes der Code-Stichpunkte (so bleiben bereits gespeicherte
+// Texte unter `…details.<index>` erhalten); Seed-Text je Stichpunkt:
+function detailDefaultKeys(service: { details: string[] }) {
+  return service.details.map((_, j) => String(j));
+}
+function detailDefaultText(service: { details: string[] }, bulletKey: string) {
+  const idx = Number(bulletKey);
+  return Number.isInteger(idx) && idx >= 0 && idx < service.details.length ? service.details[idx] : "Neuer Stichpunkt";
+}
 
 export function LeistungenPage() {
   const { keys } = useZone("leistungen.services", DEFAULT_SERVICE_KEYS);
@@ -151,14 +162,14 @@ export function LeistungenPage() {
                           </p>
                         </div>
                       </div>
-                      <ul className="space-y-2 ml-[4.75rem]">
-                        {service.details.map((detail, j) => (
-                          <li key={j} className="flex items-start gap-2 text-sm text-[#5F6B73] font-light">
-                            <CheckCircle size={16} className="text-[#6FD3D1] mt-0.5 shrink-0" />
-                            <Editable as="span" id={`leistungen.services.${key}.details.${j}`}>{detail}</Editable>
-                          </li>
-                        ))}
-                      </ul>
+                      <EditableList
+                        zoneId={`leistungen.services.${key}.details`}
+                        defaultKeys={detailDefaultKeys(service)}
+                        editableId={(bk) => `leistungen.services.${key}.details.${bk}`}
+                        defaultText={(bk) => detailDefaultText(service, bk)}
+                        ulClassName="space-y-2 ml-[4.75rem]"
+                        addLabel="Stichpunkt"
+                      />
                     </div>
                   </BorderGlow>
                 </div>
