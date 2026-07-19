@@ -9,6 +9,7 @@ import { requestReopenBanner } from "../../lib/consent";
 import { useContent } from "../../lib/content";
 import { Editable } from "./editor/Editable";
 import { PhoneText, EmailText, AddressBlock } from "./editor/Shared";
+import { PageBlocks } from "./editor/PageBlocks";
 import { Seo } from "./Seo";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
@@ -303,6 +304,7 @@ export function Layout() {
 
       <main className="relative z-10 flex-1 overflow-x-clip">
         <Outlet />
+        <PageBlocks />
       </main>
 
       <footer className="relative z-10 bg-[#F8FEFF]/95 backdrop-blur-sm border-t border-[#E5F4F5] pt-16 pb-8">

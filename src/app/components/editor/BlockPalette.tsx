@@ -28,6 +28,7 @@ const OPTIONS: { type: BlockType; Icon: typeof Type; label: string; hint: string
 export function BlockPalette({ onPick }: { onPick: (type: BlockType) => void }) {
   const [open, setOpen] = useState(false);
   const [tiles, setTiles] = useState<{ x: number; y: number }[]>([]);
+  const [hovered, setHovered] = useState<number | null>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -48,8 +49,9 @@ export function BlockPalette({ onPick }: { onPick: (type: BlockType) => void }) 
     const radiusX = (Math.min(cx, vw - cx) - half - pad) / sinMax;
     const roomUp = cy - half - pad;
     const roomDown = vh - cy - half - pad;
-    // Größerer Radius = mehr Luft zwischen den Kacheln (weniger „gestapelt").
-    const desired = vw < 560 ? 122 : 190;
+    // Enger gestapelt (wie gewünscht) — die Hover-Dynamik hebt die aktive Kachel
+    // klar hervor, sodass die dichtere Anordnung trotzdem gut lesbar bleibt.
+    const desired = vw < 560 ? 106 : 156;
     let dir: -1 | 1 = -1;
     let radius = Math.min(desired, radiusX, roomUp);
     if (radius < 78 && roomDown > roomUp) { dir = 1; radius = Math.min(desired, radiusX, roomDown); }
@@ -64,6 +66,8 @@ export function BlockPalette({ onPick }: { onPick: (type: BlockType) => void }) 
 
   const openMenu = useCallback(() => { compute(); setOpen(true); }, [compute]);
   const pick = (type: BlockType) => { setOpen(false); onPick(type); };
+
+  useEffect(() => { if (!open) setHovered(null); }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -103,10 +107,17 @@ export function BlockPalette({ onPick }: { onPick: (type: BlockType) => void }) 
             const p = tiles[i];
             if (!p) return null;
             const { Icon, label, hint, type } = o;
+            // Dynamik: die berührte Kachel wächst nach vorn, die anderen weichen
+            // (schrumpfen) zurück — nur eine ist groß, daher trotz enger Anordnung
+            // gut lesbar. Zentrierung läuft über translate (Tailwind), Skalierung
+            // über transform (inline) — getrennte CSS-Properties, kein Konflikt.
+            const isHover = hovered === i;
+            const scale = isHover ? 1.26 : hovered !== null ? 0.84 : 1;
             return (
               <button key={type} type="button" role="menuitem" onClick={() => pick(type)}
-                style={{ left: p.x, top: p.y, animationDelay: `${i * 45}ms` }}
-                className="pointer-events-auto absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center gap-1 w-20 h-20 rounded-2xl bg-white border border-[#E5F4F5] shadow-[0_14px_36px_rgb(16,60,58,0.20)] hover:bg-[#DFF7F8] hover:border-[#6FD3D1] hover:scale-[1.16] hover:z-10 hover:shadow-[0_24px_60px_rgb(16,60,58,0.34)] transition-[transform,box-shadow,background-color,border-color] duration-150 motion-safe:animate-[curaTilePop_260ms_cubic-bezier(0.22,1,0.36,1)_backwards]">
+                onMouseEnter={() => setHovered(i)} onMouseLeave={() => setHovered(null)}
+                style={{ left: p.x, top: p.y, transform: `scale(${scale})`, zIndex: isHover ? 30 : 1, animationDelay: `${i * 40}ms` }}
+                className={`pointer-events-auto absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center gap-1 w-20 h-20 rounded-2xl bg-white border transition-[transform,box-shadow,background-color,border-color] duration-200 ease-out motion-safe:animate-[curaTileFade_220ms_ease-out_backwards] ${isHover ? "border-[#6FD3D1] bg-[#DFF7F8] shadow-[0_26px_60px_rgb(16,60,58,0.34)]" : "border-[#E5F4F5] shadow-[0_14px_36px_rgb(16,60,58,0.20)]"}`}>
                 <span className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-[#DFF7F8] text-[#0F7C77]">
                   <Icon size={19} strokeWidth={1.7} />
                 </span>
@@ -115,12 +126,10 @@ export function BlockPalette({ onPick }: { onPick: (type: BlockType) => void }) 
               </button>
             );
           })}
-          {/* Nur `transform: scale` animieren — die Zentrierung übernimmt Tailwinds
-              `translate`-Property (-translate-x/y-1/2). Beides sind getrennte CSS-
-              Properties; würde der Keyframe zusätzlich `translate(-50%,-50%)` im
-              transform setzen, addierte sich das zum translate → doppelte
-              Verschiebung (−100% statt −50%, die berüchtigten 42px daneben). */}
-          <style>{`@keyframes curaTilePop { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }`}</style>
+          {/* Eintritt nur über Opacity animieren — `transform` gehört komplett der
+              Hover-Skalierung (inline), `translate` (Tailwind) der Zentrierung.
+              So kollidiert nichts (getrennte CSS-Properties). */}
+          <style>{`@keyframes curaTileFade { from { opacity: 0; } to { opacity: 1; } }`}</style>
         </div>,
         document.body,
       )}
