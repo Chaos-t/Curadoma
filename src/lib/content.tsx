@@ -34,6 +34,9 @@ type Ctx = {
   moveZoneItem: (zoneId: string, key: string, dir: -1 | 1, defaultKeys: string[]) => void;
   /** Dynamisch angelegte Seiten (für Menü-Injektion + DynamicPage-Auflösung). */
   getPages: () => Array<{ slug: string; label: string; inMenu: boolean }>;
+  /** True, sobald die Seitenliste vom Server geladen (oder final fehlgeschlagen)
+   *  ist. DynamicPage zeigt so kein „nicht gefunden", bevor /pages da ist. */
+  structureLoaded: boolean;
   /** Typisierte Inhalts-Blöcke (Text/Button/Bild) je Bereich. */
   getBlocks: (areaId: string) => Block[];
   addBlock: (areaId: string, type: "text" | "button" | "image") => void;
@@ -74,6 +77,9 @@ export function ContentProvider({ children }: { children: ReactNode }) {
   const [pendingZones, setPendingZones] = useState<Record<string, string[]>>({});
   // Dynamisch angelegte Seiten (aus dem Server) — für Menü + DynamicPage.
   const [pages, setPages] = useState<Array<{ slug: string; label: string; inMenu: boolean }>>([]);
+  // Erst true, wenn der erste /pages-Abruf durch ist (Erfolg ODER Fehler). Solange
+  // false, weiß DynamicPage: „noch am Laden" statt „Seite existiert nicht".
+  const [structureLoaded, setStructureLoaded] = useState(false);
   // Typisierte Inhalts-Blöcke je Bereich (aus dem Server) + ungespeicherte Änderungen.
   const [blocks, setBlocks] = useState<Record<string, Block[]>>({});
   const [pendingBlocks, setPendingBlocks] = useState<Record<string, Block[]>>({});
@@ -118,7 +124,8 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     fetch(`${FN_BASE}/pages`, { headers: { Authorization: `Bearer ${FN_ANON}` } })
       .then((r) => (r.ok ? r.json() : { pages: [] }))
       .then((d) => { if (alive) setPages(Array.isArray(d?.pages) ? d.pages : []); })
-      .catch(() => {}); // Seiten weg -> keine dynamischen Seiten
+      .catch(() => {}) // Seiten weg -> keine dynamischen Seiten
+      .finally(() => { if (alive) setStructureLoaded(true); });
     fetch(`${FN_BASE}/blocks`, { headers: { Authorization: `Bearer ${FN_ANON}` } })
       .then((r) => (r.ok ? r.json() : { blocks: {} }))
       .then((d) => { if (alive) setBlocks((d && d.blocks) || {}); })
@@ -451,7 +458,7 @@ export function ContentProvider({ children }: { children: ReactNode }) {
     get, getStored, editMode,
     dirtyCount: Object.keys(pending).length + Object.keys(pendingZones).length + Object.keys(pendingBlocks).length,
     isDirty, registerField, undo, redo, canUndo, canRedo,
-    getZone, addZoneItem, removeZoneItem, moveZoneItem, getPages,
+    getZone, addZoneItem, removeZoneItem, moveZoneItem, getPages, structureLoaded,
     getBlocks, addBlock, removeBlock, moveBlock, setBlockHref, reloadStructure,
     saving, status, error,
     setPending, uploadImage, save, discard, exit, restore, enterEditMode,

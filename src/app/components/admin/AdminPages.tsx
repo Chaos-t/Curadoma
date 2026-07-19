@@ -20,33 +20,34 @@ function slugify(s: string): string {
 }
 
 export function AdminPages() {
-  const { pagesList, pagesSave, pw } = useAdmin();
-  const { enterEditMode, reloadStructure } = useContent();
+  const { pagesSave, pw } = useAdmin();
+  const { enterEditMode, reloadStructure, getPages, structureLoaded } = useContent();
   const navigate = useNavigate();
-  const [pages, setPages] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [pages, setPages] = useState<any[]>(() => getPages());
   const [err, setErr] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [label, setLabel] = useState("");
   const [slug, setSlug] = useState("");
+  const loading = !structureLoaded;
 
-  useEffect(() => {
-    let alive = true;
-    pagesList()
-      .then((p) => { if (alive) setPages(p); })
-      .catch((e) => { if (alive) setErr(adminErrorText(e)); })
-      .finally(() => { if (alive) setLoading(false); });
-    return () => { alive = false; };
-  }, [pagesList]);
+  // Einzige Quelle der Wahrheit sind die im ContentProvider bereits geladenen
+  // Seiten (aus /pages). KEIN separater Fetch mehr: ein bei einem Netzfehler
+  // verschlucktes [] hatte sonst beim nächsten Speichern die gespeicherten
+  // Seiten überschrieben (Datenverlust). Diese Anzeige folgt dem Serverstand.
+  useEffect(() => { setPages(getPages()); }, [getPages]);
 
   const persist = async (next: any[]) => {
+    // Nie speichern, bevor der echte Stand geladen ist — sonst Überschreib-Gefahr.
+    if (!structureLoaded) { setErr("Seiten werden noch geladen — bitte einen Moment."); return; }
     setBusy(true); setErr(null);
     try {
       await pagesSave(next);
       setPages(next);
       await reloadStructure(); // ContentProvider (Menü + DynamicPage) sofort synchronisieren
-    } catch (e) { setErr(adminErrorText(e)); }
-    finally { setBusy(false); }
+    } catch (e) {
+      setErr(adminErrorText(e));
+      await reloadStructure().catch(() => {}); // Anzeige wieder mit echtem Serverstand abgleichen
+    } finally { setBusy(false); }
   };
 
   // Direkt in den Bearbeitungsmodus auf diese Seite springen (client-seitig,

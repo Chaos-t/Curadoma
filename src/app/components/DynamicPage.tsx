@@ -10,7 +10,7 @@ const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 // Slug keine bekannte Seite, wird die normale 404-Ansicht gezeigt.
 export function DynamicPage() {
   const { slug } = useParams();
-  const { getPages } = useContent();
+  const { getPages, structureLoaded } = useContent();
   const page = getPages().find((p) => p.slug === slug);
 
   useEffect(() => {
@@ -18,8 +18,18 @@ export function DynamicPage() {
   }, [page]);
 
   if (!page) {
+    // Solange die Seitenliste noch nicht vom Server da ist, KEIN „nicht gefunden"
+    // zeigen — sonst blitzt es beim Direktaufruf (/eigene-seite) auf, bevor
+    // /pages geladen ist, und wirkt, als gäbe es die Seite nicht.
+    if (!structureLoaded) {
+      return (
+        <div className="min-h-[60vh] flex items-center justify-center" style={jakarta}>
+          <p className="text-sm text-[#5F6B73] font-light">lädt …</p>
+        </div>
+      );
+    }
     return (
-      <div className="py-32 text-center">
+      <div className="min-h-[60vh] py-32 text-center">
         <h1 className="text-4xl font-medium text-[#111111] mb-4" style={jakarta}>Seite nicht gefunden</h1>
         <p className="text-lg text-[#5F6B73] font-light">Die gewünschte Seite existiert leider nicht.</p>
       </div>
@@ -28,7 +38,7 @@ export function DynamicPage() {
 
   const base = `page.${slug}`;
   return (
-    <section className="max-w-3xl mx-auto px-6 py-16 sm:py-24">
+    <section className="max-w-3xl mx-auto px-6 py-16 sm:py-24 min-h-[78vh]">
       <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
         <Editable as="span" id={`${base}.eyebrow`}>Cura Doma</Editable>
       </div>

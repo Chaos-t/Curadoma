@@ -142,7 +142,7 @@ export function Layout() {
 
   return (
     <div
-      className="min-h-screen bg-[#F8FEFF] text-[#111111] antialiased selection:bg-[#BFEAF2] selection:text-[#111111]"
+      className="min-h-screen flex flex-col bg-[#F8FEFF] text-[#111111] antialiased selection:bg-[#BFEAF2] selection:text-[#111111]"
       style={{ fontFamily: "'Inter', sans-serif" }}
     >
       <Seo />
@@ -301,7 +301,7 @@ export function Layout() {
         )}
       </nav>
 
-      <main className="relative z-10 overflow-x-clip">
+      <main className="relative z-10 flex-1 overflow-x-clip">
         <Outlet />
       </main>
 

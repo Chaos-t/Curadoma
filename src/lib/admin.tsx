@@ -115,8 +115,11 @@ export function AdminProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const pagesList = useCallback(async () => {
+    // WICHTIG: bei Fehler WERFEN, nicht still [] liefern. Ein verschlucktes []
+    // würde sonst als „keine Seiten" durchgehen und beim nächsten Speichern die
+    // gespeicherten Seiten überschreiben (Datenverlust).
     const res = await fetch(`${FN_BASE}/pages`, { headers: { Authorization: `Bearer ${FN_ANON}` } });
-    if (!res.ok) return [];
+    if (!res.ok) throw new Error(String(res.status));
     return ((await res.json()).pages ?? []) as any[];
   }, []);
 
