@@ -1,4 +1,14 @@
 @import 'tailwindcss' source(none);
 @source '../**/*.{js,ts,jsx,tsx}';
 
-@import 'tw-animate-css';
+/* `src/app/components/ui/` ist eine komplette shadcn/ui-Kopie, die NICHTS
+   importiert (siehe CLAUDE.md §4). Die Dateien bleiben bewusst liegen — Figma
+   Make synchronisiert sie —, aber Tailwind soll ihre Klassen NICHT mehr
+   erzeugen: sie blaehten das render-blockierende Stylesheet auf, ohne je
+   benutzt zu werden. Wird hier doch einmal eine shadcn-Komponente eingesetzt,
+   muss diese Zeile raus, sonst fehlen deren Styles. */
+@source not '../app/components/ui/**';
+
+/* tw-animate-css (animate-in/fade-in/zoom-in/slide-in-*) nutzt ausschliesslich
+   das tote shadcn-Geruest — im Seiten-Code kommt keine einzige dieser Klassen
+   vor. Daher nicht mehr einbinden (spart render-blockierendes CSS). */
