@@ -26,13 +26,30 @@ function useDeferredMount(): boolean {
   useEffect(() => {
     // Bei „weniger Bewegung" bleibt der animierte Hintergrund ganz aus.
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const ric = (window as unknown as {
+
+    let idleId: number | undefined;
+    let timerId: number | undefined;
+    const win = window as unknown as {
       requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number;
-    }).requestIdleCallback;
-    if (ric) { const id = ric(() => setReady(true), { timeout: 3000 }); return () =>
-      (window as unknown as { cancelIdleCallback?: (h: number) => void }).cancelIdleCallback?.(id); }
-    const t = window.setTimeout(() => setReady(true), 1200);
-    return () => window.clearTimeout(t);
+      cancelIdleCallback?: (h: number) => void;
+    };
+
+    // Erst wenn die Seite KOMPLETT geladen ist (Bilder/Schriften durch) und der
+    // Browser danach Leerlauf hat, den dekorativen Hintergrund starten. So
+    // konkurriert er nicht mit dem eigentlichen Inhalt um CPU und Bandbreite.
+    const start = () => {
+      if (win.requestIdleCallback) idleId = win.requestIdleCallback(() => setReady(true), { timeout: 2000 });
+      else timerId = window.setTimeout(() => setReady(true), 600);
+    };
+
+    if (document.readyState === "complete") start();
+    else window.addEventListener("load", start, { once: true });
+
+    return () => {
+      window.removeEventListener("load", start);
+      if (idleId !== undefined) win.cancelIdleCallback?.(idleId);
+      if (timerId !== undefined) window.clearTimeout(timerId);
+    };
   }, []);
   return ready;
 }

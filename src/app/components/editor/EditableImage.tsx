@@ -5,13 +5,18 @@ export function EditableImage({ id, src, alt = "", altId, className, ...img }: {
   id: string; src: string; alt?: string; altId?: string; className?: string;
 } & React.ImgHTMLAttributes<HTMLImageElement>) {
   const { get, editMode, uploadImage } = useContent();
-  const url = get(id) ?? src;
+  const override = get(id);
+  const url = override ?? src;
   const altVal = altId ? (get(altId) ?? alt) : alt;
   const inputRef = useRef<HTMLInputElement>(null);
   // Standardmaessig lazy + asynchron dekodieren: spart auf dem Handy spuerbar
   // Bandbreite und Hauptthread-Zeit („Bilduebermittlung verbessern"). Bilder
-  // ueber der Falz (Hero) setzen loading="eager" + fetchPriority="high" selbst.
+  // ueber der Falz (Hero) setzen loading="eager" + fetchpriority="high" selbst.
   const perf = { loading: "lazy" as const, decoding: "async" as const, ...img };
+  // WICHTIG: srcSet/sizes gehoeren zum CODE-Standardbild. Hat der Betreiber ein
+  // eigenes Bild hinterlegt, muss das Set weg — sonst gewinnt srcSet gegen src
+  // und es erschiene weiterhin das alte Bild.
+  if (override) { delete (perf as { srcSet?: string }).srcSet; delete (perf as { sizes?: string }).sizes; }
   if (!editMode) return <img src={url} alt={altVal} className={className} {...perf} />;
   return (
     <>

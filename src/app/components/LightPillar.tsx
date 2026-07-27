@@ -63,15 +63,20 @@ const LightPillar = ({
     if (isLowEndDevice && quality === 'high') effectiveQuality = 'medium';
     if (isMobile && quality !== 'low') effectiveQuality = 'low';
 
+    // Kosten pro Bildpunkt = iterations * waveIterations (verschachtelte Schleife
+    // im Fragment-Shader), multipliziert mit der Canvas-Flaeche (pixelRatio).
+    // Fuer diesen weichen, unscharfen Lichtschleier bringen sehr hohe Werte
+    // optisch nichts mehr, kosten aber linear Hauptthread-/GPU-Zeit — deshalb
+    // bewusst konservativ. (Vorher: medium 40x2 @0.65, high 80x4 @2.0.)
     const qualitySettings = {
-      low: { iterations: 24, waveIterations: 1, pixelRatio: 0.5, precision: 'mediump', stepMultiplier: 1.5 },
-      medium: { iterations: 40, waveIterations: 2, pixelRatio: 0.65, precision: 'mediump', stepMultiplier: 1.2 },
+      low: { iterations: 20, waveIterations: 1, pixelRatio: 0.4, precision: 'mediump', stepMultiplier: 1.6 },
+      medium: { iterations: 28, waveIterations: 2, pixelRatio: 0.5, precision: 'mediump', stepMultiplier: 1.35 },
       high: {
-        iterations: 80,
-        waveIterations: 4,
-        pixelRatio: Math.min(window.devicePixelRatio, 2),
-        precision: 'highp',
-        stepMultiplier: 1.0
+        iterations: 44,
+        waveIterations: 3,
+        pixelRatio: Math.min(window.devicePixelRatio, 1.5),
+        precision: 'mediump',
+        stepMultiplier: 1.1
       }
     };
 
@@ -257,7 +262,15 @@ const LightPillar = ({
     }
 
     let lastTime = performance.now();
-    const targetFPS = effectiveQuality === 'low' ? 30 : 60;
+    // Bewusst gedeckelt: der Effekt driftet sehr langsam (rotationSpeed ~0.22),
+    // 60 fps sind optisch NICHT unterscheidbar von 24-30 fps, kosten aber doppelt
+    // so viel Hauptthread-Zeit. Jeder Frame ist ein ganzflaechiger Raymarch —
+    // ungedeckelt war das unter Lighthouse-Drosselung die Hauptquelle der
+    // Total Blocking Time (15 s auf dem Desktop).
+    const targetFPS = effectiveQuality === 'low' ? 20 : 30;
+    // Zeitfortschritt an die FPS koppeln, damit die Animation bei weniger
+    // Frames NICHT langsamer laeuft (vorher fix 0.016 pro gerendertem Frame).
+    const timeStep = 0.016 * (60 / targetFPS);
     const frameTime = 1000 / targetFPS;
 
     const animate = currentTime => {
@@ -266,7 +279,7 @@ const LightPillar = ({
       const deltaTime = currentTime - lastTime;
 
       if (deltaTime >= frameTime) {
-        timeRef.current += 0.016 * rotationSpeedRef.current;
+        timeRef.current += timeStep * rotationSpeedRef.current;
         const t = timeRef.current;
         materialRef.current.uniforms.uTime.value = t;
         materialRef.current.uniforms.uRotCos.value = Math.cos(t * 0.3);
@@ -278,6 +291,17 @@ const LightPillar = ({
       rafRef.current = requestAnimationFrame(animate);
     };
     rafRef.current = requestAnimationFrame(animate);
+
+    // Im Hintergrund-Tab gar nicht rendern (spart Akku und Hauptthread).
+    const handleVisibility = () => {
+      if (document.hidden) {
+        if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+      } else if (!rafRef.current) {
+        lastTime = performance.now();
+        rafRef.current = requestAnimationFrame(animate);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
 
     let resizeTimeout = null;
     const handleResize = () => {
@@ -298,6 +322,7 @@ const LightPillar = ({
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      document.removeEventListener('visibilitychange', handleVisibility);
       if (interactive) {
         container.removeEventListener('mousemove', handleMouseMove);
       }

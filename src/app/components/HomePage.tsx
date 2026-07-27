@@ -125,7 +125,12 @@ function PartnerCard({ partner, index }: { partner: Partner; index: number }) {
   );
 }
 
-const heroImage = "https://images.unsplash.com/photo-1773227055624-07b515ba87c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXJlZ2l2ZXIlMjBob2xkaW5nJTIwZWxkZXJseSUyMHdvbWFuJTIwaGFuZHN8ZW58MXx8fHwxNzc1MzE0MDE0fDA&ixlib=rb-4.1.0&q=80&w=1080";
+const heroBase = "https://images.unsplash.com/photo-1773227055624-07b515ba87c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXJlZ2l2ZXIlMjBob2xkaW5nJTIwZWxkZXJseSUyMHdvbWFuJTIwaGFuZHN8ZW58MXx8fHwxNzc1MzE0MDE0fDA&ixlib=rb-4.1.0&q=80";
+const heroImage = `${heroBase}&w=1080`;
+// Das Hero-Bild ist das LCP-Element. Ohne srcSet laedt auch ein 360-px-Handy
+// die 1080-px-Fassung — genau der Posten „Bilduebermittlung verbessern".
+// Unsplash liefert die Breite ueber &w=, daher hier gestaffelt anbieten.
+const heroSrcSet = [480, 640, 828, 1080].map((w) => `${heroBase}&w=${w} ${w}w`).join(", ");
 const demenzImage = "https://images.unsplash.com/photo-1758691031958-29541f3207a5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXJlZ2l2ZXIlMjByZWFkaW5nJTIwYm9vayUyMHNlbmlvciUyMHdvbWFufGVufDF8fHx8MTc3NTMxNDAxNHww&ixlib=rb-4.1.0&q=80&w=1080";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
@@ -175,6 +180,7 @@ export function HomePage() {
                   kennt (camelCase erst ab React 19). */}
               <EditableImage id="home.hero.image" src={heroImage} alt="Betreuerin hält die Hände einer älteren Dame" altId="home.hero.image-alt"
                 width={1200} height={900} loading="eager" decoding="async"
+                srcSet={heroSrcSet} sizes="(max-width: 1023px) 92vw, 46vw"
                 {...{ fetchpriority: "high" }}
                 className="w-full h-auto aspect-[4/3] object-cover" />
             </div>
