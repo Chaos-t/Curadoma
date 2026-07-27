@@ -3,7 +3,7 @@ import { Undo2, Redo2, Pencil } from "lucide-react";
 import { useContent } from "../../../lib/content";
 import { OPEN_HELP_EVENT } from "./EditOnboarding";
 import { OPEN_SEO_EVENT } from "./SeoPanel";
-import { router } from "../../routes";
+import { router } from "../../router";
 
 /**
  * Bearbeiten-Leiste als LINKES, vertikales Panel im „Edge-Panel"-Stil: normal

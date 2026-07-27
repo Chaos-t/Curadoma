@@ -1,4 +1,5 @@
 import monogramImg from "../../imports/cura-doma-logo.png";
+import { Css } from "./Css";
 
 type Props = {
   className?: string;
@@ -82,7 +83,7 @@ export function CuraDomaLogo({
         )}
       </div>
 
-      <style>{`
+      <Css>{`
         /* Wordmark appears to be "written" left-to-right.
            Bewusst per transform statt clip-path: clip-path laeuft in Blink
            NICHT auf dem Compositor (Lighthouse: „Nicht zusammengesetzte
@@ -119,7 +120,7 @@ export function CuraDomaLogo({
             animation: none;
           }
         }
-      `}</style>
+      `}</Css>
     </div>
   );
 }

@@ -20,7 +20,7 @@ function figmaAssetResolver() {
 // CNAME file in public/), so the base path is '/' for dev and prod alike.
 // (It was '/Curadoma/' while the site lived at the
 // chaos20140.github.io/Curadoma/ project URL.)
-export default defineConfig(() => ({
+export default defineConfig(({ isSsrBuild }) => ({
   base: '/',
   plugins: [
     figmaAssetResolver(),
@@ -49,9 +49,11 @@ export default defineConfig(() => ({
         // Framework getrennt vom App-Code buendeln: React/Router aendern sich
         // selten, bleiben so ueber Deploys hinweg im Browser-Cache, waehrend
         // der App-Chunk neu geladen wird.
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router'],
-        },
+        // NUR im Client-Build: im SSR-Build sind react/react-dom extern,
+        // dort wuerde manualChunks den Build abbrechen.
+        manualChunks: isSsrBuild
+          ? undefined
+          : { 'react-vendor': ['react', 'react-dom', 'react-router'] },
       },
     },
   },

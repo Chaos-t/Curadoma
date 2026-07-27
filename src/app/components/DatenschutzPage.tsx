@@ -2,6 +2,7 @@ import { Shield, Phone, Mail, MapPin } from "lucide-react";
 import { Editable } from "./editor/Editable";
 import { EditableImage } from "./editor/EditableImage";
 import { PhoneText, EmailText, AddressBlock } from "./editor/Shared";
+import { Css } from "./Css";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 const heroImg =
@@ -116,7 +117,7 @@ export function DatenschutzPage() {
         </div>
       </section>
 
-      <style>{`@keyframes curaFadeUp { to { opacity: 1; transform: translateY(0); } }`}</style>
+      <Css>{`@keyframes curaFadeUp { to { opacity: 1; transform: translateY(0); } }`}</Css>
     </>
   );
 }

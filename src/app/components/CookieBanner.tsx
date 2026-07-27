@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { Cookie, X } from "lucide-react";
 import { consent, REOPEN_BANNER_EVENT } from "../../lib/consent";
+import { Css } from "./Css";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
@@ -104,12 +105,12 @@ export function CookieBanner() {
           </button>
         </div>
       </div>
-      <style>{`
+      <Css>{`
         @keyframes curaCookieIn {
           from { opacity: 0; transform: translateY(20px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-      `}</style>
+      `}</Css>
     </div>
   );
 }

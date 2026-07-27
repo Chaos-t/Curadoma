@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Lock } from "lucide-react";
 import { useAdmin } from "../../../lib/admin";
+import { Css } from "../Css";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
@@ -58,7 +59,7 @@ export function AdminLoginForm() {
         </div>
       </div>
 
-      <style>{`
+      <Css>{`
         @keyframes curaAdminIn {
           from { opacity: 0; transform: translateY(16px) scale(0.98); }
           to   { opacity: 1; transform: none; }
@@ -90,7 +91,7 @@ export function AdminLoginForm() {
         @media (prefers-reduced-motion: reduce) {
           .cura-admin-lock, .cura-admin-orb-a, .cura-admin-orb-b, .cura-admin-shake { animation: none !important; }
         }
-      `}</style>
+      `}</Css>
     </section>
   );
 }

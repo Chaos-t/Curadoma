@@ -9,6 +9,7 @@ import { GoogleReviews } from "./GoogleReviews";
 import { InstagramFeed } from "./InstagramFeed";
 import { Editable } from "./editor/Editable";
 import { EditableImage } from "./editor/EditableImage";
+import { Css } from "./Css";
 
 type Partner = {
   name: string;
@@ -78,12 +79,12 @@ function PartnerSection() {
           </div>
         </div>
       </div>
-      <style>{`
+      <Css>{`
         @keyframes curaPartnerMarquee {
           0% { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
-      `}</style>
+      `}</Css>
     </section>
   );
 }
@@ -120,7 +121,7 @@ function PartnerCard({ partner, index }: { partner: Partner; index: number }) {
           <Editable as="span" id={`home.partners.${index}.tagline`}>{partner.tagline}</Editable>
         </div>
       </div>
-      <style>{`@keyframes curaFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
+      <Css>{`@keyframes curaFadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }`}</Css>
     </a>
   );
 }
@@ -196,7 +197,7 @@ export function HomePage() {
           </div>
         </div>
 
-        <style>{`
+        <Css>{`
           /* Slow slide-in from the sides on first render. The text on
              the left, the image on the right — image enters a touch
              later so the eye lands on the headline first.
@@ -224,7 +225,7 @@ export function HomePage() {
           @media (prefers-reduced-motion: reduce) {
             .cura-hero-text, .cura-hero-image { animation: none; }
           }
-        `}</style>
+        `}</Css>
       </section>
 
       {/* Introduction */}

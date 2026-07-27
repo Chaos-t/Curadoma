@@ -1,5 +1,5 @@
 import { RouterProvider } from "react-router";
-import { router } from "./routes";
+import { router } from "./router";
 import { ContentProvider } from "../lib/content";
 import { AdminProvider } from "../lib/admin";
 import { EditorChrome } from "./components/editor/EditorChrome";

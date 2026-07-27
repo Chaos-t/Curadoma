@@ -16,6 +16,7 @@ import { Star, Quote } from "lucide-react";
 import { reviews as fallbackReviews, reviewSummary as fallbackSummary } from "../../lib/reviews-data";
 import { projectId, publicAnonKey } from "/utils/supabase/info";
 import { Editable } from "./editor/Editable";
+import { Css } from "./Css";
 
 type LiveReview = {
   author_name: string;
@@ -285,7 +286,7 @@ export function GoogleReviews() {
         </div>
       </div>
 
-      <style>{`
+      <Css>{`
         .cura-reviews-track {
           width: max-content;
           animation: cura-reviews-marquee 60s linear infinite;
@@ -318,7 +319,7 @@ export function GoogleReviews() {
           .cura-reviews-track { animation-duration: 45s; }
           .cura-review-card { scroll-snap-align: start; }
         }
-      `}</style>
+      `}</Css>
     </section>
   );
 }

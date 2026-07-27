@@ -1,9 +1,10 @@
+import { Css } from "./Css";
 // Global animated page background — ein weicher, langsam driftender Türkis-
 // Lichtschleier hinter allen Sektionen. Fixed zum Viewport (z-0), Inhalts-
 // bereiche liegen auf halbtransparenten Flächen, sodass die Bewegung im Hero
 // am stärksten und sonst nur zart durchscheint.
 //
-// WARUM CSS UND NICHT MEHR WebGL (2026-07-27):
+// WARUM CSS UND NICHT WebGL (2026-07-27):
 // Vorher lief hier ein raymarched Fragment-Shader über three.js. Gemessen mit
 // Lighthouse gegen die Live-Seite:
 //   LightPillar.js  40.773 ms gesamt — davon nur 290 ms JavaScript.
@@ -11,33 +12,20 @@
 // Die Kosten waren also NICHT das Skript, sondern das Rendern selbst: ohne
 // schnelle GPU fällt WebGL auf Software-Rasterisierung zurück (Lighthouse,
 // aber genauso ältere/schwache Geräte — also genau die Zielgruppe dieser
-// Seite). Ein ganzflächiger Raymarch kostet dort Hunderte ms PRO BILD; FPS
-// deckeln half deshalb kaum.
+// Seite). Ein ganzflächiger Raymarch kostet dort Hunderte ms PRO BILD.
 //
-// Diese Fassung nutzt nur `transform`-Animationen auf großen, weichen
-// Farbverläufen: die laufen auf dem Compositor, belasten den Hauptthread
-// praktisch nicht, brauchen kein three.js (~128 KB gzip weniger) und sehen auf
-// JEDEM Gerät gleich aus. `prefers-reduced-motion` schaltet die Bewegung ab.
-import { useEffect, useState } from "react";
-
-function useIsMobile(breakpoint = 768) {
-  const [isMobile, setIsMobile] = useState(() =>
-    typeof window === "undefined" ? false : window.innerWidth < breakpoint,
-  );
-  useEffect(() => {
-    const onResize = () => setIsMobile(window.innerWidth < breakpoint);
-    window.addEventListener("resize", onResize, { passive: true });
-    return () => window.removeEventListener("resize", onResize);
-  }, [breakpoint]);
-  return isMobile;
-}
+// WARUM KEIN JS-BREAKPOINT MEHR:
+// Die Mobil-Abstimmung lief früher über window.innerWidth. Seit die Seiten beim
+// Build vorab gerendert werden (SSG), kennt der Server die Fensterbreite nicht —
+// der Client hätte beim ersten Rendern etwas anderes erzeugt als das
+// ausgelieferte HTML (React-Fehler #418, Hydration-Mismatch). Die Abstimmung
+// läuft deshalb rein über eine CSS-Media-Query: identisches Markup auf Server
+// und Client, und ganz ohne Re-Render.
+//
+// Animiert wird ausschließlich `transform` — das läuft auf dem Compositor und
+// belastet den Hauptthread praktisch nicht. `prefers-reduced-motion` stoppt sie.
 
 export function BackgroundScene() {
-  const isMobile = useIsMobile();
-  // Auf dem schmalen Hochformat wird der Schleier steiler und breiter gefahren
-  // (wie zuvor beim WebGL-Verlauf), damit er als vertikale Spur liest.
-  const tilt = isMobile ? 34 : 18;
-
   return (
     <div className="fixed inset-0 overflow-hidden pointer-events-none z-0" aria-hidden="true">
       {/* Grundfläche */}
@@ -47,22 +35,29 @@ export function BackgroundScene() {
       />
 
       {/* Lichtschleier: zwei sehr große, weiche Verläufe, die langsam
-          gegeneinander driften. Nur transform wird animiert. */}
-      <div className="cura-bg-layer cura-bg-layer--a" style={{ ["--tilt" as string]: `${tilt}deg` }} />
-      <div className="cura-bg-layer cura-bg-layer--b" style={{ ["--tilt" as string]: `${tilt}deg` }} />
+          gegeneinander driften. */}
+      <div className="cura-bg-layer cura-bg-layer--a" />
+      <div className="cura-bg-layer cura-bg-layer--b" />
 
-      <style>{`
+      <Css>{`
         .cura-bg-layer {
           position: absolute;
           top: 50%;
           left: 50%;
-          width: ${isMobile ? "190vmax" : "150vmax"};
-          height: ${isMobile ? "190vmax" : "150vmax"};
-          margin-top: ${isMobile ? "-95vmax" : "-75vmax"};
-          margin-left: ${isMobile ? "-95vmax" : "-75vmax"};
+          /* Desktop-Abstimmung; die Media-Query unten uebernimmt fuers Handy. */
+          --tilt: 18deg;
+          --size: 150vmax;
+          width: var(--size);
+          height: var(--size);
+          margin-top: calc(var(--size) / -2);
+          margin-left: calc(var(--size) / -2);
           will-change: transform;
-          /* Nur transform animieren -> laeuft auf dem Compositor. */
           transform: rotate(var(--tilt));
+        }
+        /* Schmales Hochformat: steiler und breiter, damit der Schleier als
+           vertikale Spur liest (wie zuvor beim WebGL-Verlauf). */
+        @media (max-width: 767px) {
+          .cura-bg-layer { --tilt: 34deg; --size: 190vmax; }
         }
         .cura-bg-layer--a {
           background:
@@ -92,7 +87,7 @@ export function BackgroundScene() {
         @media (prefers-reduced-motion: reduce) {
           .cura-bg-layer { animation: none; }
         }
-      `}</style>
+      `}</Css>
     </div>
   );
 }

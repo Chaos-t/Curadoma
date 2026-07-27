@@ -17,6 +17,7 @@ import { Instagram, ExternalLink } from "lucide-react";
 import { projectId, publicAnonKey } from "/utils/supabase/info";
 import { Editable } from "./editor/Editable";
 import { useContent } from "../../lib/content";
+import { Css } from "./Css";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
@@ -178,7 +179,7 @@ export function InstagramFeed() {
         </div>
       </div>
 
-      <style>{`
+      <Css>{`
         .cura-ig-track {
           width: max-content;
           animation: cura-ig-marquee 75s linear infinite;
@@ -208,7 +209,7 @@ export function InstagramFeed() {
           .cura-ig-track { animation-duration: 50s; }
           .cura-ig-card { scroll-snap-align: start; }
         }
-      `}</style>
+      `}</Css>
     </section>
   );
 }

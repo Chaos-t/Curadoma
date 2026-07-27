@@ -1,4 +1,3 @@
-import { createBrowserRouter } from "react-router";
 import { Layout } from "./components/Layout";
 import { HomePage } from "./components/HomePage";
 
@@ -8,9 +7,13 @@ import { HomePage } from "./components/HomePage";
 // groesste Posten im 1-MB-Bundle („Reduziere nicht verwendetes JavaScript").
 // react-router 7 laedt das Modul beim Navigieren selbst nach (kein Suspense noetig).
 
-const basename = import.meta.env.BASE_URL.replace(/\/$/, "") || "/";
+export const basename = import.meta.env.BASE_URL.replace(/\/$/, "") || "/";
 
-export const router = createBrowserRouter([
+// NUR die Routen-Beschreibung — bewusst OHNE createBrowserRouter, damit
+// dieses Modul auch beim Vorab-Rendern in Node importierbar bleibt
+// (createBrowserRouter greift auf window.history zu). Der Browser-Router
+// entsteht in ./router.ts, der Server-Router in src/entry-server.tsx.
+export const routes = [
   {
     path: "/",
     Component: Layout,
@@ -58,4 +61,4 @@ export const router = createBrowserRouter([
       { path: "seiten", lazy: async () => ({ Component: (await import("./components/admin/AdminPages")).AdminPages }) },
     ],
   },
-], { basename });
+];

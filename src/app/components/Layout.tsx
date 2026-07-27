@@ -11,6 +11,7 @@ import { Editable } from "./editor/Editable";
 import { PhoneText, EmailText, AddressBlock } from "./editor/Shared";
 import { PageBlocks } from "./editor/PageBlocks";
 import { Seo } from "./Seo";
+import { Css } from "./Css";
 
 // Nur im Bearbeitungsmodus sichtbar -> Code erst dann nachladen (Besucher
 // laden davon nichts). Die Bedingung steht VOR dem Rendern, sonst wuerde
@@ -395,7 +396,7 @@ export function Layout() {
       {editMode && <Suspense fallback={null}><SeoPanel /></Suspense>}
 
 
-      <style>{`
+      <Css>{`
         @keyframes curaMenuOpen {
           from { opacity: 0; transform: translateY(-10px); }
           to   { opacity: 1; transform: translateY(0); }
@@ -486,7 +487,7 @@ export function Layout() {
           .cura-reveal { opacity: 1 !important; }
           .cura-reveal.is-visible { animation: none !important; }
         }
-      `}</style>
+      `}</Css>
     </div>
   );
 }

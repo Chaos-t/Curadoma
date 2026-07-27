@@ -33,8 +33,11 @@ jobs:
 
       # SPA fallback: GitHub Pages serves 404.html for unknown paths.
       # Copy index.html so deep links (/Curadoma/kontakt etc.) hand off to React Router.
-      - name: Copy 404.html for SPA fallback
-        run: cp dist/index.html dist/404.html
+      # 404.html wird bereits von scripts/prerender.mjs geschrieben — bewusst
+      # als LEERE Huelle (nicht als Kopie der vorab gerenderten Startseite),
+      # sonst blitzte auf jeder unbekannten URL kurz die Startseite auf.
+      - name: Verify SPA fallback exists
+        run: test -f dist/404.html
 
       - uses: actions/configure-pages@v5
 

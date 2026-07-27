@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Plus, Type, Heading, Image as ImageIcon, MousePointerClick, ListChecks, Quote, Minus } from "lucide-react";
 import { type BlockType } from "../../../lib/content";
+import { Css } from "../Css";
 
 // Reihenfolge = Anordnung im Bogen von links nach rechts.
 const OPTIONS: { type: BlockType; Icon: typeof Type; label: string; hint: string }[] = [
@@ -129,7 +130,7 @@ export function BlockPalette({ onPick }: { onPick: (type: BlockType) => void }) 
           {/* Eintritt nur über Opacity animieren — `transform` gehört komplett der
               Hover-Skalierung (inline), `translate` (Tailwind) der Zentrierung.
               So kollidiert nichts (getrennte CSS-Properties). */}
-          <style>{`@keyframes curaTileFade { from { opacity: 0; } to { opacity: 1; } }`}</style>
+          <Css>{`@keyframes curaTileFade { from { opacity: 0; } to { opacity: 1; } }`}</Css>
         </div>,
         document.body,
       )}

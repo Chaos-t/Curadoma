@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Undo2, X } from "lucide-react";
 import { useAdmin, adminErrorText } from "../../../lib/admin";
+import { Css } from "../Css";
 
 /**
  * Session-Papierkorb-Toast: zeigt die zuletzt gelöschte Sache mit „Rückgängig".
@@ -33,7 +34,7 @@ export function TrashToast() {
       <button onClick={clearTrash} aria-label="Schließen" className="shrink-0 text-white/50 hover:text-white transition-colors">
         <X size={16} strokeWidth={2} />
       </button>
-      <style>{`@keyframes curaTrashIn { from { opacity: 0; transform: translate(-50%, 12px); } to { opacity: 1; transform: translate(-50%, 0); } }`}</style>
+      <Css>{`@keyframes curaTrashIn { from { opacity: 0; transform: translate(-50%, 12px); } to { opacity: 1; transform: translate(-50%, 0); } }`}</Css>
     </div>
   );
 }

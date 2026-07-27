@@ -130,13 +130,20 @@ function useScrollProgress<T extends HTMLElement>() {
   return { ref, progress };
 }
 
-/** Hook: tracks whether viewport width < breakpoint. */
+/** Hook: tracks whether viewport width < breakpoint.
+ *
+ *  WICHTIG: Der Startwert ist bewusst IMMER `false`, obwohl im Browser die
+ *  Breite bekannt waere. Seit die Seiten beim Build vorab gerendert werden
+ *  (SSG), rendert der Server ohne `window` — also die Desktop-Variante. Laese
+ *  der Client hier beim ERSTEN Rendern schon die echte Breite, entstuende bei
+ *  schmalen Fenstern ein anderer Baum als im ausgelieferten HTML: React bricht
+ *  die Hydration ab (Fehler #418) und baut die Seite komplett neu auf.
+ *  Deshalb erst NACH dem Mounten im Effekt auf den echten Wert wechseln. */
 function useIsMobile(breakpoint = 768) {
-  const [isMobile, setIsMobile] = useState(() =>
-    typeof window === "undefined" ? false : window.innerWidth < breakpoint,
-  );
+  const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < breakpoint);
+    onResize(); // direkt nach der Hydration den echten Wert uebernehmen
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, [breakpoint]);
