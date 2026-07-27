@@ -18,7 +18,7 @@ export function AdminArea() {
 
   // Eigener, seitenfüllender Rahmen (der Admin läuft NICHT im öffentlichen Layout).
   return (
-    <div className="min-h-screen bg-[#F8FEFF] text-[#111111] antialiased" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-[#F8FEFF] text-[#111111] antialiased" style={{ fontFamily: "'Inter', 'Inter Fallback', sans-serif" }}>
       {authed ? <><Outlet /><TrashToast /></> : <AdminLoginForm />}
     </div>
   );

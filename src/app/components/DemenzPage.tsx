@@ -6,7 +6,7 @@ import {
 import { Editable } from "./editor/Editable";
 import { EditableImage } from "./editor/EditableImage";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 const img1 = "https://images.unsplash.com/photo-1758691031958-29541f3207a5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXJlZ2l2ZXIlMjByZWFkaW5nJTIwYm9vayUyMHNlbmlvciUyMHdvbWFufGVufDF8fHx8MTc3NTMxNDAxNHww&ixlib=rb-4.1.0&q=80&w=1080";
 const img2 = "https://images.unsplash.com/photo-1758691031197-fee3ccad4d68?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkZW1lbnRpYSUyMGNhcmUlMjBlbGRlcmx5JTIwY29nbml0aXZlJTIwdGhlcmFweXxlbnwxfHx8fDE3NzUzMTQ0OTV8MA&ixlib=rb-4.1.0&q=80&w=1080";
 

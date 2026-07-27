@@ -2,7 +2,7 @@ import { Link } from "react-router";
 import { CheckCircle, Sparkles, Phone, ShieldCheck, Home } from "lucide-react";
 import { Editable } from "./editor/Editable";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 
 export function HaushaltPage() {
   const leistungen = [

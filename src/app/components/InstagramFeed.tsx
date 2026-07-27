@@ -19,7 +19,7 @@ import { Editable } from "./editor/Editable";
 import { useContent } from "../../lib/content";
 import { Css } from "./Css";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 
 type IGPost = {
   id: string;

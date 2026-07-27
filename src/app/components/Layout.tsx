@@ -18,7 +18,7 @@ import { Css } from "./Css";
 // React.lazy den Chunk trotzdem sofort anfordern.
 const SeoPanel = lazy(() => import("./editor/SeoPanel").then((m) => ({ default: m.SeoPanel })));
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 
 const leistungenLinks = [
   { path: "/leistungen", label: "Alle Leistungen", id: "shared.leistungenmenu.0.label" },
@@ -150,7 +150,7 @@ export function Layout() {
   return (
     <div
       className="min-h-screen flex flex-col bg-[#F8FEFF] text-[#111111] antialiased selection:bg-[#BFEAF2] selection:text-[#111111]"
-      style={{ fontFamily: "'Inter', sans-serif" }}
+      style={{ fontFamily: "'Inter', 'Inter Fallback', sans-serif" }}
     >
       <Seo />
       <BackgroundScene />

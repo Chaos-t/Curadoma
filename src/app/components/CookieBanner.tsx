@@ -14,7 +14,7 @@ import { Cookie, X } from "lucide-react";
 import { consent, REOPEN_BANNER_EVENT } from "../../lib/consent";
 import { Css } from "./Css";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 
 export function CookieBanner() {
   // `null` while we don't know yet (avoids a flash of banner during SSR /

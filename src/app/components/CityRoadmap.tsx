@@ -13,7 +13,7 @@ import { useEffect, useRef, useState } from "react";
 import { Car, MapPin } from "lucide-react";
 import { Editable } from "./editor/Editable";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 
 type Route = {
   /** Stable id prefix for the content editor (e.g. "hameln") */

@@ -5,7 +5,7 @@ import { useAdmin, adminErrorText, type AdminType } from "../../../lib/admin";
 import { TYPE_META, STATUS_LABELS, STATUS_STYLE, fmtDate } from "./fields";
 import { AdminDetail } from "./AdminDetail";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 const STATUS_FILTERS = ["alle", "neu", "in_bearbeitung", "erledigt", "archiviert"] as const;
 type StatusFilter = (typeof STATUS_FILTERS)[number];
 

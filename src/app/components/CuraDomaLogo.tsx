@@ -1,4 +1,4 @@
-import monogramImg from "../../imports/cura-doma-logo.png";
+import monogramImg from "../../imports/cura-doma-logo.webp";
 import { Css } from "./Css";
 
 type Props = {
@@ -17,7 +17,7 @@ const TAGLINE = "#5F6B73";
 // Cormorant — a high-contrast, spiky-serif display face (OFL, free for
 // commercial use; loaded via Google Fonts in src/styles/fonts.css). A close,
 // freely-usable stand-in for Khalos. Used only for the logo wordmark.
-const WORDMARK_FONT = "'Cormorant', 'Cormorant Garamond', 'Times New Roman', serif";
+const WORDMARK_FONT = "'Cormorant', 'Cormorant Fallback', 'Cormorant Garamond', 'Times New Roman', serif";
 
 export function CuraDomaLogo({
   className,
@@ -69,7 +69,7 @@ export function CuraDomaLogo({
           <span
             className="cura-logo__tagline"
             style={{
-              fontFamily: "'Inter', sans-serif",
+              fontFamily: "'Inter', 'Inter Fallback', sans-serif",
               fontWeight: 300,
               color: TAGLINE,
               fontSize: "0.42em",

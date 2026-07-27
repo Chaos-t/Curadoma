@@ -3,7 +3,7 @@ import { useContent } from "../../lib/content";
 import { Editable } from "./editor/Editable";
 import { BlockArea } from "./editor/BlockArea";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 
 // Rendert eine dynamisch angelegte Seite (Titel + Fließtext, editierbar). Ist der
 // Slug keine bekannte Seite, wird die normale 404-Ansicht gezeigt.

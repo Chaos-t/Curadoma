@@ -1,7 +1,7 @@
 import { useSearchParams, Link } from "react-router";
 import { CheckCircle, XCircle, AlertTriangle, Info, CalendarDays } from "lucide-react";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 
 type Variant = "ok" | "warn" | "error";
 type Entry = { variant: Variant; title: string; desc: string };

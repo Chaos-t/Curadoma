@@ -13,7 +13,7 @@ import {
 } from "../../lib/validation";
 import { Editable } from "./editor/Editable";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 
 const JOB_TITLE = "Alltagsbegleiter/Haushaltshilfe (m/w/d)";
 

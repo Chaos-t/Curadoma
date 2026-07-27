@@ -2,7 +2,7 @@ import { useLocation } from "react-router";
 import { useContent } from "../../../lib/content";
 import { BlockArea } from "./BlockArea";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 
 // Feste Inhaltsseiten, die einen frei baubaren Block-Bereich am Seitenende
 // bekommen (Pfad -> stabiler Bereichs-Schlüssel). Rechtsseiten (Impressum/

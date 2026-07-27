@@ -8,7 +8,7 @@ import { SEO_BY_PATH, SEO_DEFAULT } from "../../../lib/seo";
 
 export const OPEN_SEO_EVENT = "cura-open-seo";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 const SITE = "https://curadoma.de";
 
 /** „SEO & Titel"-Panel: bearbeitet Titel, Meta-Beschreibung und OG-Bild der

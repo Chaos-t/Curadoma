@@ -12,7 +12,7 @@ import {
   validateName, validateEmail, validatePhone, validateConsent, looksLikeBotSubmit, Limits,
 } from "../../lib/validation";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 
 const WEEKDAYS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
 

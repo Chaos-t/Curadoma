@@ -3,7 +3,7 @@ import { X, Mail, Phone, Download, Archive, Trash2 } from "lucide-react";
 import { useAdmin, adminErrorText, type AdminType } from "../../../lib/admin";
 import { TYPE_META, STATUS_LABELS, fmtDate } from "./fields";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 const STATUSES = ["neu", "in_bearbeitung", "erledigt"] as const;
 
 export function AdminDetail({ type, record, onClose, onChanged, onDeleted }: {

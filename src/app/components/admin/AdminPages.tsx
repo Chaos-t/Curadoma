@@ -4,7 +4,7 @@ import { ArrowLeft, Plus, Trash2, Pencil } from "lucide-react";
 import { useAdmin, adminErrorText } from "../../../lib/admin";
 import { useContent } from "../../../lib/content";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 // Spiegel der Server-Validierung (admin_util.validatePages) — Defense in depth.
 const SLUG_RE = /^[a-z][a-z0-9-]{1,40}$/;
 const RESERVED = new Set([

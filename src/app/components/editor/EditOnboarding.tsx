@@ -32,7 +32,7 @@ export function EditOnboarding() {
       <div
         className="w-full max-w-md bg-white rounded-3xl border border-[#E5F4F5] shadow-[0_30px_80px_rgba(0,0,0,0.3)] p-7"
         onClick={(e) => e.stopPropagation()}
-        style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+        style={{ fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" }}
         role="dialog" aria-modal="true" aria-label="Hilfe zum Bearbeiten"
       >
         <h2 className="text-xl font-medium text-[#111111] mb-4">So bearbeitest du deine Seite</h2>

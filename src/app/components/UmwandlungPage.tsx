@@ -2,7 +2,7 @@ import { Link } from "react-router";
 import { CheckCircle, Phone, Repeat } from "lucide-react";
 import { Editable } from "./editor/Editable";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 
 // Werte = Pflegesachleistung/Monat + max. Umwandlung (40 %) nach § 45a SGB XI.
 const tableRows = [

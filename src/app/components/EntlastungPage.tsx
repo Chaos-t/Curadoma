@@ -3,7 +3,7 @@ import { CheckCircle, Phone, Euro, ShieldCheck, FileText, HelpCircle, Heart, Use
 import { Editable } from "./editor/Editable";
 import { EditableImage } from "./editor/EditableImage";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 const img = "https://images.unsplash.com/photo-1632152133952-98b268dc4b86?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoZWFsdGglMjBpbnN1cmFuY2UlMjBkb2N1bWVudCUyMHBhcGVyd29yayUyMGRlc2t8ZW58MXx8fHwxNzc1MzE0NDk1fDA&ixlib=rb-4.1.0&q=80&w=1080";
 
 export function EntlastungPage() {

@@ -16,7 +16,7 @@ import { Editable } from "./editor/Editable";
 import { EditableImage } from "./editor/EditableImage";
 import { AddressBlock, HoursText, PhoneText, EmailText } from "./editor/Shared";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 const img = "https://images.unsplash.com/photo-1758518725921-1eb74ed293be?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmcmllbmRseSUyMGNvbnN1bHRhdGlvbiUyMG9mZmljZSUyMG1lZXRpbmclMjB3YXJtfGVufDF8fHx8MTc3NTMxNDQ5MXww&ixlib=rb-4.1.0&q=80&w=1080";
 
 const GOOGLE_MAPS_EMBED = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2440.5!2d9.3567!3d52.1037!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zU8O8bnRlbGhhbmcgOSwgMzE3ODcgSGFtZWxu!5e0!3m2!1sde!2sde!4v1700000000000!5m2!1sde!2sde";

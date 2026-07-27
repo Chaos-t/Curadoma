@@ -52,7 +52,7 @@ function PartnerSection() {
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#0E6E6A] mb-5 uppercase tracking-wider">
             <Handshake size={14} /> <Editable as="span" id="home.partners.badge">Unsere Partner</Editable>
           </div>
-          <Editable as="h2" id="home.partners.title" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }} className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-4">
+          <Editable as="h2" id="home.partners.title" style={{ fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" }} className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-4">
             Gemeinsam stark für Sie
           </Editable>
           <Editable as="p" id="home.partners.text" className="text-[15px] lg:text-base text-[#5F6B73] font-light leading-relaxed">
@@ -114,7 +114,7 @@ function PartnerCard({ partner, index }: { partner: Partner; index: number }) {
           <Editable as="span" id="home.partners.eyebrow-label">Partner</Editable>
           <ExternalLink size={10} className="text-[#9AA3A8] opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
-        <div className="text-sm font-medium text-[#111111] truncate" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+        <div className="text-sm font-medium text-[#111111] truncate" style={{ fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" }}>
           <Editable as="span" id={`home.partners.${index}.name`}>{partner.name}</Editable>
         </div>
         <div className="text-[11px] text-[#5F6B73] font-light truncate">
@@ -126,15 +126,15 @@ function PartnerCard({ partner, index }: { partner: Partner; index: number }) {
   );
 }
 
-const heroBase = "https://images.unsplash.com/photo-1773227055624-07b515ba87c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXJlZ2l2ZXIlMjBob2xkaW5nJTIwZWxkZXJseSUyMHdvbWFuJTIwaGFuZHN8ZW58MXx8fHwxNzc1MzE0MDE0fDA&ixlib=rb-4.1.0&q=80";
+const heroBase = "https://images.unsplash.com/photo-1773227055624-07b515ba87c5?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXJlZ2l2ZXIlMjBob2xkaW5nJTIwZWxkZXJseSUyMHdvbWFuJTIwaGFuZHN8ZW58MXx8fHwxNzc1MzE0MDE0fDA&ixlib=rb-4.1.0&q=80";
 const heroImage = `${heroBase}&w=1080`;
 // Das Hero-Bild ist das LCP-Element. Ohne srcSet laedt auch ein 360-px-Handy
 // die 1080-px-Fassung — genau der Posten „Bilduebermittlung verbessern".
 // Unsplash liefert die Breite ueber &w=, daher hier gestaffelt anbieten.
 const heroSrcSet = [480, 640, 828, 1080].map((w) => `${heroBase}&w=${w} ${w}w`).join(", ");
-const demenzImage = "https://images.unsplash.com/photo-1758691031958-29541f3207a5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXJlZ2l2ZXIlMjByZWFkaW5nJTIwYm9vayUyMHNlbmlvciUyMHdvbWFufGVufDF8fHx8MTc3NTMxNDAxNHww&ixlib=rb-4.1.0&q=80&w=1080";
+const demenzImage = "https://images.unsplash.com/photo-1758691031958-29541f3207a5?crop=entropy&cs=tinysrgb&fit=max&fm=webp&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXJlZ2l2ZXIlMjByZWFkaW5nJTIwYm9vayUyMHNlbmlvciUyMHdvbWFufGVufDF8fHx8MTc3NTMxNDAxNHww&ixlib=rb-4.1.0&q=80&w=1080";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 
 export function HomePage() {
   return (

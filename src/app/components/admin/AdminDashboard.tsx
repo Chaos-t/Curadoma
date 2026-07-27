@@ -4,7 +4,7 @@ import { Inbox, FileText, CalendarDays, Images, Files, Pencil, LogOut } from "lu
 import { useAdmin, type AdminType } from "../../../lib/admin";
 import { useContent } from "../../../lib/content";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 
 const TILES: Array<{ type: AdminType; to: string; label: string; Icon: typeof Inbox; unit: string }> = [
   { type: "contact", to: "/admin/anfragen", label: "Anfragen", Icon: Inbox, unit: "neu" },

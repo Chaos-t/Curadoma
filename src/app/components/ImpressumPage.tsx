@@ -4,7 +4,7 @@ import { EditableImage } from "./editor/EditableImage";
 import { PhoneText, EmailText, AddressBlock } from "./editor/Shared";
 import { Css } from "./Css";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 const heroImg =
   "https://images.unsplash.com/photo-1557804506-669a67965ba0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
 

@@ -5,7 +5,7 @@ import { consent, requestReopenBanner } from "../../lib/consent";
 import { Editable } from "./editor/Editable";
 import { AddressBlock } from "./editor/Shared";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 
 /** Render the Google-Maps embed only when the visitor has accepted
  *  external embeds. Otherwise show a click-to-load placeholder that

@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import { ArrowLeft, Trash2, Lock } from "lucide-react";
 import { useAdmin, adminErrorText } from "../../../lib/admin";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 const FILTERS = ["alle", "verwendet", "ungenutzt"] as const;
 
 // Öffentliches Bild als Base64 laden (für die Session-Rückgängig-Funktion:

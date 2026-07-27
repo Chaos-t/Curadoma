@@ -22,7 +22,7 @@ export function EditToolbar() {
   return (
     <div className="fixed left-0 top-1/2 -translate-y-1/2 z-[100]"
       onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}
-      style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+      style={{ fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" }}>
       <div className={`flex items-stretch transition-transform duration-300 ease-out ${open ? "translate-x-0" : "-translate-x-[248px]"}`}>
         {/* Panel */}
         <div className="w-[248px] bg-white/95 backdrop-blur border border-l-0 border-[#E5F4F5] rounded-r-2xl shadow-[0_20px_60px_rgb(0,0,0,0.18)] p-3 flex flex-col gap-1.5">

@@ -1,7 +1,7 @@
 import { EinzugsgebietSection } from "./EinzugsgebietSection";
 import { Editable } from "./editor/Editable";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 
 export function EinzugsgebietPage() {
   return (

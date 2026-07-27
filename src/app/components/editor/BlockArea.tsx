@@ -8,7 +8,7 @@ import { EditableList } from "./EditableList";
 // Die „+"-Palette gibt es nur im Bearbeitungsmodus -> erst dann nachladen.
 const BlockPalette = lazy(() => import("./BlockPalette").then((m) => ({ default: m.BlockPalette })));
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 // Neutraler Platzhalter für neue, noch leere Bild-Blöcke (nur im Editor sichtbar).
 const IMG_PLACEHOLDER =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='260'%3E%3Crect width='100%25' height='100%25' fill='%23EAF6F5'/%3E%3Ctext x='50%25' y='50%25' fill='%235F6B73' font-family='sans-serif' font-size='18' text-anchor='middle' dominant-baseline='middle'%3EBild w%C3%A4hlen%3C/text%3E%3C/svg%3E";

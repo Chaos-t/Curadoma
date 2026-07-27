@@ -1,7 +1,7 @@
 import { ArrowUp, ArrowDown, Trash2, Plus } from "lucide-react";
 import { useContent } from "../../../lib/content";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 
 /** Liefert die geordneten Item-Keys einer Zone (Server-Override oder Code-Defaults)
  *  plus editMode. Der Inhalt jedes Items läuft weiter über <Editable>. */

@@ -65,7 +65,7 @@ function placeholderToDisplay(r: typeof fallbackReviews[number]): DisplayReview 
 
 const REVIEWS_REFRESH_MS = 30 * 60 * 1000;
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 
 function Stars({ value }: { value: number }) {
   return (

@@ -37,7 +37,7 @@ export const routes = [
         path: "*",
         Component: () => (
           <div className="py-32 text-center">
-            <h1 className="text-4xl font-medium text-[#111111] mb-4" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+            <h1 className="text-4xl font-medium text-[#111111] mb-4" style={{ fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" }}>
               Seite nicht gefunden
             </h1>
             <p className="text-lg text-[#5F6B73] font-light">Die gewünschte Seite existiert leider nicht.</p>

@@ -23,7 +23,7 @@ export function TrashToast() {
 
   return (
     <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[200] w-[min(94vw,460px)] bg-[#111111] text-white rounded-2xl shadow-[0_20px_60px_rgb(0,0,0,0.3)] px-4 py-3 flex items-center gap-3 motion-safe:animate-[curaTrashIn_220ms_ease-out]"
-      style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }} role="status">
+      style={{ fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" }} role="status">
       <span className="flex-1 text-sm truncate">
         {err ? <span className="text-[#ff9a94]">{err}</span> : <>{trash.label} <span className="text-white/50">· in dieser Sitzung wiederherstellbar</span></>}
       </span>

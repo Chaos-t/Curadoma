@@ -13,7 +13,7 @@ import carSide from "../../imports/WhatsApp_Image_2026-04-28_at_11.59.22-1.jpeg"
 import carRear from "../../imports/WhatsApp_Image_2026-04-28_at_11.59.22_(1)-1.jpeg";
 import carDriver from "../../imports/WhatsApp_Image_2026-04-28_at_11.59.23-1.jpeg";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 const img1 = "https://images.unsplash.com/photo-1761574928717-d626a2b42ab4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxlbGRlcmx5JTIwY291cGxlJTIwd2Fsa2luZyUyMGdhcmRlbiUyMHBlYWNlZnVsfGVufDF8fHx8MTc3NTMxNDQ5MHww&ixlib=rb-4.1.0&q=80&w=1080";
 const img2 = "https://images.unsplash.com/photo-1595715316313-1730ee539c64?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxob21lJTIwY2xlYW5pbmclMjBzZXJ2aWNlJTIwdGlkeSUyMGxpdmluZyUyMHJvb218ZW58MXx8fHwxNzc1MzE0NDkwfDA&ixlib=rb-4.1.0&q=80&w=1080";
 

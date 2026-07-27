@@ -3,7 +3,7 @@ import { Lock } from "lucide-react";
 import { useAdmin } from "../../../lib/admin";
 import { Css } from "../Css";
 
-const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
+const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 
 export function AdminLoginForm() {
   const { login } = useAdmin();
