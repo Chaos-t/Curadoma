@@ -10,8 +10,8 @@ type Props = {
   animate?: boolean;
 };
 
-const TEAL = "#6FBDB8";
-const TAGLINE = "#9AA3A8";
+const TEAL = "#0F7C77";
+const TAGLINE = "#5F6B73";
 
 // Cormorant — a high-contrast, spiky-serif display face (OFL, free for
 // commercial use; loaded via Google Fonts in src/styles/fonts.css). A close,
@@ -29,6 +29,8 @@ export function CuraDomaLogo({
       <img
         src={monogramImg}
         alt="Cura Doma"
+        width={500}
+        height={500}
         className={className}
         style={{ objectFit: "contain", mixBlendMode: "multiply" }}
       />
@@ -43,6 +45,8 @@ export function CuraDomaLogo({
         src={monogramImg}
         alt=""
         aria-hidden="true"
+        width={500}
+        height={500}
         className="cura-logo__mark h-full w-auto object-contain shrink-0"
         style={{ mixBlendMode: "multiply" }}
       />
@@ -58,7 +62,7 @@ export function CuraDomaLogo({
             lineHeight: 1.05,
           }}
         >
-          Cura Doma
+          <span className="cura-logo__wordmark-inner">Cura Doma</span>
         </span>
         {showTagline && (
           <span
@@ -79,10 +83,17 @@ export function CuraDomaLogo({
       </div>
 
       <style>{`
-        /* Wordmark appears to be "written" left-to-right */
+        /* Wordmark appears to be "written" left-to-right.
+           Bewusst per transform statt clip-path: clip-path laeuft in Blink
+           NICHT auf dem Compositor (Lighthouse: „Nicht zusammengesetzte
+           Animationen vermeiden") und kostet auf jedem Frame Hauptthread-Zeit.
+           Der aeussere Span clippt, der innere faehrt per translateX herein —
+           optisch derselbe Wisch-Effekt, aber compositor-beschleunigt. */
+        .cura-logo__wordmark { display: inline-block; overflow: hidden; }
+        .cura-logo__wordmark-inner { display: inline-block; will-change: transform; }
         @keyframes curaLogoDraw {
-          from { clip-path: inset(0 100% 0 0); }
-          to   { clip-path: inset(0 0 0 0); }
+          from { transform: translateX(-101%); }
+          to   { transform: translateX(0); }
         }
         @keyframes curaLogoMarkIn {
           from { opacity: 0; transform: scale(0.88) rotate(-5deg); }
@@ -95,7 +106,7 @@ export function CuraDomaLogo({
         .cura-logo--animate .cura-logo__mark {
           animation: curaLogoMarkIn 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
         }
-        .cura-logo--animate .cura-logo__wordmark {
+        .cura-logo--animate .cura-logo__wordmark-inner {
           animation: curaLogoDraw 950ms cubic-bezier(0.65, 0, 0.35, 1) 180ms both;
         }
         .cura-logo--animate .cura-logo__tagline {
@@ -103,7 +114,7 @@ export function CuraDomaLogo({
         }
         @media (prefers-reduced-motion: reduce) {
           .cura-logo--animate .cura-logo__mark,
-          .cura-logo--animate .cura-logo__wordmark,
+          .cura-logo--animate .cura-logo__wordmark-inner,
           .cura-logo--animate .cura-logo__tagline {
             animation: none;
           }

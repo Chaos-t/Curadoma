@@ -68,7 +68,12 @@ const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
 function Stars({ value }: { value: number }) {
   return (
-    <div className="flex items-center gap-0.5" aria-label={`${value} von 5 Sternen`}>
+    /* role="img" ist noetig: ein nacktes <div> hat die Rolle „generic", und die
+       verbietet einen zugaenglichen Namen — daher meldete Lighthouse
+       „Elemente verwenden unzulaessige ARIA-Attribute" (aria-prohibited-attr).
+       Mit role="img" ist der Name erlaubt und die Sternreihe wird korrekt als
+       EIN Bild mit Beschriftung vorgelesen. */
+    <div className="flex items-center gap-0.5" role="img" aria-label={`${value} von 5 Sternen`}>
       {Array.from({ length: 5 }, (_, i) => (
         <Star
           key={i}
@@ -114,7 +119,7 @@ function ReviewCard({ r, placeUrl }: { r: DisplayReview; placeUrl?: string }) {
           />
         ) : (
           <div
-            className="w-11 h-11 rounded-full bg-gradient-to-br from-[#DFF7F8] to-[#BFEAF2] flex items-center justify-center text-[#6FBDB8] font-medium text-base shrink-0"
+            className="w-11 h-11 rounded-full bg-gradient-to-br from-[#DFF7F8] to-[#BFEAF2] flex items-center justify-center text-[#0E6E6A] font-medium text-base shrink-0"
             style={jakarta}
           >
             {r.initial}
@@ -130,7 +135,7 @@ function ReviewCard({ r, placeUrl }: { r: DisplayReview; placeUrl?: string }) {
             </span>
             <GoogleG size={14} />
           </div>
-          <div className="flex items-center gap-2 text-[11px] text-[#9AA3A8] font-light">
+          <div className="flex items-center gap-2 text-[11px] text-[#5F6B73] font-light">
             <Stars value={r.rating} />
             <span>· {r.date}</span>
           </div>
@@ -260,7 +265,7 @@ export function GoogleReviews() {
               href={placeUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 mt-4 text-sm font-medium text-[#6FD3D1] hover:text-[#5BC2C0]"
+              className="inline-flex items-center gap-1.5 mt-4 text-sm font-medium text-[#0F7C77] hover:text-[#5BC2C0]"
             >
               <Editable as="span" id="reviews.header.cta-all-reviews">Alle Bewertungen auf Google ansehen →</Editable>
             </a>

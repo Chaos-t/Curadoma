@@ -12,7 +12,7 @@ export function ImpressumPage() {
     <>
       <section className="relative pt-16 pb-12 lg:pt-24 lg:pb-16 overflow-hidden bg-gradient-to-b from-white/80 to-[#F8FEFF]/80">
         <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#0E6E6A] mb-6 uppercase tracking-wider">
             <FileText size={14} /> <Editable as="span" id="impressum.hero.badge">Rechtliches</Editable>
           </div>
           <h1 className="text-4xl sm:text-5xl font-medium tracking-tight text-[#111111] leading-[1.15] mb-4" style={jakarta}>
@@ -44,8 +44,8 @@ export function ImpressumPage() {
           </Block>
 
           <Block title={<Editable as="span" id="impressum.kontakt.title">Kontakt</Editable>}>
-            <p className="flex items-center gap-2"><Phone size={16} className="text-[#6FD3D1]" /> <PhoneText className="hover:text-[#6FD3D1]" /></p>
-            <p className="flex items-center gap-2"><Mail size={16} className="text-[#6FD3D1]" /> <EmailText className="hover:text-[#6FD3D1]" /></p>
+            <p className="flex items-center gap-2"><Phone size={16} className="text-[#6FD3D1]" /> <PhoneText className="hover:text-[#0F7C77]" /></p>
+            <p className="flex items-center gap-2"><Mail size={16} className="text-[#6FD3D1]" /> <EmailText className="hover:text-[#0F7C77]" /></p>
           </Block>
 
           <Block title={<Editable as="span" id="impressum.verantwortlich.title">Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</Editable>}>

@@ -11,8 +11,31 @@
 // History: we previously shipped a static gradient here (and, earlier still,
 // three animated variants the user removed). The user has explicitly asked
 // for an animated background that spans the whole page.
-import { useEffect, useState } from "react";
-import LightPillar from "./LightPillar";
+import { useEffect, useState, lazy, Suspense } from "react";
+
+// three.js ist gross (~150 KB gzip) und treibt hier NUR den dekorativen
+// Hintergrund. Deshalb wird der WebGL-Teil erst NACH dem ersten Rendern
+// nachgeladen (dynamic import + Idle-Callback): der Hauptinhalt erscheint
+// dadurch deutlich frueher, der Verlauf unten dient bis dahin als Flaeche.
+const LightPillar = lazy(() => import("./LightPillar"));
+
+/** True, sobald der Browser Leerlauf hat (bzw. nach kurzer Verzoegerung) —
+ *  damit der Hintergrund nicht mit dem Hauptinhalt um Ladezeit konkurriert. */
+function useDeferredMount(): boolean {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    // Bei „weniger Bewegung" bleibt der animierte Hintergrund ganz aus.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const ric = (window as unknown as {
+      requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number;
+    }).requestIdleCallback;
+    if (ric) { const id = ric(() => setReady(true), { timeout: 3000 }); return () =>
+      (window as unknown as { cancelIdleCallback?: (h: number) => void }).cancelIdleCallback?.(id); }
+    const t = window.setTimeout(() => setReady(true), 1200);
+    return () => window.clearTimeout(t);
+  }, []);
+  return ready;
+}
 
 function useIsMobile(breakpoint = 768) {
   const [isMobile, setIsMobile] = useState(() =>
@@ -28,6 +51,7 @@ function useIsMobile(breakpoint = 768) {
 
 export function BackgroundScene() {
   const isMobile = useIsMobile();
+  const showPillar = useDeferredMount();
 
   return (
     <div className="fixed inset-0 pointer-events-none z-0" aria-hidden="true">
@@ -39,22 +63,27 @@ export function BackgroundScene() {
             "linear-gradient(180deg, #FBFEFE 0%, #F4FBFC 50%, #F8FEFF 100%)",
         }}
       />
-      {/* Soft teal light-pillar trail across the whole page */}
-      <LightPillar
-        lightMode
-        topColor="#F8FEFF"
-        bottomColor="#5BC6C3"
-        intensity={isMobile ? 0.7 : 0.95}
-        rotationSpeed={0.22}
-        glowAmount={0.0024}
-        pillarWidth={isMobile ? 4.8 : 3.4}
-        pillarHeight={0.4}
-        noiseIntensity={0.25}
-        pillarRotation={isMobile ? 35 : 20}
-        interactive={false}
-        mixBlendMode="normal"
-        quality="medium"
-      />
+      {/* Soft teal light-pillar trail across the whole page — erst nach dem
+          ersten Rendern nachgeladen (siehe useDeferredMount oben). */}
+      {showPillar && (
+        <Suspense fallback={null}>
+          <LightPillar
+            lightMode
+            topColor="#F8FEFF"
+            bottomColor="#5BC6C3"
+            intensity={isMobile ? 0.7 : 0.95}
+            rotationSpeed={0.22}
+            glowAmount={0.0024}
+            pillarWidth={isMobile ? 4.8 : 3.4}
+            pillarHeight={0.4}
+            noiseIntensity={0.25}
+            pillarRotation={isMobile ? 35 : 20}
+            interactive={false}
+            mixBlendMode="normal"
+            quality="medium"
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

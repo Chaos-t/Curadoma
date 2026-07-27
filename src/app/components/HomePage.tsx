@@ -48,7 +48,7 @@ function PartnerSection() {
     <section className="py-24 bg-white/80 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="cura-reveal cura-reveal-up text-center max-w-2xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-5 uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#0E6E6A] mb-5 uppercase tracking-wider">
             <Handshake size={14} /> <Editable as="span" id="home.partners.badge">Unsere Partner</Editable>
           </div>
           <Editable as="h2" id="home.partners.title" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }} className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-4">
@@ -109,7 +109,7 @@ function PartnerCard({ partner, index }: { partner: Partner; index: number }) {
         />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-[#9AA3A8] font-light mb-0.5">
+        <div className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-[#5F6B73] font-light mb-0.5">
           <Editable as="span" id="home.partners.eyebrow-label">Partner</Editable>
           <ExternalLink size={10} className="text-[#9AA3A8] opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
@@ -146,13 +146,13 @@ export function HomePage() {
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-medium tracking-tight text-[#111111] leading-[1.15] mb-6" style={jakarta}>
               <Editable as="span" id="home.hero.title">Sie können nicht immer da sein.</Editable> <br className="hidden lg:block" />
-              <span className="text-[#6FD3D1]"><Editable as="span" id="home.hero.title-highlight">Wir können es.</Editable></span>
+              <span className="text-[#0F7C77]"><Editable as="span" id="home.hero.title-highlight">Wir können es.</Editable></span>
             </h1>
             <Editable as="p" id="home.hero.subtitle" className="text-lg lg:text-xl text-[#5F6B73] leading-relaxed max-w-2xl mx-auto lg:mx-0 mb-10 font-light">
               Liebevolle und individuelle Unterstützung für pflegebedürftige Menschen in ihrer gewohnten Umgebung. Wir entlasten Angehörige und fördern ein würdevolles, selbstbestimmtes Leben.
             </Editable>
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-10">
-              <Link to="/kontakt" className="w-full sm:w-auto bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)] flex items-center justify-center gap-2">
+              <Link to="/kontakt" className="w-full sm:w-auto bg-[#0F7C77] text-white hover:bg-[#0E6E6A] px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)] flex items-center justify-center gap-2">
                 <Editable as="span" id="home.hero.cta-primary">Kostenlos beraten lassen</Editable>
               </Link>
               <Link to="/leistungen" className="w-full sm:w-auto bg-white text-[#5F6B73] border border-[#E5F4F5] hover:bg-[#F8FEFF] hover:text-[#111111] px-8 py-3.5 rounded-full text-base font-normal transition-all flex items-center justify-center">
@@ -168,10 +168,18 @@ export function HomePage() {
 
           <div className="cura-hero-image flex-1 w-full max-w-lg lg:max-w-none relative">
             <div className="relative rounded-3xl overflow-hidden shadow-[0_20px_60px_rgb(191,234,242,0.4)] border-4 border-white">
-              <EditableImage id="home.hero.image" src={heroImage} alt="Betreuerin hält die Hände einer älteren Dame" altId="home.hero.image-alt" className="w-full h-auto aspect-[4/3] object-cover" />
+              {/* Bild ueber der Falz und LCP-Kandidat: bewusst NICHT lazy, mit
+                  hoher Prioritaet holen + feste Groesse (Seitenverhaeltnis
+                  reserviert Platz -> kein Layout-Sprung). fetchpriority wird
+                  kleingeschrieben gespreizt, weil React 18 nur das HTML-Attribut
+                  kennt (camelCase erst ab React 19). */}
+              <EditableImage id="home.hero.image" src={heroImage} alt="Betreuerin hält die Hände einer älteren Dame" altId="home.hero.image-alt"
+                width={1200} height={900} loading="eager" decoding="async"
+                {...{ fetchpriority: "high" }}
+                className="w-full h-auto aspect-[4/3] object-cover" />
             </div>
             <div className="cura-card-glow absolute -bottom-6 -left-4 lg:-left-12 bg-white p-5 rounded-2xl shadow-[0_10px_30px_rgb(0,0,0,0.05)] border border-[#E5F4F5] flex items-center gap-4">
-              <div className="w-12 h-12 bg-[#DFF7F8] rounded-full flex items-center justify-center text-[#6FD3D1]">
+              <div className="w-12 h-12 bg-[#DFF7F8] rounded-full flex items-center justify-center text-[#0E6E6A]">
                 <ShieldCheck size={24} strokeWidth={1.5} />
               </div>
               <div>
@@ -185,14 +193,21 @@ export function HomePage() {
         <style>{`
           /* Slow slide-in from the sides on first render. The text on
              the left, the image on the right — image enters a touch
-             later so the eye lands on the headline first. */
+             later so the eye lands on the headline first.
+
+             WICHTIG: Hier wird BEWUSST nur transform animiert, NICHT die
+             Deckkraft. Mit "opacity: 0" im 0%-Keyframe + fill-mode "both" war
+             die Überschrift ab dem allerersten Frame unsichtbar — Chrome fand
+             dadurch gar kein "größtes Inhaltselement" und Lighthouse meldete
+             mobil NO_LCP (kein LCP/TBT-Messwert). Reines transform bleibt
+             zudem auf dem Compositor und belastet den Hauptthread nicht. */
           @keyframes curaHeroEnterLeft {
-            0%   { opacity: 0; transform: translateX(-44px); }
-            100% { opacity: 1; transform: translateX(0); }
+            0%   { transform: translateX(-44px); }
+            100% { transform: translateX(0); }
           }
           @keyframes curaHeroEnterRight {
-            0%   { opacity: 0; transform: translateX(44px); }
-            100% { opacity: 1; transform: translateX(0); }
+            0%   { transform: translateX(44px); }
+            100% { transform: translateX(0); }
           }
           .cura-hero-text {
             animation: curaHeroEnterLeft 1.2s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -245,12 +260,12 @@ export function HomePage() {
                 to={service.link}
                 className="cura-card-glow group bg-white/90 backdrop-blur-sm p-8 rounded-3xl border border-[#E5F4F5] shadow-sm hover:shadow-md hover:border-[#BFEAF2] transition-all duration-300 flex flex-col"
               >
-                <div className="w-14 h-14 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] mb-6">
+                <div className="w-14 h-14 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#0E6E6A] mb-6">
                   {service.icon}
                 </div>
                 <Editable as="h3" id={`home.services.${i}.title`} style={jakarta} className="text-xl font-medium tracking-tight text-[#111111] mb-3">{service.title}</Editable>
                 <Editable as="p" id={`home.services.${i}.desc`} className="text-[15px] text-[#5F6B73] leading-relaxed font-light mb-5 flex-1">{service.desc}</Editable>
-                <span className="inline-flex items-center gap-1.5 text-sm font-medium text-[#6FD3D1] group-hover:gap-2.5 transition-all">
+                <span className="inline-flex items-center gap-1.5 text-sm font-medium text-[#0F7C77] group-hover:gap-2.5 transition-all">
                   <Editable as="span" id="home.services.card-link">Mehr erfahren</Editable> <ArrowRight size={16} />
                 </span>
               </Link>
@@ -258,7 +273,7 @@ export function HomePage() {
           </div>
 
           <div className="text-center mt-12">
-            <Link to="/leistungen" className="inline-flex items-center gap-2 text-sm font-medium text-[#6FD3D1] hover:text-[#5BC2C0] transition-colors">
+            <Link to="/leistungen" className="inline-flex items-center gap-2 text-sm font-medium text-[#0F7C77] hover:text-[#5BC2C0] transition-colors">
               <Editable as="span" id="home.services.all-link">Alle Leistungen im Detail ansehen</Editable> <ArrowRight size={16} />
             </Link>
           </div>
@@ -277,9 +292,9 @@ export function HomePage() {
                 Wussten Sie schon? Ab Pflegegrad 1 steht Ihnen ein monatlicher <strong>Entlastungsbetrag von 131 Euro (§ 45b SGB XI)</strong> zur Verfügung. Dieser kann für unsere haushaltsnahen Dienstleistungen und die Alltagsbegleitung genutzt werden.
               </Editable>
               <div className="cura-card-glow bg-[#F8FEFF] p-6 rounded-2xl border border-[#E5F4F5] mb-8">
-                <h4 className="text-base font-medium text-[#111111] mb-2 flex items-center gap-2">
+                <h3 className="text-base font-medium text-[#111111] mb-2 flex items-center gap-2">
                   <Info size={18} className="text-[#6FD3D1]" /> <Editable as="span" id="home.pflegekasse.box.title">Weitere Möglichkeiten</Editable>
-                </h4>
+                </h3>
                 <ul className="space-y-3 text-[15px] text-[#5F6B73] font-light">
                   <li className="flex items-start gap-2">
                     <CheckCircle size={18} className="text-[#6FD3D1] mt-0.5 shrink-0" />
@@ -291,7 +306,7 @@ export function HomePage() {
                   </li>
                 </ul>
               </div>
-              <Link to="/entlastung" className="inline-flex items-center gap-2 text-sm font-medium text-[#6FD3D1] hover:text-[#5BC2C0] transition-colors">
+              <Link to="/entlastung" className="inline-flex items-center gap-2 text-sm font-medium text-[#0F7C77] hover:text-[#5BC2C0] transition-colors">
                 <Editable as="span" id="home.pflegekasse.link">Mehr zu Ihren Ansprüchen erfahren</Editable> <ArrowRight size={16} />
               </Link>
             </div>
@@ -309,7 +324,7 @@ export function HomePage() {
                 ].map((step, i) => (
                   <div key={step.num} className="flex gap-6">
                     <div
-                      className={`w-12 h-12 rounded-full flex items-center justify-center font-medium text-lg shrink-0 ${step.filled ? "bg-[#6FD3D1] text-white shadow-md" : "bg-white border-2 border-[#6FD3D1] text-[#6FD3D1]"}`}
+                      className={`w-12 h-12 rounded-full flex items-center justify-center font-medium text-lg shrink-0 ${step.filled ? "bg-[#0F7C77] text-white shadow-md" : "bg-white border-2 border-[#6FD3D1] text-[#0F7C77]"}`}
                       style={jakarta}
                     >
                       {step.num}
@@ -337,7 +352,7 @@ export function HomePage() {
           </div>
 
           <div className="cura-reveal cura-reveal-right order-1 lg:order-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#0E6E6A] mb-6 uppercase tracking-wider">
               <Editable as="span" id="home.demenz.badge">Spezialisierte Betreuung</Editable>
             </div>
             <Editable as="h2" id="home.demenz.title" style={jakarta} className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-6">
@@ -360,7 +375,7 @@ export function HomePage() {
                 </li>
               ))}
             </ul>
-            <Link to="/demenzbetreuung" className="inline-flex items-center gap-2 text-sm font-medium text-[#6FD3D1] hover:text-[#5BC2C0] transition-colors">
+            <Link to="/demenzbetreuung" className="inline-flex items-center gap-2 text-sm font-medium text-[#0F7C77] hover:text-[#5BC2C0] transition-colors">
               <Editable as="span" id="home.demenz.link">Mehr zur Demenzbetreuung</Editable> <ArrowRight size={16} />
             </Link>
           </div>
@@ -381,10 +396,10 @@ export function HomePage() {
               { icon: <ShieldCheck size={32} strokeWidth={1.5} />, label: "Vertrauensvoll" },
             ].map((item, i) => (
               <div key={i} className="flex flex-col items-center">
-                <div className="w-16 h-16 rounded-full bg-[#F8FEFF] border border-[#E5F4F5] flex items-center justify-center text-[#6FD3D1] mb-4">
+                <div className="w-16 h-16 rounded-full bg-[#F8FEFF] border border-[#E5F4F5] flex items-center justify-center text-[#0F7C77] mb-4">
                   {item.icon}
                 </div>
-                <Editable as="h4" id={`home.why.${i}`} className="text-base font-medium text-[#111111]">{item.label}</Editable>
+                <Editable as="h3" id={`home.why.${i}`} className="text-base font-medium text-[#111111]">{item.label}</Editable>
               </div>
             ))}
           </div>
@@ -409,7 +424,7 @@ export function HomePage() {
             Wir nehmen uns Zeit für Sie und beantworten alle Fragen zur Pflegekasse in Ruhe – persönlich und ohne Verpflichtung.
           </Editable>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-            <Link to="/kontakt" className="w-full sm:w-auto bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-8 py-4 rounded-full text-base font-normal transition-all flex items-center justify-center gap-2 shadow-sm">
+            <Link to="/kontakt" className="w-full sm:w-auto bg-[#0F7C77] text-white hover:bg-[#0E6E6A] px-8 py-4 rounded-full text-base font-normal transition-all flex items-center justify-center gap-2 shadow-sm">
               <Mail size={20} />
               <Editable as="span" id="home.cta.button-anfrage">Jetzt anfragen</Editable>
             </Link>

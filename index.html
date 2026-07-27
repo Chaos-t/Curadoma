@@ -7,6 +7,28 @@
       <link rel="icon" type="image/png" href="/favicon.png" />
       <link rel="apple-touch-icon" href="/favicon.png" />
 
+      <!-- Schriften: frueh verbinden und NICHT render-blockierend laden. Der
+           Stylesheet wird als media="print" geholt (blockiert dadurch nicht)
+           und beim onload auf "all" geschaltet. Mit display=swap erscheint der
+           Text sofort in der Systemschrift und wird danach ersetzt. -->
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+      <!-- Das Hero-Bild (LCP-Element) liegt bei Unsplash: Verbindung vorab
+           aufbauen, damit DNS/TLS nicht erst beim Bildabruf anfallen. -->
+      <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Cormorant:wght@300;600&family=Inter:wght@300;400;500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
+        media="print"
+        onload="this.media='all'; this.onload=null;"
+      />
+      <noscript>
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Cormorant:wght@300;600&family=Inter:wght@300;400;500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
+        />
+      </noscript>
+
       <!-- Google Search Console – Eigentumsnachweis (HTML-Tag-Methode) -->
       <meta name="google-site-verification" content="IV40jlW10Zvg3qfVaHK9fVCKWJ5_w6ZO307IwCA0jxo" />
 

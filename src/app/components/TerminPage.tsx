@@ -57,7 +57,7 @@ function Calendar({ selected, onSelect }: { selected: Date | null; onSelect: (d:
       </div>
       <div className="grid grid-cols-7 gap-1 mb-1">
         {WEEKDAYS.map((w) => (
-          <div key={w} className="text-center text-[11px] font-medium text-[#9AA3A8] py-1">{w}</div>
+          <div key={w} className="text-center text-[11px] font-medium text-[#5F6B73] py-1">{w}</div>
         ))}
       </div>
       <div className="grid grid-cols-7 gap-1">
@@ -76,7 +76,7 @@ function Calendar({ selected, onSelect }: { selected: Date | null; onSelect: (d:
                 disabled
                   ? "text-[#C9D2D6] cursor-not-allowed"
                   : isSel
-                    ? "bg-[#6FD3D1] text-white font-medium shadow-[0_4px_12px_rgb(111,211,209,0.4)]"
+                    ? "bg-[#0F7C77] text-white font-medium shadow-[0_4px_12px_rgb(111,211,209,0.4)]"
                     : "text-[#111111] hover:bg-[#DFF7F8]"
               } ${isToday && !isSel ? "ring-1 ring-[#6FD3D1]" : ""}`}
             >
@@ -93,9 +93,9 @@ function StepCard({ n, title, icon, children }: { n: number; title: string; icon
   return (
     <div className="cura-reveal cura-reveal-up bg-white/90 backdrop-blur-sm rounded-3xl border border-[#E5F4F5] p-6 sm:p-7">
       <div className="flex items-center gap-3 mb-5">
-        <div className="w-8 h-8 rounded-full bg-[#6FD3D1] text-white flex items-center justify-center text-sm font-medium shrink-0" style={jakarta}>{n}</div>
+        <div className="w-8 h-8 rounded-full bg-[#0F7C77] text-white flex items-center justify-center text-sm font-medium shrink-0" style={jakarta}>{n}</div>
         <h2 className="text-lg font-medium tracking-tight text-[#111111] flex items-center gap-2" style={jakarta}>
-          <span className="text-[#6FD3D1]">{icon}</span>{title}
+          <span className="text-[#0F7C77]">{icon}</span>{title}
         </h2>
       </div>
       {children}
@@ -192,7 +192,7 @@ export function TerminPage() {
     }
   };
 
-  const inputCls = "w-full px-4 py-3 rounded-xl border border-[#E5F4F5] bg-white text-[#111111] text-sm placeholder:text-[#9AA3A8] focus:outline-none focus:ring-2 focus:ring-[#6FD3D1] focus:border-transparent transition-shadow";
+  const inputCls = "w-full px-4 py-3 rounded-xl border border-[#E5F4F5] bg-white text-[#111111] text-sm placeholder:text-[#5F6B73] focus:outline-none focus:ring-2 focus:ring-[#6FD3D1] focus:border-transparent transition-shadow";
 
   return (
     <>
@@ -200,11 +200,11 @@ export function TerminPage() {
       <section className="relative pt-16 pb-12 lg:pt-24 lg:pb-16 overflow-hidden bg-gradient-to-b from-white/80 to-[#F8FEFF]/80">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#BFEAF2] opacity-15 rounded-full blur-3xl pointer-events-none translate-x-1/3 -translate-y-1/3" />
         <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#0E6E6A] mb-6 uppercase tracking-wider">
             <CalendarDays size={14} /> Termin vereinbaren
           </div>
           <h1 className="text-4xl sm:text-5xl font-medium tracking-tight text-[#111111] leading-[1.15] mb-6" style={jakarta}>
-            Ihren Termin <span className="text-[#6FD3D1]">online anfragen</span>
+            Ihren Termin <span className="text-[#0F7C77]">online anfragen</span>
           </h1>
           <p className="text-lg text-[#5F6B73] leading-relaxed max-w-2xl mx-auto font-light">
             Wählen Sie Leistung, Tag und Uhrzeit. Wir bestätigen Ihren Wunschtermin zeitnah per E-Mail. Unverbindlich und kostenlos.
@@ -221,8 +221,8 @@ export function TerminPage() {
               <p className="text-[15px] text-[#5F6B73] font-light leading-relaxed mb-2">
                 Vielen Dank. Wir haben Ihnen eine Bestätigungs-E-Mail geschickt und melden uns zeitnah, um Ihren Termin verbindlich zu bestätigen.
               </p>
-              <p className="text-sm text-[#9AA3A8] font-light mb-6">Erst mit unserer Bestätigung ist der Termin fix.</p>
-              <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-[#6FD3D1] hover:text-[#5BC2C0] transition-colors">
+              <p className="text-sm text-[#5F6B73] font-light mb-6">Erst mit unserer Bestätigung ist der Termin fix.</p>
+              <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium text-[#0F7C77] hover:text-[#5BC2C0] transition-colors">
                 Zurück zur Startseite <ArrowRight size={16} />
               </Link>
             </div>
@@ -244,7 +244,7 @@ export function TerminPage() {
                         onClick={() => { setService(s); setFieldErrors((p) => { const { service: _s, ...r } = p; return r; }); }}
                         className={`px-4 py-2.5 rounded-full text-sm font-light border transition-all ${
                           service === s
-                            ? "bg-[#6FD3D1] text-white border-[#6FD3D1] shadow-[0_4px_14px_rgb(111,211,209,0.3)]"
+                            ? "bg-[#0F7C77] text-white border-[#6FD3D1] shadow-[0_4px_14px_rgb(111,211,209,0.3)]"
                             : "bg-white text-[#5F6B73] border-[#E5F4F5] hover:border-[#BFEAF2] hover:text-[#111111]"
                         }`}
                       >
@@ -258,14 +258,14 @@ export function TerminPage() {
                 {/* Step 2: Date */}
                 <StepCard n={2} title="Tag" icon={<CalendarDays size={18} strokeWidth={1.8} />}>
                   <Calendar selected={date} onSelect={pickDate} />
-                  <p className="text-xs text-[#9AA3A8] font-light mt-4">Termine Mo–Fr. Wochenenden und vergangene Tage sind nicht wählbar.</p>
+                  <p className="text-xs text-[#5F6B73] font-light mt-4">Termine Mo–Fr. Wochenenden und vergangene Tage sind nicht wählbar.</p>
                   {fieldErrors.date && <p className="text-xs text-red-500 mt-2">{fieldErrors.date}</p>}
                 </StepCard>
 
                 {/* Step 3: Time */}
                 <StepCard n={3} title="Uhrzeit" icon={<Clock size={18} strokeWidth={1.8} />}>
                   {!date ? (
-                    <p className="text-sm text-[#9AA3A8] font-light">Bitte wählen Sie zuerst einen Tag.</p>
+                    <p className="text-sm text-[#5F6B73] font-light">Bitte wählen Sie zuerst einen Tag.</p>
                   ) : (
                     <>
                       <div className="grid grid-cols-3 sm:grid-cols-4 gap-2.5">
@@ -282,7 +282,7 @@ export function TerminPage() {
                                 taken
                                   ? "bg-[#F8FEFF] text-[#C9D2D6] border-[#E5F4F5] line-through cursor-not-allowed"
                                   : sel
-                                    ? "bg-[#6FD3D1] text-white border-[#6FD3D1] font-medium shadow-[0_4px_14px_rgb(111,211,209,0.3)]"
+                                    ? "bg-[#0F7C77] text-white border-[#6FD3D1] font-medium shadow-[0_4px_14px_rgb(111,211,209,0.3)]"
                                     : "bg-white text-[#111111] border-[#E5F4F5] hover:border-[#BFEAF2]"
                               }`}
                             >
@@ -291,7 +291,7 @@ export function TerminPage() {
                           );
                         })}
                       </div>
-                      <p className="text-xs text-[#9AA3A8] font-light mt-4">Durchgestrichene Zeiten sind bereits vergeben.</p>
+                      <p className="text-xs text-[#5F6B73] font-light mt-4">Durchgestrichene Zeiten sind bereits vergeben.</p>
                     </>
                   )}
                   {fieldErrors.time && <p className="text-xs text-red-500 mt-2">{fieldErrors.time}</p>}
@@ -337,15 +337,15 @@ export function TerminPage() {
                   <dl className="space-y-3 text-sm mb-6">
                     <div className="flex items-start justify-between gap-3">
                       <dt className="text-[#5F6B73] font-light shrink-0">Leistung</dt>
-                      <dd className="text-[#111111] text-right font-medium">{service || <span className="text-[#9AA3A8] font-light">—</span>}</dd>
+                      <dd className="text-[#111111] text-right font-medium">{service || <span className="text-[#5F6B73] font-light">—</span>}</dd>
                     </div>
                     <div className="flex items-start justify-between gap-3">
                       <dt className="text-[#5F6B73] font-light shrink-0">Tag</dt>
-                      <dd className="text-[#111111] text-right font-medium">{date ? formatGermanDate(date) : <span className="text-[#9AA3A8] font-light">—</span>}</dd>
+                      <dd className="text-[#111111] text-right font-medium">{date ? formatGermanDate(date) : <span className="text-[#5F6B73] font-light">—</span>}</dd>
                     </div>
                     <div className="flex items-start justify-between gap-3">
                       <dt className="text-[#5F6B73] font-light shrink-0">Uhrzeit</dt>
-                      <dd className="text-[#111111] text-right font-medium">{time ? `${time} Uhr` : <span className="text-[#9AA3A8] font-light">—</span>}</dd>
+                      <dd className="text-[#111111] text-right font-medium">{time ? `${time} Uhr` : <span className="text-[#5F6B73] font-light">—</span>}</dd>
                     </div>
                   </dl>
 
@@ -354,7 +354,7 @@ export function TerminPage() {
                       className="mt-0.5 w-4 h-4 accent-[#6FD3D1] shrink-0" />
                     <span className="text-xs text-[#5F6B73] font-light leading-relaxed">
                       Ich stimme der Verarbeitung meiner Daten gemäß der{" "}
-                      <Link to="/datenschutz" className="text-[#6FD3D1] underline hover:text-[#5BC2C0]">Datenschutzerklärung</Link> zu. *
+                      <Link to="/datenschutz" className="text-[#0F7C77] underline hover:text-[#5BC2C0]">Datenschutzerklärung</Link> zu. *
                     </span>
                   </label>
                   {fieldErrors.consent_privacy && <p className="text-xs text-red-500 -mt-2 mb-3">{fieldErrors.consent_privacy}</p>}
@@ -367,14 +367,14 @@ export function TerminPage() {
                   )}
 
                   <button type="submit" disabled={submitting}
-                    className="w-full bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] disabled:opacity-60 disabled:cursor-not-allowed px-6 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)] flex items-center justify-center gap-2"
+                    className="w-full bg-[#0F7C77] text-white hover:bg-[#0E6E6A] disabled:opacity-60 disabled:cursor-not-allowed px-6 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)] flex items-center justify-center gap-2"
                     style={jakarta}>
                     {submitting ? "Wird gesendet…" : <>Termin anfragen <ArrowRight size={18} /></>}
                   </button>
 
-                  <p className="text-xs text-[#9AA3A8] font-light text-center mt-4">
+                  <p className="text-xs text-[#5F6B73] font-light text-center mt-4">
                     Unverbindlich. Lieber telefonisch?{" "}
-                    <a href="tel:+4951517107093" className="text-[#6FD3D1] hover:text-[#5BC2C0] whitespace-nowrap">05151 7107093</a>
+                    <a href="tel:+4951517107093" className="text-[#0F7C77] hover:text-[#5BC2C0] whitespace-nowrap">05151 7107093</a>
                   </p>
                 </div>
               </aside>
@@ -397,7 +397,7 @@ export function TerminPage() {
               { icon: <Phone size={26} strokeWidth={1.5} />, title: "3 · Wir sind für Sie da", desc: "Zum bestätigten Termin melden wir uns – telefonisch oder bei Ihnen vor Ort." },
             ].map((s, i) => (
               <div key={i} className="cura-card-glow bg-white rounded-3xl border border-[#E5F4F5] p-7 text-center">
-                <div className="w-14 h-14 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] mx-auto mb-5">{s.icon}</div>
+                <div className="w-14 h-14 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#0E6E6A] mx-auto mb-5">{s.icon}</div>
                 <h3 className="text-lg font-medium tracking-tight text-[#111111] mb-2" style={jakarta}>{s.title}</h3>
                 <p className="text-sm text-[#5F6B73] font-light leading-relaxed">{s.desc}</p>
               </div>

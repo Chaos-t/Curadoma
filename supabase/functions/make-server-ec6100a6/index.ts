@@ -191,10 +191,10 @@ async function resolvePlaceId(apiKey: string): Promise<string> {
 app.get("/make-server-ec6100a6/reviews", async (c) => {
   const apiKey = Deno.env.get("GOOGLE_PLACES_API_KEY");
   if (!apiKey) {
-    return c.json(
-      { error: "GOOGLE_PLACES_API_KEY is not set as a Supabase secret.", missing: ["GOOGLE_PLACES_API_KEY"] },
-      503,
-    );
+    // 200 + leere Liste statt 503 — siehe Begruendung im catch weiter unten
+    // (kein roter Konsolenfehler beim Besucher; Client nutzt den Fallback).
+    console.log("reviews: GOOGLE_PLACES_API_KEY missing");
+    return c.json({ reviews: [], unavailable: true, missing: ["GOOGLE_PLACES_API_KEY"] });
   }
 
   try {
@@ -227,8 +227,13 @@ app.get("/make-server-ec6100a6/reviews", async (c) => {
     );
     return c.json({ ...data, cached, stale });
   } catch (err) {
+    // BEWUSST HTTP 200 mit leerer Liste statt 502: der Client faellt bei einer
+    // leeren Liste automatisch auf die hinterlegten Rezensionen zurueck. Ein
+    // 5xx erzeugte dagegen auf JEDER Seite einen roten Konsolenfehler
+    // (Lighthouse: „Es wurden Browserfehler in der Konsole protokolliert").
+    // Der echte Grund bleibt im Server-Log und im Feld `error`.
     console.log("reviews fetch failed:", err);
-    return c.json({ error: String(err) }, 502);
+    return c.json({ reviews: [], unavailable: true, error: String(err) });
   }
 });
 
@@ -260,13 +265,14 @@ app.get("/make-server-ec6100a6/instagram-posts", async (c) => {
     const missing: string[] = [];
     if (!token) missing.push("INSTAGRAM_ACCESS_TOKEN");
     if (!igId) missing.push("INSTAGRAM_BUSINESS_ACCOUNT_ID");
-    return c.json(
-      {
-        error: "Instagram secrets are not set. Add them as Supabase Edge Function secrets.",
-        missing,
-      },
-      503,
-    );
+    // BEWUSST HTTP 200 mit leerer Liste statt 503: „Instagram ist nicht
+    // eingerichtet" ist kein Fehlerfall fuer den Besucher — der Client blendet
+    // die Sektion bei leerer Liste einfach aus. Ein 4xx/5xx erzeugte dagegen
+    // auf JEDER Seite einen roten Konsolenfehler (Lighthouse: „Es wurden
+    // Browserfehler in der Konsole protokolliert"). Der Grund steht weiterhin
+    // im Feld `disabled`/`missing` und im Server-Log.
+    console.log("instagram-posts: secrets missing ->", missing.join(", "));
+    return c.json({ posts: [], disabled: "not_configured", missing });
   }
 
   try {

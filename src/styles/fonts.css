@@ -1,5 +1,8 @@
-/* @import must stay first. Google-hosted families: Inter (body), Plus Jakarta
-   Sans (headings), Lora, and Cormorant — a high-contrast, spiky-serif display
-   face (OFL, free for commercial use) used for the "Cura Doma" logo wordmark
-   as a freely-usable stand-in for Khalos. */
-@import url('https://fonts.googleapis.com/css2?family=Cormorant:wght@500;600;700&family=Inter:wght@300;400&family=Plus+Jakarta+Sans:wght@400;500;600&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+/* Schriften werden BEWUSST nicht mehr hier per @import geladen.
+   Ein @import in einer gebündelten CSS-Datei erzeugt eine serielle Kette
+   (HTML -> app.css -> Google-CSS -> Font-Dateien) und blockiert das Rendern —
+   Lighthouse meldete dadurch „Anfragen zum Blockieren des Renderings".
+   Stattdessen stehen preconnect + ein nicht-blockierender <link> direkt im
+   <head> von index.html (siehe dort). Genutzte Familien: Inter (Fließtext),
+   Plus Jakarta Sans (Überschriften), Cormorant (Logo-Wortmarke).
+   Lora war geladen, aber nirgends benutzt -> entfernt. */

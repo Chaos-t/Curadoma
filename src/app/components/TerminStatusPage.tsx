@@ -38,15 +38,15 @@ export function TerminStatusPage() {
       <div className="max-w-lg mx-auto px-6 w-full">
         <div className="bg-white rounded-3xl border border-[#E5F4F5] shadow-[0_20px_60px_rgb(191,234,242,0.3)] p-8 sm:p-10 text-center">
           <div className="mb-5">{ICONS[entry.variant]}<span className="sr-only">{entry.variant}</span></div>
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-5 uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#0E6E6A] mb-5 uppercase tracking-wider">
             <CalendarDays size={14} /> Terminstatus
           </div>
           <h1 className="text-2xl font-medium tracking-tight text-[#111111] mb-3" style={jakarta}>{entry.title}</h1>
           <p className="text-[15px] text-[#5F6B73] font-light leading-relaxed mb-8">{entry.desc}</p>
-          <div className="flex items-center justify-center gap-2 text-xs text-[#9AA3A8] font-light">
+          <div className="flex items-center justify-center gap-2 text-xs text-[#5F6B73] font-light">
             <Info size={14} /> Cura Doma — Terminverwaltung
           </div>
-          <Link to="/" className="inline-flex items-center justify-center mt-6 text-sm font-medium text-[#6FD3D1] hover:text-[#5BC2C0] transition-colors">
+          <Link to="/" className="inline-flex items-center justify-center mt-6 text-sm font-medium text-[#0F7C77] hover:text-[#5BC2C0] transition-colors">
             Zur Startseite
           </Link>
         </div>

@@ -12,7 +12,7 @@ export function DatenschutzPage() {
     <>
       <section className="relative pt-16 pb-12 lg:pt-24 lg:pb-16 overflow-hidden bg-gradient-to-b from-white/80 to-[#F8FEFF]/80">
         <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#0E6E6A] mb-6 uppercase tracking-wider">
             <Shield size={14} /> <Editable as="span" id="datenschutz.hero.badge">Datenschutz</Editable>
           </div>
           <h1 className="text-[clamp(1.5rem,8vw,3rem)] font-medium tracking-tight text-[#111111] leading-[1.15] mb-4 break-words" style={jakarta}>
@@ -45,8 +45,8 @@ export function DatenschutzPage() {
           <Section title={<Editable as="span" id="datenschutz.section2.title">2. Verantwortliche Stelle</Editable>}>
             <p><Editable as="span" id="datenschutz.section2.name">Cura Doma — Ambulanter Betreuungsdienst</Editable></p>
             <p className="flex items-start gap-2"><MapPin size={16} className="mt-1 text-[#6FD3D1] shrink-0" /><AddressBlock variant="inline" country /></p>
-            <p className="flex items-center gap-2"><Phone size={16} className="text-[#6FD3D1]" /><PhoneText className="hover:text-[#6FD3D1]" /></p>
-            <p className="flex items-center gap-2"><Mail size={16} className="text-[#6FD3D1]" /><EmailText className="hover:text-[#6FD3D1]" /></p>
+            <p className="flex items-center gap-2"><Phone size={16} className="text-[#6FD3D1]" /><PhoneText className="hover:text-[#0F7C77]" /></p>
+            <p className="flex items-center gap-2"><Mail size={16} className="text-[#6FD3D1]" /><EmailText className="hover:text-[#0F7C77]" /></p>
           </Section>
 
           <Section title={<Editable as="span" id="datenschutz.section3.title">3. Erhebung und Verarbeitung personenbezogener Daten</Editable>}>
@@ -111,7 +111,7 @@ export function DatenschutzPage() {
           </Section>
 
           <Section title={<Editable as="span" id="datenschutz.section9.title">9. Kontakt für Datenschutzanfragen</Editable>}>
-            <p className="flex items-center gap-2"><Mail size={16} className="text-[#6FD3D1]" /><EmailText className="hover:text-[#6FD3D1]" /></p>
+            <p className="flex items-center gap-2"><Mail size={16} className="text-[#6FD3D1]" /><EmailText className="hover:text-[#0F7C77]" /></p>
           </Section>
         </div>
       </section>

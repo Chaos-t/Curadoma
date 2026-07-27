@@ -38,4 +38,21 @@ export default defineConfig(() => ({
 
   // File types to support raw imports. Never add .css, .tsx, or .ts files to this.
   assetsInclude: ['**/*.svg', '**/*.csv'],
+
+  build: {
+    // three.js (nur der dekorative Hintergrund) ist der einzige grosse Chunk und
+    // wird bewusst erst im Leerlauf nachgeladen -> die Warnschwelle anheben,
+    // damit der Build nicht faelschlich warnt.
+    chunkSizeWarningLimit: 600,
+    rollupOptions: {
+      output: {
+        // Framework getrennt vom App-Code buendeln: React/Router aendern sich
+        // selten, bleiben so ueber Deploys hinweg im Browser-Cache, waehrend
+        // der App-Chunk neu geladen wird.
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router'],
+        },
+      },
+    },
+  },
 }))

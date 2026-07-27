@@ -9,11 +9,11 @@ export function VerhinderungspflegePage() {
     <>
       <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28 bg-gradient-to-b from-white/80 to-[#F8FEFF]/80">
         <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#0E6E6A] mb-6 uppercase tracking-wider">
             <Editable as="span" id="verhinderung.hero.badge">§ 39 SGB XI</Editable>
           </div>
           <h1 className="text-4xl sm:text-5xl font-medium tracking-tight text-[#111111] leading-[1.15] mb-6" style={jakarta}>
-            <span className="text-[#6FD3D1]"><Editable as="span" id="verhinderung.hero.title">Verhinderungspflege</Editable></span>
+            <span className="text-[#0F7C77]"><Editable as="span" id="verhinderung.hero.title">Verhinderungspflege</Editable></span>
           </h1>
           <p className="text-lg text-[#5F6B73] leading-relaxed font-light">
             <Editable as="span" id="verhinderung.hero.subtitle">So können Sie es über uns nutzen – wenn pflegende Angehörige einmal eine Pause brauchen.</Editable>
@@ -36,7 +36,7 @@ export function VerhinderungspflegePage() {
       <section className="py-20 bg-[#F8FEFF]/80">
         <div className="cura-reveal cura-reveal-up max-w-7xl mx-auto px-6 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="cura-card-glow bg-white p-8 rounded-3xl border border-[#E5F4F5]">
-            <div className="w-12 h-12 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] mb-5">
+            <div className="w-12 h-12 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#0E6E6A] mb-5">
               <CheckCircle size={22} strokeWidth={1.5} />
             </div>
             <h3 className="text-xl font-medium text-[#111111] mb-4" style={jakarta}><Editable as="span" id="verhinderung.voraussetzungen.title">Voraussetzungen</Editable></h3>
@@ -54,7 +54,7 @@ export function VerhinderungspflegePage() {
           </div>
 
           <div className="cura-card-glow bg-white p-8 rounded-3xl border border-[#E5F4F5]">
-            <div className="w-12 h-12 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] mb-5">
+            <div className="w-12 h-12 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#0E6E6A] mb-5">
               <Users size={22} strokeWidth={1.5} />
             </div>
             <h3 className="text-xl font-medium text-[#111111] mb-4" style={jakarta}><Editable as="span" id="verhinderung.leistungen.title">Welche Leistungen übernehmen wir für Sie?</Editable></h3>
@@ -91,7 +91,7 @@ export function VerhinderungspflegePage() {
               { icon: <Calendar size={24} strokeWidth={1.5} />, value: "56 Tage", desc: "Nutzung pro Kalenderjahr möglich (bis zu 8 Wochen)" },
             ].map((s, i) => (
               <div key={i} className="cura-card-glow bg-[#F8FEFF] p-7 rounded-3xl border border-[#E5F4F5] text-center">
-                <div className="w-12 h-12 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] mx-auto mb-4">
+                <div className="w-12 h-12 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#0E6E6A] mx-auto mb-4">
                   {s.icon}
                 </div>
                 <div className="text-2xl font-medium text-[#111111] mb-2" style={jakarta}><Editable as="span" id={`verhinderung.pflegekasse.${i}.value`}>{s.value}</Editable></div>
@@ -120,7 +120,7 @@ export function VerhinderungspflegePage() {
 
       <section className="py-20 bg-white/80">
         <div className="cura-reveal cura-reveal-up max-w-3xl mx-auto px-6 text-center">
-          <Link to="/kontakt" className="inline-flex items-center gap-2 bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-sm">
+          <Link to="/kontakt" className="inline-flex items-center gap-2 bg-[#0F7C77] text-white hover:bg-[#0E6E6A] px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-sm">
             <Phone size={18} /> <Editable as="span" id="verhinderung.cta.button">Beratung vereinbaren</Editable>
           </Link>
         </div>

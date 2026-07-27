@@ -18,12 +18,12 @@ export function DemenzPage() {
         <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-[#BFEAF2] opacity-15 rounded-full blur-3xl pointer-events-none translate-x-1/4 translate-y-1/4"></div>
         <div className="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col lg:flex-row items-center gap-12 relative z-10">
           <div className="cura-reveal cura-reveal-left flex-1 text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#0E6E6A] mb-6 uppercase tracking-wider">
               <Editable as="span" id="demenz.hero.badge">Spezialisierte Betreuung</Editable>
             </div>
             <h1 className="text-4xl sm:text-5xl font-medium tracking-tight text-[#111111] leading-[1.15] mb-6" style={jakarta}>
               <Editable as="span" id="demenz.hero.title.line1">Senioren- und Demenzbetreuung</Editable> <br className="hidden lg:block" />
-              <span className="text-[#6FD3D1]"><Editable as="span" id="demenz.hero.title.line2">mit Herz und Verstand</Editable></span>
+              <span className="text-[#0F7C77]"><Editable as="span" id="demenz.hero.title.line2">mit Herz und Verstand</Editable></span>
             </h1>
             <p className="text-lg text-[#5F6B73] leading-relaxed max-w-2xl mx-auto lg:mx-0 font-light">
               <Editable as="span" id="demenz.hero.subtitle">Demenz verändert das Leben – für Betroffene und ihre Angehörigen. Wir begleiten Sie auf diesem Weg mit Fachkompetenz, Einfühlungsvermögen und tiefer Menschlichkeit.</Editable>
@@ -96,7 +96,7 @@ export function DemenzPage() {
               { icon: <Shield size={28} strokeWidth={1.5} />, title: "Sicherheit im Alltag", desc: "Wir achten auf potenzielle Gefahren und helfen, das Zuhause sicher zu gestalten, ohne die Selbstständigkeit einzuschränken." },
             ].map((item, i) => (
               <div key={i} className="cura-card-glow bg-[#F8FEFF]/80 backdrop-blur-sm p-8 rounded-3xl border border-[#E5F4F5] hover:shadow-md transition-shadow duration-300">
-                <div className="w-14 h-14 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] mb-6">
+                <div className="w-14 h-14 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#0E6E6A] mb-6">
                   {item.icon}
                 </div>
                 <h3 className="text-xl font-medium tracking-tight text-[#111111] mb-3" style={jakarta}><Editable as="span" id={`demenz.ansatz.${i}.title`}>{item.title}</Editable></h3>
@@ -158,7 +158,7 @@ export function DemenzPage() {
               { num: "100%", label: "Herz bei jeder Begegnung" },
             ].map((stat, i) => (
               <div key={i} className="cura-card-glow bg-[#F8FEFF] p-6 rounded-2xl border border-[#E5F4F5]">
-                <div className="text-3xl font-medium text-[#6FD3D1] mb-2" style={jakarta}><Editable as="span" id={`demenz.qualifikation.${i}.num`}>{stat.num}</Editable></div>
+                <div className="text-3xl font-medium text-[#0F7C77] mb-2" style={jakarta}><Editable as="span" id={`demenz.qualifikation.${i}.num`}>{stat.num}</Editable></div>
                 <div className="text-sm text-[#5F6B73] font-light"><Editable as="span" id={`demenz.qualifikation.${i}.label`}>{stat.label}</Editable></div>
               </div>
             ))}
@@ -176,7 +176,7 @@ export function DemenzPage() {
             <Editable as="span" id="demenz.cta.text">Lassen Sie uns gemeinsam einen Weg finden, der Geborgenheit, Sicherheit und Lebensfreude schenkt. Kontaktieren Sie uns für ein unverbindliches Gespräch.</Editable>
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/kontakt" className="w-full sm:w-auto bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-8 py-4 rounded-full text-base font-normal transition-all flex items-center justify-center gap-2 shadow-sm">
+            <Link to="/kontakt" className="w-full sm:w-auto bg-[#0F7C77] text-white hover:bg-[#0E6E6A] px-8 py-4 rounded-full text-base font-normal transition-all flex items-center justify-center gap-2 shadow-sm">
               <Phone size={20} /> <Editable as="span" id="demenz.cta.button-primary">Kostenloses Beratungsgespräch</Editable>
             </Link>
             <Link to="/leistungen" className="w-full sm:w-auto bg-white text-[#5F6B73] border border-[#E5F4F5] hover:bg-[#F8FEFF] px-8 py-4 rounded-full text-base font-normal transition-all flex items-center justify-center">

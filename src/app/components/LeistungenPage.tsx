@@ -119,12 +119,12 @@ export function LeistungenPage() {
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#BFEAF2] opacity-15 rounded-full blur-3xl pointer-events-none translate-x-1/3 -translate-y-1/3"></div>
         <div className="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col lg:flex-row items-center gap-12 relative z-10">
           <div className="cura-reveal cura-reveal-left flex-1 text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#0E6E6A] mb-6 uppercase tracking-wider">
               <Editable as="span" id="leistungen.hero.badge">Unsere Leistungen</Editable>
             </div>
             <h1 className="text-4xl sm:text-5xl font-medium tracking-tight text-[#111111] leading-[1.15] mb-6" style={jakarta}>
               <Editable as="span" id="leistungen.hero.title">Individuelle Unterstützung,</Editable> <br className="hidden lg:block" />
-              <span className="text-[#6FD3D1]"><Editable as="span" id="leistungen.hero.title-span">die Ihren Alltag bereichert</Editable></span>
+              <span className="text-[#0F7C77]"><Editable as="span" id="leistungen.hero.title-span">die Ihren Alltag bereichert</Editable></span>
             </h1>
             <p className="text-lg text-[#5F6B73] leading-relaxed max-w-2xl mx-auto lg:mx-0 font-light">
               <Editable as="span" id="leistungen.hero.intro">Unser Angebot umfasst vielfältige Leistungen, die sich sanft und flexibel in den Alltag pflegebedürftiger Menschen einfügen. Jeder Mensch ist einzigartig – und genau so gestalten wir unsere Betreuung.</Editable>
@@ -141,6 +141,9 @@ export function LeistungenPage() {
       {/* Services Detail */}
       <section className="py-24 bg-white/80">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
+          {/* Nur fuer Screenreader/Struktur: ohne diese h2 springt die
+              Gliederung von der h1 direkt auf die h3 der Karten. */}
+          <h2 className="sr-only">Unsere Leistungen im Detail</h2>
           <div className="cura-reveal cura-reveal-up grid grid-cols-1 lg:grid-cols-2 gap-8">
             {keys.map((key, i) => {
               const service = serviceDefaults(key);
@@ -150,7 +153,7 @@ export function LeistungenPage() {
                   <BorderGlow className="h-full">
                     <div className="p-8">
                       <div className="flex items-start gap-5 mb-5">
-                        <div className="w-14 h-14 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] shrink-0">
+                        <div className="w-14 h-14 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#0E6E6A] shrink-0">
                           {service.icon}
                         </div>
                         <div>
@@ -186,7 +189,7 @@ export function LeistungenPage() {
       <section className="py-24 bg-white/70">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="cura-reveal cura-reveal-up text-center max-w-2xl mx-auto mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-5 uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#0E6E6A] mb-5 uppercase tracking-wider">
               <Editable as="span" id="leistungen.fahrzeug.badge">Mobil für Sie unterwegs</Editable>
             </div>
             <h2 className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-4" style={jakarta}>
@@ -228,7 +231,7 @@ export function LeistungenPage() {
               <Editable as="span" id="leistungen.imagetext.paragraph.1">Dabei respektieren wir stets Ihre persönlichen Gewohnheiten und Vorlieben. Nichts geschieht, ohne dass Sie es möchten.</Editable>
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link to="/kontakt" className="bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)] flex items-center justify-center gap-2">
+              <Link to="/kontakt" className="bg-[#0F7C77] text-white hover:bg-[#0E6E6A] px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)] flex items-center justify-center gap-2">
                 <Editable as="span" id="leistungen.imagetext.cta-primary">Jetzt beraten lassen</Editable>
               </Link>
               <Link to="/entlastung" className="bg-white text-[#5F6B73] border border-[#E5F4F5] hover:bg-[#F8FEFF] px-8 py-3.5 rounded-full text-base font-normal transition-all flex items-center justify-center gap-2">
@@ -249,7 +252,7 @@ export function LeistungenPage() {
           <p className="text-lg text-[#5F6B73] font-light mb-8">
             <Editable as="span" id="leistungen.trust.paragraph">Als zugelassener Betreuungsdienst nach § 45b SGB XI rechnen wir unsere Leistungen direkt mit Ihrer Pflegekasse ab. Für Sie entstehen keine zusätzlichen Kosten im Rahmen Ihres Entlastungsbetrags.</Editable>
           </p>
-          <Link to="/kontakt" className="inline-flex items-center gap-2 bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-sm">
+          <Link to="/kontakt" className="inline-flex items-center gap-2 bg-[#0F7C77] text-white hover:bg-[#0E6E6A] px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-sm">
             <Phone size={18} /> <Editable as="span" id="leistungen.trust.cta">Kostenloses Erstgespräch vereinbaren</Editable>
           </Link>
         </div>

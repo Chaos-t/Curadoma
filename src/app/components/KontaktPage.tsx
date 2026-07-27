@@ -152,11 +152,11 @@ export function KontaktPage() {
       <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28 overflow-hidden bg-gradient-to-b from-white/80 to-[#F8FEFF]/80">
         <div className="absolute top-0 left-1/2 w-[600px] h-[600px] bg-[#BFEAF2] opacity-15 rounded-full blur-3xl pointer-events-none -translate-x-1/2 -translate-y-1/3"></div>
         <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#0E6E6A] mb-6 uppercase tracking-wider">
             <Editable as="span" id="kontakt.hero.badge">Kontakt aufnehmen</Editable>
           </div>
           <h1 className="text-4xl sm:text-5xl font-medium tracking-tight text-[#111111] leading-[1.15] mb-6" style={jakarta}>
-            <Editable as="span" id="kontakt.hero.title.pre">Wir sind </Editable><span className="text-[#6FD3D1]"><Editable as="span" id="kontakt.hero.title.highlight">für Sie da</Editable></span>
+            <Editable as="span" id="kontakt.hero.title.pre">Wir sind </Editable><span className="text-[#0F7C77]"><Editable as="span" id="kontakt.hero.title.highlight">für Sie da</Editable></span>
           </h1>
           <p className="text-lg text-[#5F6B73] leading-relaxed max-w-2xl mx-auto font-light">
             <Editable as="span" id="kontakt.hero.subtitle">Nehmen Sie Kontakt auf für ein kostenfreies Erstgespräch. Wir nehmen uns Zeit für Sie, beantworten alle Fragen und finden gemeinsam die beste Lösung für Ihre Situation.</Editable>
@@ -278,7 +278,7 @@ export function KontaktPage() {
                 <div>
                   <label className="block text-sm font-medium text-[#111111] mb-1.5" htmlFor="kontakt-message">
                     <Editable as="span" id="kontakt.form.label.message">Ihre Nachricht *</Editable>
-                    <span className="text-[11px] font-light text-[#9AA3A8] ml-2">{form.message.length}/{Limits.MESSAGE_MAX}</span>
+                    <span className="text-[11px] font-light text-[#5F6B73] ml-2">{form.message.length}/{Limits.MESSAGE_MAX}</span>
                   </label>
                   <textarea
                     id="kontakt-message"
@@ -296,7 +296,7 @@ export function KontaktPage() {
                 <label className="flex items-start gap-3 text-sm text-[#5F6B73] font-light leading-relaxed">
                   <input type="checkbox" checked={form.consent} onChange={(e) => update("consent", e.target.checked)} className="mt-1 w-4 h-4 accent-[#6FD3D1] shrink-0" />
                   <span>
-                    <Editable as="span" id="kontakt.form.consent.pre">Ich habe die </Editable><Link to="/datenschutz" className="text-[#6FD3D1] underline hover:text-[#5BC2C0]"><Editable as="span" id="kontakt.form.consent.linktext">Datenschutzerklärung</Editable></Link><Editable as="span" id="kontakt.form.consent.post"> gelesen und stimme zu, dass meine Angaben zur Bearbeitung meiner Anfrage verarbeitet werden.</Editable>
+                    <Editable as="span" id="kontakt.form.consent.pre">Ich habe die </Editable><Link to="/datenschutz" className="text-[#0F7C77] underline hover:text-[#5BC2C0]"><Editable as="span" id="kontakt.form.consent.linktext">Datenschutzerklärung</Editable></Link><Editable as="span" id="kontakt.form.consent.post"> gelesen und stimme zu, dass meine Angaben zur Bearbeitung meiner Anfrage verarbeitet werden.</Editable>
                   </span>
                 </label>
                 {fieldErrors.consent_privacy && <p className="text-xs text-red-500 -mt-3">{fieldErrors.consent_privacy}</p>}
@@ -308,7 +308,7 @@ export function KontaktPage() {
                   </div>
                 )}
 
-                <button type="submit" disabled={submitting} className="w-full sm:w-auto bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] disabled:opacity-60 disabled:cursor-not-allowed px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)] flex items-center justify-center gap-2">
+                <button type="submit" disabled={submitting} className="w-full sm:w-auto bg-[#0F7C77] text-white hover:bg-[#0E6E6A] disabled:opacity-60 disabled:cursor-not-allowed px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)] flex items-center justify-center gap-2">
                   <Send size={18} /> {submitting ? <Editable as="span" id="kontakt.form.submit.loading">Wird gesendet…</Editable> : <Editable as="span" id="kontakt.form.submit.default">Nachricht senden</Editable>}
                 </button>
               </form>
@@ -325,7 +325,7 @@ export function KontaktPage() {
               <h3 className="text-xl font-medium tracking-tight text-[#111111]" style={jakarta}><Editable as="span" id="kontakt.info.heading">Direkt erreichen</Editable></h3>
 
               <div className="cura-card-glow flex items-center gap-4 p-4 rounded-2xl bg-[#F8FEFF] border border-[#E5F4F5] hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 bg-[#DFF7F8] rounded-full flex items-center justify-center text-[#6FD3D1] shrink-0">
+                <div className="w-12 h-12 bg-[#DFF7F8] rounded-full flex items-center justify-center text-[#0E6E6A] shrink-0">
                   <Phone size={20} />
                 </div>
                 <div>
@@ -335,7 +335,7 @@ export function KontaktPage() {
               </div>
 
               <div className="cura-card-glow flex items-center gap-4 p-4 rounded-2xl bg-[#F8FEFF] border border-[#E5F4F5] hover:shadow-md transition-shadow">
-                <div className="w-12 h-12 bg-[#DFF7F8] rounded-full flex items-center justify-center text-[#6FD3D1] shrink-0">
+                <div className="w-12 h-12 bg-[#DFF7F8] rounded-full flex items-center justify-center text-[#0E6E6A] shrink-0">
                   <Mail size={20} />
                 </div>
                 <div>
@@ -348,7 +348,7 @@ export function KontaktPage() {
                 onClick={handleOpenMaps}
                 className="cura-card-glow w-full flex items-center gap-4 p-4 rounded-2xl bg-[#F8FEFF] border border-[#E5F4F5] hover:shadow-md transition-shadow text-left cursor-pointer"
               >
-                <div className="w-12 h-12 bg-[#DFF7F8] rounded-full flex items-center justify-center text-[#6FD3D1] shrink-0">
+                <div className="w-12 h-12 bg-[#DFF7F8] rounded-full flex items-center justify-center text-[#0E6E6A] shrink-0">
                   <MapPin size={20} />
                 </div>
                 <div className="flex-1">
@@ -359,7 +359,7 @@ export function KontaktPage() {
               </button>
 
               <div className="cura-card-glow flex items-center gap-4 p-4 rounded-2xl bg-[#F8FEFF] border border-[#E5F4F5]">
-                <div className="w-12 h-12 bg-[#DFF7F8] rounded-full flex items-center justify-center text-[#6FD3D1] shrink-0">
+                <div className="w-12 h-12 bg-[#DFF7F8] rounded-full flex items-center justify-center text-[#0E6E6A] shrink-0">
                   <Clock size={20} />
                 </div>
                 <div>
@@ -376,7 +376,7 @@ export function KontaktPage() {
       <section className="py-24 bg-[#F8FEFF]/80">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <div className="cura-reveal cura-reveal-up text-center mb-12">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#DFF7F8] text-[#6FD3D1] mb-6">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#DFF7F8] text-[#0E6E6A] mb-6">
               <MapPin size={24} />
             </div>
             <h2 className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-4" style={jakarta}>
@@ -426,36 +426,36 @@ export function KontaktPage() {
                     onClick={handleOpenMaps}
                     className="w-full flex items-start gap-4 text-left group/addr cursor-pointer"
                   >
-                    <div className="w-10 h-10 bg-[#DFF7F8] rounded-xl flex items-center justify-center text-[#6FD3D1] shrink-0 mt-0.5">
+                    <div className="w-10 h-10 bg-[#DFF7F8] rounded-xl flex items-center justify-center text-[#0E6E6A] shrink-0 mt-0.5">
                       <MapPin size={18} />
                     </div>
                     <div>
-                      <div className="text-base font-medium text-[#111111] group-hover/addr:text-[#6FD3D1] transition-colors"><AddressBlock variant="br" /></div>
+                      <div className="text-base font-medium text-[#111111] group-hover/addr:text-[#0F7C77] transition-colors"><AddressBlock variant="br" /></div>
                     </div>
                   </button>
 
                   <div className="flex items-start gap-4 group/phone">
-                    <div className="w-10 h-10 bg-[#DFF7F8] rounded-xl flex items-center justify-center text-[#6FD3D1] shrink-0 mt-0.5">
+                    <div className="w-10 h-10 bg-[#DFF7F8] rounded-xl flex items-center justify-center text-[#0E6E6A] shrink-0 mt-0.5">
                       <Phone size={18} />
                     </div>
                     <div>
-                      <div className="text-base font-medium text-[#111111] group-hover/phone:text-[#6FD3D1] transition-colors"><PhoneText /></div>
+                      <div className="text-base font-medium text-[#111111] group-hover/phone:text-[#0F7C77] transition-colors"><PhoneText /></div>
                       <div className="text-sm text-[#5F6B73] font-light"><Editable as="span" id="kontakt.locationcard.phone.desc">Direkt anrufen</Editable></div>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-4 group/mail">
-                    <div className="w-10 h-10 bg-[#DFF7F8] rounded-xl flex items-center justify-center text-[#6FD3D1] shrink-0 mt-0.5">
+                    <div className="w-10 h-10 bg-[#DFF7F8] rounded-xl flex items-center justify-center text-[#0E6E6A] shrink-0 mt-0.5">
                       <Mail size={18} />
                     </div>
                     <div>
-                      <div className="text-base font-medium text-[#111111] group-hover/mail:text-[#6FD3D1] transition-colors"><EmailText /></div>
+                      <div className="text-base font-medium text-[#111111] group-hover/mail:text-[#0F7C77] transition-colors"><EmailText /></div>
                       <div className="text-sm text-[#5F6B73] font-light"><Editable as="span" id="kontakt.locationcard.email.desc">E-Mail schreiben</Editable></div>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 bg-[#DFF7F8] rounded-xl flex items-center justify-center text-[#6FD3D1] shrink-0 mt-0.5">
+                    <div className="w-10 h-10 bg-[#DFF7F8] rounded-xl flex items-center justify-center text-[#0E6E6A] shrink-0 mt-0.5">
                       <Clock size={18} />
                     </div>
                     <div>
@@ -468,7 +468,7 @@ export function KontaktPage() {
                 {/* Open in Maps button */}
                 <button
                   onClick={handleOpenMaps}
-                  className="mt-8 w-full bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-6 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)] flex items-center justify-center gap-2"
+                  className="mt-8 w-full bg-[#0F7C77] text-white hover:bg-[#0E6E6A] px-6 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)] flex items-center justify-center gap-2"
                 >
                   <Navigation size={18} />
                   <Editable as="span" id="kontakt.locationcard.button.route">Route ansehen</Editable>

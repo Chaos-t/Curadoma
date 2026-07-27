@@ -39,7 +39,7 @@ function HamelnMapEmbed() {
       <button
         type="button"
         onClick={() => requestReopenBanner()}
-        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#6FD3D1] hover:bg-[#5BC2C0] text-white text-xs font-medium transition-colors"
+        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#0F7C77] hover:bg-[#0E6E6A] text-white text-xs font-medium transition-colors"
       >
         <Editable as="span" id="einzugsgebiet-section.map-placeholder.button">Karte zulassen</Editable>
       </button>
@@ -53,7 +53,7 @@ export function EinzugsgebietSection({ heading = true }: { heading?: boolean }) 
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         {heading && (
           <div className="cura-reveal cura-reveal-up max-w-3xl mx-auto text-center mb-12">
-            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#DFF7F8] text-[#6FD3D1] mb-4">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-[#DFF7F8] text-[#0E6E6A] mb-4">
               <MapPin size={22} />
             </div>
             <h2 className="text-3xl lg:text-4xl font-medium tracking-tight text-[#111111] mb-4" style={jakarta}>
@@ -75,7 +75,7 @@ export function EinzugsgebietSection({ heading = true }: { heading?: boolean }) 
             </div>
             <div className="p-7">
               <div className="flex items-center gap-2 mb-2">
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#DFF7F8] text-[11px] font-medium text-[#6FD3D1] uppercase tracking-wider">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#DFF7F8] text-[11px] font-medium text-[#0E6E6A] uppercase tracking-wider">
                   <Clock size={12} /> <Editable as="span" id="einzugsgebiet-section.hameln.badge">Aktiv</Editable>
                 </span>
               </div>
@@ -86,7 +86,7 @@ export function EinzugsgebietSection({ heading = true }: { heading?: boolean }) 
                   href="https://www.google.com/maps/dir/?api=1&destination=S%C3%BCntelhang+9%2C+31787+Hameln%2C+Germany"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-5 py-2.5 rounded-full text-sm font-normal transition-all shadow-sm"
+                  className="inline-flex items-center gap-2 bg-[#0F7C77] text-white hover:bg-[#0E6E6A] px-5 py-2.5 rounded-full text-sm font-normal transition-all shadow-sm"
                 >
                   <Navigation size={16} /> <Editable as="span" id="einzugsgebiet-section.hameln.route-button">Route ansehen</Editable>
                 </a>
@@ -113,7 +113,7 @@ export function EinzugsgebietSection({ heading = true }: { heading?: boolean }) 
             </div>
             <div className="p-7">
               <div className="flex items-center gap-2 mb-2">
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#FFF5E5] text-[11px] font-medium text-[#C99A4A] uppercase tracking-wider">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#FFF5E5] text-[11px] font-medium text-[#8A6D1F] uppercase tracking-wider">
                   <Clock size={12} /> <Editable as="span" id="einzugsgebiet-section.paderborn.badge">Bald verfügbar</Editable>
                 </span>
               </div>
@@ -124,7 +124,7 @@ export function EinzugsgebietSection({ heading = true }: { heading?: boolean }) 
               <div className="flex flex-wrap gap-3">
                 <button
                   disabled
-                  className="inline-flex items-center gap-2 bg-[#E5F4F5] text-[#9AAFB6] px-5 py-2.5 rounded-full text-sm font-normal cursor-not-allowed"
+                  className="inline-flex items-center gap-2 bg-[#E5F4F5] text-[#5F6B73] px-5 py-2.5 rounded-full text-sm font-normal cursor-not-allowed"
                 >
                   <Navigation size={16} /> <Editable as="span" id="einzugsgebiet-section.paderborn.route-button">Route folgt</Editable>
                 </button>
@@ -148,7 +148,7 @@ export function EinzugsgebietSection({ heading = true }: { heading?: boolean }) 
           <Editable as="span" id="einzugsgebiet-section.cta.text.before">Ihr Ort ist nicht dabei?</Editable>{" "}
           <a
             href="/kontakt"
-            className="text-[#6FD3D1] hover:text-[#5BC2C0] font-medium underline-offset-2 hover:underline transition-colors"
+            className="text-[#0F7C77] hover:text-[#5BC2C0] font-medium underline-offset-2 hover:underline transition-colors"
           >
             <Editable as="span" id="einzugsgebiet-section.cta.text.link">Fragen Sie uns gerne</Editable>
           </a>{" "}

@@ -1,28 +1,13 @@
 import { createBrowserRouter } from "react-router";
 import { Layout } from "./components/Layout";
 import { HomePage } from "./components/HomePage";
-import { LeistungenPage } from "./components/LeistungenPage";
-import { EntlastungPage } from "./components/EntlastungPage";
-import { DemenzPage } from "./components/DemenzPage";
-import { HaushaltPage } from "./components/HaushaltPage";
-import { VerhinderungspflegePage } from "./components/VerhinderungspflegePage";
-import { UmwandlungPage } from "./components/UmwandlungPage";
-import { EinzugsgebietPage } from "./components/EinzugsgebietPage";
-import { KontaktPage } from "./components/KontaktPage";
-import { ImpressumPage } from "./components/ImpressumPage";
-import { DatenschutzPage } from "./components/DatenschutzPage";
-import { KarrierePage } from "./components/KarrierePage";
-import { TerminPage } from "./components/TerminPage";
-import { TerminStatusPage } from "./components/TerminStatusPage";
-import { DynamicPage } from "./components/DynamicPage";
-import { AdminArea } from "./components/admin/AdminArea";
-import { AdminDashboard } from "./components/admin/AdminDashboard";
-import { AdminInbox } from "./components/admin/AdminInbox";
-import { AdminMedia } from "./components/admin/AdminMedia";
-import { AdminPages } from "./components/admin/AdminPages";
 
-// import.meta.env.BASE_URL is "/" (served at the custom-domain root). Strip
-// any trailing slash so React Router treats it as a basename.
+// Code-Splitting: NUR Layout + Startseite liegen im Haupt-Bundle. Alle
+// weiteren Seiten — und vor allem der komplette /admin-Bereich, den Besucher
+// nie brauchen — werden per `lazy` erst beim Aufruf nachgeladen. Das war der
+// groesste Posten im 1-MB-Bundle („Reduziere nicht verwendetes JavaScript").
+// react-router 7 laedt das Modul beim Navigieren selbst nach (kein Suspense noetig).
+
 const basename = import.meta.env.BASE_URL.replace(/\/$/, "") || "/";
 
 export const router = createBrowserRouter([
@@ -31,20 +16,20 @@ export const router = createBrowserRouter([
     Component: Layout,
     children: [
       { index: true, Component: HomePage },
-      { path: "leistungen", Component: LeistungenPage },
-      { path: "entlastung", Component: EntlastungPage },
-      { path: "demenzbetreuung", Component: DemenzPage },
-      { path: "haushaltsnahe-dienstleistungen", Component: HaushaltPage },
-      { path: "verhinderungspflege", Component: VerhinderungspflegePage },
-      { path: "umwandlung-sachleistungen", Component: UmwandlungPage },
-      { path: "einzugsgebiet", Component: EinzugsgebietPage },
-      { path: "kontakt", Component: KontaktPage },
-      { path: "impressum", Component: ImpressumPage },
-      { path: "datenschutz", Component: DatenschutzPage },
-      { path: "karriere", Component: KarrierePage },
-      // { path: "termin", Component: TerminPage }, // TEMP deaktiviert – Termin-Bereich vorerst ausgeblendet
-      { path: "termin-status", Component: TerminStatusPage }, // bleibt: Landeseite der Betreiber-Bestätigungs-Mails
-      { path: ":slug", Component: DynamicPage }, // dynamisch angelegte Seiten (sonst 404)
+      { path: "leistungen", lazy: async () => ({ Component: (await import("./components/LeistungenPage")).LeistungenPage }) },
+      { path: "entlastung", lazy: async () => ({ Component: (await import("./components/EntlastungPage")).EntlastungPage }) },
+      { path: "demenzbetreuung", lazy: async () => ({ Component: (await import("./components/DemenzPage")).DemenzPage }) },
+      { path: "haushaltsnahe-dienstleistungen", lazy: async () => ({ Component: (await import("./components/HaushaltPage")).HaushaltPage }) },
+      { path: "verhinderungspflege", lazy: async () => ({ Component: (await import("./components/VerhinderungspflegePage")).VerhinderungspflegePage }) },
+      { path: "umwandlung-sachleistungen", lazy: async () => ({ Component: (await import("./components/UmwandlungPage")).UmwandlungPage }) },
+      { path: "einzugsgebiet", lazy: async () => ({ Component: (await import("./components/EinzugsgebietPage")).EinzugsgebietPage }) },
+      { path: "kontakt", lazy: async () => ({ Component: (await import("./components/KontaktPage")).KontaktPage }) },
+      { path: "impressum", lazy: async () => ({ Component: (await import("./components/ImpressumPage")).ImpressumPage }) },
+      { path: "datenschutz", lazy: async () => ({ Component: (await import("./components/DatenschutzPage")).DatenschutzPage }) },
+      { path: "karriere", lazy: async () => ({ Component: (await import("./components/KarrierePage")).KarrierePage }) },
+      // { path: "termin", ... }, // TEMP deaktiviert – Termin-Bereich vorerst ausgeblendet
+      { path: "termin-status", lazy: async () => ({ Component: (await import("./components/TerminStatusPage")).TerminStatusPage }) }, // Landeseite der Bestaetigungs-Mails
+      { path: ":slug", lazy: async () => ({ Component: (await import("./components/DynamicPage")).DynamicPage }) }, // dynamisch angelegte Seiten (sonst 404)
       {
         path: "*",
         Component: () => (
@@ -60,16 +45,17 @@ export const router = createBrowserRouter([
   },
   // Admin/Verwaltung: BEWUSST außerhalb des Layout (kein öffentlicher Navi/Footer),
   // damit der Footer nicht das Detail-Panel überdeckt und der Bereich clean wirkt.
+  // Komplett lazy — Besucher laden davon kein einziges Byte.
   {
     path: "/admin",
-    Component: AdminArea, // noindex + Auth-Gate; rendert Login oder <Outlet/>
+    lazy: async () => ({ Component: (await import("./components/admin/AdminArea")).AdminArea }),
     children: [
-      { index: true, Component: AdminDashboard },
-      { path: "anfragen", element: <AdminInbox type="contact" /> },
-      { path: "bewerbungen", element: <AdminInbox type="job" /> },
-      { path: "termine", element: <AdminInbox type="appointment" /> },
-      { path: "mediathek", Component: AdminMedia },
-      { path: "seiten", Component: AdminPages },
+      { index: true, lazy: async () => ({ Component: (await import("./components/admin/AdminDashboard")).AdminDashboard }) },
+      { path: "anfragen", lazy: async () => { const { AdminInbox } = await import("./components/admin/AdminInbox"); return { Component: () => <AdminInbox type="contact" /> }; } },
+      { path: "bewerbungen", lazy: async () => { const { AdminInbox } = await import("./components/admin/AdminInbox"); return { Component: () => <AdminInbox type="job" /> }; } },
+      { path: "termine", lazy: async () => { const { AdminInbox } = await import("./components/admin/AdminInbox"); return { Component: () => <AdminInbox type="appointment" /> }; } },
+      { path: "mediathek", lazy: async () => ({ Component: (await import("./components/admin/AdminMedia")).AdminMedia }) },
+      { path: "seiten", lazy: async () => ({ Component: (await import("./components/admin/AdminPages")).AdminPages }) },
     ],
   },
 ], { basename });

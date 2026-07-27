@@ -47,7 +47,7 @@ export function CookieBanner() {
     >
       <div className="mx-auto max-w-3xl bg-white border border-[#E5F4F5] rounded-2xl shadow-[0_20px_50px_rgb(0,0,0,0.12)] p-5 sm:p-6 motion-safe:animate-[curaCookieIn_360ms_cubic-bezier(0.22,1,0.36,1)_both]">
         <div className="flex items-start gap-4">
-          <div className="w-11 h-11 rounded-xl bg-[#DFF7F8] text-[#6FD3D1] flex items-center justify-center shrink-0">
+          <div className="w-11 h-11 rounded-xl bg-[#DFF7F8] text-[#0E6E6A] flex items-center justify-center shrink-0">
             <Cookie size={22} strokeWidth={1.7} />
           </div>
           <div className="min-w-0 flex-1">
@@ -69,7 +69,7 @@ export function CookieBanner() {
               Details in unserer{" "}
               <Link
                 to="/datenschutz"
-                className="text-[#6FD3D1] underline hover:text-[#5BC2C0]"
+                className="text-[#0F7C77] underline hover:text-[#5BC2C0]"
               >
                 Datenschutzerklärung
               </Link>
@@ -79,7 +79,7 @@ export function CookieBanner() {
               <button
                 type="button"
                 onClick={accept}
-                className="order-1 sm:order-2 flex-1 sm:flex-none bg-[#6FD3D1] hover:bg-[#5BC2C0] text-white text-sm font-medium px-6 py-2.5 rounded-full transition-colors shadow-[0_8px_20px_rgb(111,211,209,0.25)]"
+                className="order-1 sm:order-2 flex-1 sm:flex-none bg-[#0F7C77] hover:bg-[#0E6E6A] text-white text-sm font-medium px-6 py-2.5 rounded-full transition-colors shadow-[0_8px_20px_rgb(111,211,209,0.25)]"
                 style={jakarta}
               >
                 Alle akzeptieren
@@ -98,7 +98,7 @@ export function CookieBanner() {
             type="button"
             onClick={reject}
             aria-label="Banner schließen (essenzielle Cookies erlauben)"
-            className="shrink-0 -mr-1 -mt-1 p-1.5 text-[#9AA3A8] hover:text-[#5F6B73] hover:bg-[#F8FEFF] rounded-full transition-colors"
+            className="shrink-0 -mr-1 -mt-1 p-1.5 text-[#5F6B73] hover:text-[#5F6B73] hover:bg-[#F8FEFF] rounded-full transition-colors"
           >
             <X size={16} strokeWidth={1.8} />
           </button>

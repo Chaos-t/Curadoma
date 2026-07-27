@@ -24,11 +24,11 @@ export function HaushaltPage() {
     <>
       <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28 bg-gradient-to-b from-white/80 to-[#F8FEFF]/80">
         <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#0E6E6A] mb-6 uppercase tracking-wider">
             <Editable as="span" id="haushalt.hero.badge">§ 45a SGB XI</Editable>
           </div>
           <h1 className="text-4xl sm:text-5xl font-medium tracking-tight text-[#111111] leading-[1.15] mb-6" style={jakarta}>
-            <Editable as="span" id="haushalt.hero.title">Haushaltsnahe</Editable> <span className="text-[#6FD3D1]"><Editable as="span" id="haushalt.hero.title.accent">Dienstleistungen</Editable></span>
+            <Editable as="span" id="haushalt.hero.title">Haushaltsnahe</Editable> <span className="text-[#0F7C77]"><Editable as="span" id="haushalt.hero.title.accent">Dienstleistungen</Editable></span>
           </h1>
           <p className="text-lg text-[#5F6B73] leading-relaxed font-light">
             <Editable as="span" id="haushalt.hero.subtitle">Unterstützung im Alltag nach § 45a SGB XI – zuverlässig, individuell und mit Herz.</Editable>
@@ -55,7 +55,7 @@ export function HaushaltPage() {
           <div className="cura-reveal cura-reveal-up grid grid-cols-1 md:grid-cols-2 gap-6">
             {leistungen.map((l, i) => (
               <div key={i} className="cura-card-glow bg-white p-7 rounded-3xl border border-[#E5F4F5] shadow-sm">
-                <div className="w-12 h-12 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#6FD3D1] mb-4">
+                <div className="w-12 h-12 bg-[#DFF7F8] rounded-2xl flex items-center justify-center text-[#0E6E6A] mb-4">
                   <Home size={22} strokeWidth={1.5} />
                 </div>
                 <h3 className="text-lg font-medium text-[#111111] mb-2" style={jakarta}><Editable as="span" id={`haushalt.services.${i}.title`}>{l.title}</Editable></h3>
@@ -96,7 +96,7 @@ export function HaushaltPage() {
           <p className="text-lg text-[#5F6B73] font-light mb-8">
             <Editable as="span" id="haushalt.cta.text">Wir zeigen Ihnen, wie Sie unsere haushaltsnahen Dienstleistungen über die Pflegekasse abrechnen können.</Editable>
           </p>
-          <Link to="/kontakt" className="inline-flex items-center gap-2 bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-sm">
+          <Link to="/kontakt" className="inline-flex items-center gap-2 bg-[#0F7C77] text-white hover:bg-[#0E6E6A] px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-sm">
             <Phone size={18} /> <Editable as="span" id="haushalt.cta.button">Jetzt anfragen</Editable>
           </Link>
         </div>

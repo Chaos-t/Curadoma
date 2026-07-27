@@ -194,18 +194,18 @@ export function KarrierePage() {
       <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28 overflow-hidden bg-gradient-to-b from-white/80 to-[#F8FEFF]/80">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#BFEAF2] opacity-15 rounded-full blur-3xl pointer-events-none translate-x-1/3 -translate-y-1/3" />
         <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#0E6E6A] mb-6 uppercase tracking-wider">
             <Briefcase size={14} /> <Editable as="span" id="karriere.hero.badge">Karriere</Editable>
           </div>
           <h1 className="text-4xl sm:text-5xl font-medium tracking-tight text-[#111111] leading-[1.15] mb-6" style={jakarta}>
-            <Editable as="span" id="karriere.hero.title.pre">Karriere bei </Editable><span className="text-[#6FD3D1]"><Editable as="span" id="karriere.hero.title">Cura Doma</Editable></span>
+            <Editable as="span" id="karriere.hero.title.pre">Karriere bei </Editable><span className="text-[#0F7C77]"><Editable as="span" id="karriere.hero.title">Cura Doma</Editable></span>
           </h1>
           <p className="text-lg text-[#5F6B73] leading-relaxed max-w-2xl mx-auto font-light mb-8">
             <Editable as="span" id="karriere.hero.subtitle">Wir suchen engagierte Unterstützung für unser Team im Bereich Betreuung und Haushaltshilfe.</Editable>
           </p>
           <a
             href="#bewerben"
-            className="inline-flex items-center gap-2 bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)]"
+            className="inline-flex items-center gap-2 bg-[#0F7C77] text-white hover:bg-[#0E6E6A] px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)]"
           >
             <Editable as="span" id="karriere.hero.cta">Jetzt bewerben</Editable> <ArrowRight size={18} />
           </a>
@@ -226,7 +226,7 @@ export function KarrierePage() {
 
           <div className="cura-card-glow bg-white rounded-3xl border border-[#E5F4F5] shadow-[0_18px_50px_rgb(191,234,242,0.3)] p-8 sm:p-10 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
             <div>
-              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#DFF7F8] text-[11px] font-medium text-[#6FD3D1] mb-3 uppercase tracking-wider">
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-[#DFF7F8] text-[11px] font-medium text-[#0E6E6A] mb-3 uppercase tracking-wider">
                 <Editable as="span" id="karriere.jobs.card.badge">Festanstellung · Teilzeit · Minijob · flexibel</Editable>
               </div>
               <h3 className="cura-reveal cura-reveal-up text-xl font-medium text-[#111111] mb-2" style={jakarta}>
@@ -240,7 +240,7 @@ export function KarrierePage() {
             <button
               type="button"
               onClick={() => setShowDetail((v) => !v)}
-              className="shrink-0 inline-flex items-center gap-2 bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-6 py-3 rounded-full text-sm font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)]"
+              className="shrink-0 inline-flex items-center gap-2 bg-[#0F7C77] text-white hover:bg-[#0E6E6A] px-6 py-3 rounded-full text-sm font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)]"
             >
               <Editable as="span" id="karriere.jobs.card.cta">zum Stellenangebot</Editable> <ArrowRight size={16} />
             </button>
@@ -266,7 +266,7 @@ export function KarrierePage() {
               </div>
               <a
                 href="#bewerben"
-                className="inline-flex items-center gap-2 mt-8 bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-6 py-3 rounded-full text-sm font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)]"
+                className="inline-flex items-center gap-2 mt-8 bg-[#0F7C77] text-white hover:bg-[#0E6E6A] px-6 py-3 rounded-full text-sm font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)]"
               >
                 <Editable as="span" id="karriere.job.detail.cta">Jetzt bewerben</Editable> <ArrowRight size={16} />
               </a>
@@ -403,18 +403,18 @@ export function KarrierePage() {
                     setCvFile(f);
                     set("cv_filename", f?.name ?? "");
                   }}
-                  className="block w-full text-sm text-[#5F6B73] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-[#DFF7F8] file:text-[#6FD3D1] hover:file:bg-[#BFEAF2] cursor-pointer"
+                  className="block w-full text-sm text-[#5F6B73] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-[#DFF7F8] file:text-[#0E6E6A] hover:file:bg-[#BFEAF2] cursor-pointer"
                 />
                 {form.cv_filename && !fieldErrors.cv && (
                   <p className="text-xs text-[#5F6B73] font-light mt-1"><Editable as="span" id="karriere.form.field.cv.selected-prefix">Ausgewählt:</Editable> {form.cv_filename}</p>
                 )}
-                <p className="text-xs text-[#9AA3A8] font-light mt-1"><Editable as="span" id="karriere.form.field.cv.hint">PDF, Word oder Bild · max. 5&nbsp;MB</Editable></p>
+                <p className="text-xs text-[#5F6B73] font-light mt-1"><Editable as="span" id="karriere.form.field.cv.hint">PDF, Word oder Bild · max. 5&nbsp;MB</Editable></p>
               </Field>
 
               <label className="flex items-start gap-3 text-sm text-[#5F6B73] font-light leading-relaxed">
                 <input type="checkbox" checked={form.consent_privacy} onChange={(e) => set("consent_privacy", e.target.checked)} className="mt-1 w-4 h-4 accent-[#6FD3D1] shrink-0" />
                 <span>
-                  <Editable as="span" id="karriere.form.consent.text.pre">Ich habe die </Editable><Link to="/datenschutz" className="text-[#6FD3D1] underline hover:text-[#5BC2C0]">Datenschutzerklärung</Link><Editable as="span" id="karriere.form.consent.text.post"> gelesen und stimme zu, dass meine Angaben zur Bearbeitung meiner Bewerbung verarbeitet werden.</Editable>
+                  <Editable as="span" id="karriere.form.consent.text.pre">Ich habe die </Editable><Link to="/datenschutz" className="text-[#0F7C77] underline hover:text-[#5BC2C0]">Datenschutzerklärung</Link><Editable as="span" id="karriere.form.consent.text.post"> gelesen und stimme zu, dass meine Angaben zur Bearbeitung meiner Bewerbung verarbeitet werden.</Editable>
                 </span>
               </label>
               {fieldErrors.consent_privacy && <p className="text-xs text-red-500 -mt-3">{fieldErrors.consent_privacy}</p>}
@@ -426,7 +426,7 @@ export function KarrierePage() {
                 </div>
               )}
 
-              <button type="submit" disabled={submitting} className="w-full sm:w-auto bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] disabled:opacity-60 disabled:cursor-not-allowed px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)] flex items-center justify-center gap-2">
+              <button type="submit" disabled={submitting} className="w-full sm:w-auto bg-[#0F7C77] text-white hover:bg-[#0E6E6A] disabled:opacity-60 disabled:cursor-not-allowed px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)] flex items-center justify-center gap-2">
                 <Send size={18} /> {submitting ? (
                   <Editable as="span" id="karriere.form.submit.loading">Wird gesendet…</Editable>
                 ) : (

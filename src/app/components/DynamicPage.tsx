@@ -35,7 +35,7 @@ export function DynamicPage() {
   const base = `page.${slug}`;
   return (
     <section className="max-w-3xl mx-auto px-6 py-16 sm:py-24 min-h-[78vh]">
-      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
+      <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#0E6E6A] mb-6 uppercase tracking-wider">
         <Editable as="span" id={`${base}.eyebrow`}>Cura Doma</Editable>
       </div>
       <h1 className="text-4xl sm:text-5xl font-medium tracking-tight text-[#111111] leading-[1.15] mb-8" style={jakarta}>

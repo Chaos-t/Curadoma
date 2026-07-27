@@ -1,9 +1,12 @@
+import { lazy, Suspense } from "react";
 import { ArrowUp, ArrowDown, Trash2, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
 import { useContent, type Block, type BlockAlign } from "../../../lib/content";
 import { Editable } from "./Editable";
 import { EditableImage } from "./EditableImage";
 import { EditableList } from "./EditableList";
-import { BlockPalette } from "./BlockPalette";
+
+// Die „+"-Palette gibt es nur im Bearbeitungsmodus -> erst dann nachladen.
+const BlockPalette = lazy(() => import("./BlockPalette").then((m) => ({ default: m.BlockPalette })));
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 // Neutraler Platzhalter für neue, noch leere Bild-Blöcke (nur im Editor sichtbar).
@@ -156,7 +159,11 @@ export function BlockArea({ areaId }: { areaId: string }) {
         </div>
       ))}
 
-      {editMode && <BlockPalette onPick={(type) => addBlock(areaId, type)} />}
+      {editMode && (
+        <Suspense fallback={null}>
+          <BlockPalette onPick={(type) => addBlock(areaId, type)} />
+        </Suspense>
+      )}
     </div>
   );
 }

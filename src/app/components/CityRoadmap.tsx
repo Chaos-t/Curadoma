@@ -264,7 +264,7 @@ function RouteSnake({ route, progress }: { route: Route; progress: number }) {
                 : "0 1px 2px rgba(0,0,0,0.04)",
             }}
           >
-            <span className="text-[10px] text-[#9AA3A8]">
+            <span className="text-[10px] text-[#5F6B73]">
               {String(i + 1).padStart(2, "0")}
             </span>
             <span className="w-px h-3 bg-[#E5F4F5]" />
@@ -277,7 +277,7 @@ function RouteSnake({ route, progress }: { route: Route; progress: number }) {
       {/* The car — positioned by converting SVG coords to % of the
           wrapper. CSS transform handles centring + rotation. */}
       <div
-        className="absolute pointer-events-none flex items-center justify-center w-10 h-10 rounded-full bg-[#6FD3D1] text-white shadow-[0_10px_28px_rgb(111,211,209,0.45)] transition-transform duration-100 ease-linear"
+        className="absolute pointer-events-none flex items-center justify-center w-10 h-10 rounded-full bg-[#0F7C77] text-white shadow-[0_10px_28px_rgb(111,211,209,0.45)] transition-transform duration-100 ease-linear"
         style={{
           left: `${(carPt.x / vbWidth) * 100}%`,
           top: `${(carPt.y / vbHeight) * 100}%`,
@@ -306,7 +306,7 @@ function RouteTimelineMobile({ route, progress }: { route: Route; progress: numb
       />
       {/* Car: vertical position tied to eased progress */}
       <span
-        className="absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-9 h-9 rounded-full bg-[#6FD3D1] text-white shadow-[0_8px_20px_rgb(111,211,209,0.4)] transition-all duration-150 ease-linear z-10"
+        className="absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-9 h-9 rounded-full bg-[#0F7C77] text-white shadow-[0_8px_20px_rgb(111,211,209,0.4)] transition-all duration-150 ease-linear z-10"
         style={{
           left: "18px",
           top: `calc(${eased * 100}% + ${(1 - eased) * 8 - eased * 8}px)`,
@@ -343,7 +343,7 @@ function RouteTimelineMobile({ route, progress }: { route: Route; progress: numb
                   : "border-[#E5F4F5] text-[#5F6B73]"
               }`}
             >
-              <span className="text-[10px] text-[#9AA3A8] tabular-nums">
+              <span className="text-[10px] text-[#5F6B73] tabular-nums">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <MapPin
@@ -366,7 +366,7 @@ function SingleRoute({ route }: { route: Route }) {
   return (
     <div ref={ref} className="relative">
       <div className="text-center mb-8">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-[11px] font-medium text-[#6FD3D1] uppercase tracking-wider mb-3">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-[11px] font-medium text-[#0E6E6A] uppercase tracking-wider mb-3">
           <Car size={14} strokeWidth={1.7} />
           <Editable as="span" id={`einzugsgebiet.roadmap.${route.idBase}.label`}>{route.label}</Editable>
         </div>
@@ -374,7 +374,7 @@ function SingleRoute({ route }: { route: Route }) {
           className="text-2xl font-medium tracking-tight text-[#111111]"
           style={jakarta}
         >
-          Strecke ab Station <span className="text-[#6FD3D1]"><Editable as="span" id={`einzugsgebiet.roadmap.${route.idBase}.hub`}>{route.hub}</Editable></span>
+          Strecke ab Station <span className="text-[#0F7C77]"><Editable as="span" id={`einzugsgebiet.roadmap.${route.idBase}.hub`}>{route.hub}</Editable></span>
         </h3>
         <p className="text-sm text-[#5F6B73] font-light mt-1">
           {route.cities.length} Orte werden regelmäßig angefahren

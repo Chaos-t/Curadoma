@@ -13,12 +13,12 @@ export function EntlastungPage() {
         <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-[#DFF7F8] opacity-20 rounded-full blur-3xl pointer-events-none -translate-x-1/3 -translate-y-1/3"></div>
         <div className="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col lg:flex-row items-center gap-12 relative z-10">
           <div className="cura-reveal cura-reveal-left flex-1 text-center lg:text-left">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#0E6E6A] mb-6 uppercase tracking-wider">
               <Editable as="span" id="entlastung.hero.badge">§ 45a / § 45b SGB XI</Editable>
             </div>
             <h1 className="text-4xl sm:text-5xl font-medium tracking-tight text-[#111111] leading-[1.15] mb-6" style={jakarta}>
               <Editable as="span" id="entlastung.hero.title">Entlastungsleistungen</Editable> <br className="hidden lg:block" />
-              <span className="text-[#6FD3D1]"><Editable as="span" id="entlastung.hero.title-highlight">nach § 45b SGB XI</Editable></span>
+              <span className="text-[#0F7C77]"><Editable as="span" id="entlastung.hero.title-highlight">nach § 45b SGB XI</Editable></span>
             </h1>
             <p className="text-lg text-[#5F6B73] leading-relaxed max-w-2xl mx-auto lg:mx-0 font-light">
               <Editable as="span" id="entlastung.hero.subtitle">Unterstützung im Alltag für Pflegebedürftige und Angehörige – finanziert über die Pflegekasse.</Editable>
@@ -172,7 +172,7 @@ export function EntlastungPage() {
 
       <section className="py-20 bg-white/80">
         <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center">
-          <Link to="/kontakt" className="inline-flex items-center gap-2 bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-8 py-4 rounded-full text-base font-normal transition-all shadow-sm">
+          <Link to="/kontakt" className="inline-flex items-center gap-2 bg-[#0F7C77] text-white hover:bg-[#0E6E6A] px-8 py-4 rounded-full text-base font-normal transition-all shadow-sm">
             <Phone size={20} /> <Editable as="span" id="entlastung.cta.button">Jetzt kostenlos beraten lassen</Editable>
           </Link>
         </div>

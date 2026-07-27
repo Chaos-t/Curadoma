@@ -17,12 +17,12 @@ export function UmwandlungPage() {
     <>
       <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28 bg-gradient-to-b from-white/80 to-[#F8FEFF]/80">
         <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#6FD3D1] mb-6 uppercase tracking-wider">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#0E6E6A] mb-6 uppercase tracking-wider">
             <Editable as="span" id="umwandlung.hero.badge">Pflegekasse</Editable>
           </div>
           <h1 className="text-4xl sm:text-5xl font-medium tracking-tight text-[#111111] leading-[1.15] mb-6" style={jakarta}>
             <Editable as="span" id="umwandlung.hero.title">Umwandlungsanspruch</Editable> <br className="hidden lg:block" />
-            <span className="text-[#6FD3D1]"><Editable as="span" id="umwandlung.hero.title.accent">nach § 45a SGB XI</Editable></span>
+            <span className="text-[#0F7C77]"><Editable as="span" id="umwandlung.hero.title.accent">nach § 45a SGB XI</Editable></span>
           </h1>
           <p className="text-lg text-[#5F6B73] leading-relaxed font-light">
             <Editable as="span" id="umwandlung.hero.subtitle">Mehr praktische Hilfe im Alltag – kombinieren Sie finanzielle Unterstützung mit konkreter Entlastung.</Editable>
@@ -146,7 +146,7 @@ export function UmwandlungPage() {
 
       <section className="py-20 bg-white/80">
         <div className="cura-reveal cura-reveal-up max-w-3xl mx-auto px-6 text-center">
-          <Link to="/kontakt" className="inline-flex items-center gap-2 bg-[#6FD3D1] text-white hover:bg-[#5BC2C0] px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-sm">
+          <Link to="/kontakt" className="inline-flex items-center gap-2 bg-[#0F7C77] text-white hover:bg-[#0E6E6A] px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-sm">
             <Phone size={18} /> <Editable as="span" id="umwandlung.cta.button">Persönlich beraten lassen</Editable>
           </Link>
         </div>

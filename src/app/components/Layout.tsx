@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Link, Outlet, useLocation } from "react-router";
 import { Phone, Mail, Heart, Menu, X, MapPin, ChevronDown, Cookie } from "lucide-react";
 import { BackgroundScene } from "./BackgroundScene";
@@ -10,8 +10,12 @@ import { useContent } from "../../lib/content";
 import { Editable } from "./editor/Editable";
 import { PhoneText, EmailText, AddressBlock } from "./editor/Shared";
 import { PageBlocks } from "./editor/PageBlocks";
-import { SeoPanel } from "./editor/SeoPanel";
 import { Seo } from "./Seo";
+
+// Nur im Bearbeitungsmodus sichtbar -> Code erst dann nachladen (Besucher
+// laden davon nichts). Die Bedingung steht VOR dem Rendern, sonst wuerde
+// React.lazy den Chunk trotzdem sofort anfordern.
+const SeoPanel = lazy(() => import("./editor/SeoPanel").then((m) => ({ default: m.SeoPanel })));
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', sans-serif" };
 
@@ -38,7 +42,7 @@ export function Layout() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [mobileSubOpen, setMobileSubOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { getPages } = useContent();
+  const { getPages, editMode } = useContent();
   const extraPages = getPages().filter((p) => p.inMenu);
   const location = useLocation();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -163,7 +167,7 @@ export function Layout() {
               <EmailText />
             </span>
           </div>
-          <div className="flex items-center gap-1.5 text-[#6FD3D1] font-normal">
+          <div className="flex items-center gap-1.5 text-[#0F7C77] font-normal">
             <Heart size={16} strokeWidth={1.5} />
             <Editable as="span" id="shared.utilitybar.slogan">Wir beraten Sie gerne kostenlos</Editable>
           </div>
@@ -178,14 +182,14 @@ export function Layout() {
           </Link>
 
           <div className="hidden lg:flex items-center gap-6 xl:gap-8">
-            <Link to="/" className={`text-sm font-light transition-colors ${isActive("/") ? "text-[#6FD3D1]" : "text-[#5F6B73] hover:text-[#6FD3D1]"}`}>
+            <Link to="/" className={`text-sm font-light transition-colors ${isActive("/") ? "text-[#0F7C77]" : "text-[#5F6B73] hover:text-[#0F7C77]"}`}>
               <Editable as="span" id="shared.nav.startseite">Startseite</Editable>
             </Link>
 
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className={`flex items-center gap-1 text-sm font-light transition-colors ${isLeistungenActive ? "text-[#6FD3D1]" : "text-[#5F6B73] hover:text-[#6FD3D1]"}`}
+                className={`flex items-center gap-1 text-sm font-light transition-colors ${isLeistungenActive ? "text-[#0F7C77]" : "text-[#5F6B73] hover:text-[#0F7C77]"}`}
               >
                 <Editable as="span" id="shared.nav.leistungen">Leistungen</Editable>
                 <ChevronDown size={14} className={`transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
@@ -196,7 +200,7 @@ export function Layout() {
                     <Link
                       key={l.path}
                       to={l.path}
-                      className={`cura-glow-item block px-4 py-2.5 rounded-xl text-sm font-light ${isActive(l.path) ? "bg-[#DFF7F8] text-[#6FD3D1]" : "text-[#5F6B73] hover:text-[#6FD3D1]"}`}
+                      className={`cura-glow-item block px-4 py-2.5 rounded-xl text-sm font-light ${isActive(l.path) ? "bg-[#DFF7F8] text-[#0E6E6A]" : "text-[#5F6B73] hover:text-[#0E6E6A]"}`}
                     >
                       <Editable as="span" id={l.id}>{l.label}</Editable>
                     </Link>
@@ -205,39 +209,42 @@ export function Layout() {
               )}
             </div>
 
-            <Link to="/einzugsgebiet" className={`text-sm font-light transition-colors ${isActive("/einzugsgebiet") ? "text-[#6FD3D1]" : "text-[#5F6B73] hover:text-[#6FD3D1]"}`}>
+            <Link to="/einzugsgebiet" className={`text-sm font-light transition-colors ${isActive("/einzugsgebiet") ? "text-[#0F7C77]" : "text-[#5F6B73] hover:text-[#0F7C77]"}`}>
               <Editable as="span" id="shared.nav.einzugsgebiet">Einzugsgebiet</Editable>
             </Link>
-            <Link to="/karriere" className={`text-sm font-light transition-colors ${isActive("/karriere") ? "text-[#6FD3D1]" : "text-[#5F6B73] hover:text-[#6FD3D1]"}`}>
+            <Link to="/karriere" className={`text-sm font-light transition-colors ${isActive("/karriere") ? "text-[#0F7C77]" : "text-[#5F6B73] hover:text-[#0F7C77]"}`}>
               <Editable as="span" id="shared.nav.karriere">Karriere</Editable>
             </Link>
-            <Link to="/kontakt" className={`text-sm font-light transition-colors ${isActive("/kontakt") ? "text-[#6FD3D1]" : "text-[#5F6B73] hover:text-[#6FD3D1]"}`}>
+            <Link to="/kontakt" className={`text-sm font-light transition-colors ${isActive("/kontakt") ? "text-[#0F7C77]" : "text-[#5F6B73] hover:text-[#0F7C77]"}`}>
               <Editable as="span" id="shared.nav.kontakt">Kontakt</Editable>
             </Link>
             {extraPages.map((p) => (
-              <Link key={p.slug} to={`/${p.slug}`} className={`text-sm font-light transition-colors ${isActive(`/${p.slug}`) ? "text-[#6FD3D1]" : "text-[#5F6B73] hover:text-[#6FD3D1]"}`}>
+              <Link key={p.slug} to={`/${p.slug}`} className={`text-sm font-light transition-colors ${isActive(`/${p.slug}`) ? "text-[#0F7C77]" : "text-[#5F6B73] hover:text-[#0F7C77]"}`}>
                 {p.label}
               </Link>
             ))}
             {/* TEMP deaktiviert – Termin-Bereich vorerst ausgeblendet
-            <Link to="/termin" className={`text-sm font-light transition-colors ${isActive("/termin") ? "text-[#6FD3D1]" : "text-[#5F6B73] hover:text-[#6FD3D1]"}`}>
+            <Link to="/termin" className={`text-sm font-light transition-colors ${isActive("/termin") ? "text-[#0F7C77]" : "text-[#5F6B73] hover:text-[#0F7C77]"}`}>
               <Editable as="span" id="shared.nav.termin">Termin</Editable>
             </Link>
             */}
 
             <Link
               to="/kontakt"
-              className="text-sm font-light text-white bg-[#6FD3D1] hover:bg-[#5BC2C0] transition-colors rounded-full py-2.5 px-5 shadow-[0_4px_14px_rgb(111,211,209,0.3)]"
+              className="text-sm font-light text-white bg-[#0F7C77] hover:bg-[#0E6E6A] transition-colors rounded-full py-2.5 px-5 shadow-[0_4px_14px_rgb(111,211,209,0.3)]"
             >
               <Editable as="span" id="shared.nav.cta">Kostenlos beraten lassen</Editable>
             </Link>
           </div>
 
+          {/* aria-controls wird nur gesetzt, wenn das Panel wirklich im DOM ist —
+              sonst verweist es auf eine nicht existierende ID (axe-Regel
+              aria-valid-attr-value). aria-expanded traegt den Zustand ohnehin. */}
           <button
             className="lg:hidden p-2 text-[#5F6B73]"
             aria-label={mobileMenuOpen ? "Menü schließen" : "Menü öffnen"}
             aria-expanded={mobileMenuOpen}
-            aria-controls="mobile-menu"
+            {...(mobileMenuMounted ? { "aria-controls": "mobile-menu" } : {})}
             onClick={toggleMobileMenu}
           >
             <span className="relative block h-6 w-6">
@@ -265,14 +272,14 @@ export function Layout() {
             }`}
           >
             {topNav.slice(0, 1).map((link) => (
-              <Link key={link.path} to={link.path} style={{ animationDelay: "40ms" }} className={`block py-2 text-sm font-light ${itemAnim} ${isActive(link.path) ? "text-[#6FD3D1]" : "text-[#5F6B73]"}`}>
+              <Link key={link.path} to={link.path} style={{ animationDelay: "40ms" }} className={`block py-2 text-sm font-light ${itemAnim} ${isActive(link.path) ? "text-[#0F7C77]" : "text-[#5F6B73]"}`}>
                 <Editable as="span" id={link.id}>{link.label}</Editable>
               </Link>
             ))}
             <button
               onClick={() => setMobileSubOpen(!mobileSubOpen)}
               style={{ animationDelay: "90ms" }}
-              className={`flex items-center justify-between w-full py-2 text-sm font-light ${itemAnim} ${isLeistungenActive ? "text-[#6FD3D1]" : "text-[#5F6B73]"}`}
+              className={`flex items-center justify-between w-full py-2 text-sm font-light ${itemAnim} ${isLeistungenActive ? "text-[#0F7C77]" : "text-[#5F6B73]"}`}
             >
               <Editable as="span" id="shared.nav.leistungen">Leistungen</Editable>
               <ChevronDown size={16} className={`transition-transform ${mobileSubOpen ? "rotate-180" : ""}`} />
@@ -280,23 +287,23 @@ export function Layout() {
             {mobileSubOpen && (
               <div className="pl-4 space-y-1 border-l border-[#E5F4F5] overflow-hidden motion-safe:animate-[curaSubIn_240ms_cubic-bezier(0.22,1,0.36,1)_both]">
                 {leistungenLinks.map((l, i) => (
-                  <Link key={l.path} to={l.path} style={{ animationDelay: `${i * 35}ms` }} className={`block py-2 text-sm font-light ${itemAnim} ${isActive(l.path) ? "text-[#6FD3D1]" : "text-[#5F6B73]"}`}>
+                  <Link key={l.path} to={l.path} style={{ animationDelay: `${i * 35}ms` }} className={`block py-2 text-sm font-light ${itemAnim} ${isActive(l.path) ? "text-[#0F7C77]" : "text-[#5F6B73]"}`}>
                     <Editable as="span" id={l.id}>{l.label}</Editable>
                   </Link>
                 ))}
               </div>
             )}
             {topNav.slice(1).map((link, i) => (
-              <Link key={link.path} to={link.path} style={{ animationDelay: `${140 + i * 50}ms` }} className={`block py-2 text-sm font-light ${itemAnim} ${isActive(link.path) ? "text-[#6FD3D1]" : "text-[#5F6B73]"}`}>
+              <Link key={link.path} to={link.path} style={{ animationDelay: `${140 + i * 50}ms` }} className={`block py-2 text-sm font-light ${itemAnim} ${isActive(link.path) ? "text-[#0F7C77]" : "text-[#5F6B73]"}`}>
                 <Editable as="span" id={link.id}>{link.label}</Editable>
               </Link>
             ))}
             {extraPages.map((p, i) => (
-              <Link key={p.slug} to={`/${p.slug}`} style={{ animationDelay: `${200 + i * 40}ms` }} className={`block py-2 text-sm font-light ${itemAnim} ${isActive(`/${p.slug}`) ? "text-[#6FD3D1]" : "text-[#5F6B73]"}`}>
+              <Link key={p.slug} to={`/${p.slug}`} style={{ animationDelay: `${200 + i * 40}ms` }} className={`block py-2 text-sm font-light ${itemAnim} ${isActive(`/${p.slug}`) ? "text-[#0F7C77]" : "text-[#5F6B73]"}`}>
                 {p.label}
               </Link>
             ))}
-            <Link to="/kontakt" style={{ animationDelay: "290ms" }} className={`block mt-3 text-sm font-light text-white bg-[#6FD3D1] rounded-full py-2.5 px-6 text-center ${itemAnim}`}>
+            <Link to="/kontakt" style={{ animationDelay: "290ms" }} className={`block mt-3 text-sm font-light text-white bg-[#0F7C77] rounded-full py-2.5 px-6 text-center ${itemAnim}`}>
               <Editable as="span" id="shared.nav.cta">Kostenlos beraten lassen</Editable>
             </Link>
           </div>
@@ -321,28 +328,28 @@ export function Layout() {
             </div>
 
             <div>
-              <h4 className="text-[#111111] font-medium mb-4" style={jakarta}><Editable as="span" id="shared.footer.leistungen.heading">Leistungen</Editable></h4>
+              <h3 className="text-[#111111] font-medium mb-4" style={jakarta}><Editable as="span" id="shared.footer.leistungen.heading">Leistungen</Editable></h3>
               <ul className="space-y-3 text-sm text-[#5F6B73] font-light">
                 {leistungenLinks.map((l) => (
-                  <li key={l.path}><Link to={l.path} className="hover:text-[#6FD3D1] transition-colors"><Editable as="span" id={l.id}>{l.label}</Editable></Link></li>
+                  <li key={l.path}><Link to={l.path} className="hover:text-[#0F7C77] transition-colors"><Editable as="span" id={l.id}>{l.label}</Editable></Link></li>
                 ))}
               </ul>
             </div>
 
             <div>
-              <h4 className="text-[#111111] font-medium mb-4" style={jakarta}><Editable as="span" id="shared.footer.kontakt.heading">Kontakt</Editable></h4>
+              <h3 className="text-[#111111] font-medium mb-4" style={jakarta}><Editable as="span" id="shared.footer.kontakt.heading">Kontakt</Editable></h3>
               <ul className="space-y-3 text-sm text-[#5F6B73] font-light">
                 <li className="flex items-start gap-2">
                   <Phone size={16} className="mt-0.5 shrink-0 text-[#6FD3D1]" />
-                  <PhoneText className="hover:text-[#6FD3D1] transition-colors" />
+                  <PhoneText className="hover:text-[#0F7C77] transition-colors" />
                 </li>
                 <li className="flex items-start gap-2">
                   <Mail size={16} className="mt-0.5 shrink-0 text-[#6FD3D1]" />
-                  <EmailText className="hover:text-[#6FD3D1] transition-colors" />
+                  <EmailText className="hover:text-[#0F7C77] transition-colors" />
                 </li>
                 <li className="flex items-start gap-2">
                   <MapPin size={16} className="mt-0.5 shrink-0 text-[#6FD3D1]" />
-                  <a href="https://www.google.com/maps/search/?api=1&query=S%C3%BCntelhang+9%2C+31787+Hameln%2C+Germany" target="_blank" rel="noopener noreferrer" className="hover:text-[#6FD3D1] transition-colors"><AddressBlock variant="br" /></a>
+                  <a href="https://www.google.com/maps/search/?api=1&query=S%C3%BCntelhang+9%2C+31787+Hameln%2C+Germany" target="_blank" rel="noopener noreferrer" className="hover:text-[#0F7C77] transition-colors"><AddressBlock variant="br" /></a>
                 </li>
               </ul>
             </div>
@@ -351,14 +358,14 @@ export function Layout() {
           <div className="pt-8 border-t border-[#E5F4F5] flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-xs text-[#5F6B73] font-light"><Editable as="span" id="shared.footer.copyright">© 2026 Cura Doma. Alle Rechte vorbehalten.</Editable></p>
             <div className="flex flex-wrap items-center gap-6 text-xs text-[#5F6B73] font-light">
-              <Link to="/impressum" className="hover:text-[#6FD3D1] transition-colors"><Editable as="span" id="shared.footer.impressum">Impressum</Editable></Link>
-              <Link to="/datenschutz" className="hover:text-[#6FD3D1] transition-colors"><Editable as="span" id="shared.footer.datenschutz">Datenschutz</Editable></Link>
+              <Link to="/impressum" className="hover:text-[#0F7C77] transition-colors"><Editable as="span" id="shared.footer.impressum">Impressum</Editable></Link>
+              <Link to="/datenschutz" className="hover:text-[#0F7C77] transition-colors"><Editable as="span" id="shared.footer.datenschutz">Datenschutz</Editable></Link>
               <button
                 type="button"
                 onClick={() => requestReopenBanner()}
                 aria-label="Cookie-Einstellungen öffnen"
                 title="Cookie-Einstellungen"
-                className="inline-flex items-center justify-center w-8 h-8 rounded-full text-[#5F6B73] hover:text-[#6FD3D1] hover:bg-[#F8FEFF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6FD3D1] transition-colors"
+                className="inline-flex items-center justify-center w-8 h-8 rounded-full text-[#5F6B73] hover:text-[#0F7C77] hover:bg-[#F8FEFF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6FD3D1] transition-colors"
               >
                 <Cookie size={16} strokeWidth={1.7} />
               </button>
@@ -368,13 +375,13 @@ export function Layout() {
           <div className="mt-6 pt-6 border-t border-[#E5F4F5] text-center">
             {/* Bewusst NICHT editierbar (kein <Editable>): der Axion-Studio-Credit
                 soll fest bleiben und darf im Editor nicht geaendert werden. */}
-            <p className="text-xs text-[#9AA3A8] font-light">
+            <p className="text-xs text-[#5F6B73] font-light">
               Designed by{" "}
               <a
                 href="https://axion-studio.de/index.html"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[#6FD3D1] hover:text-[#5BC2C0] transition-colors font-normal"
+                className="text-[#0F7C77] hover:text-[#5BC2C0] transition-colors font-normal"
               >
                 Axion Studio
               </a>
@@ -385,7 +392,7 @@ export function Layout() {
 
       <WhatsAppButton />
       <CookieBanner />
-      <SeoPanel />
+      {editMode && <Suspense fallback={null}><SeoPanel /></Suspense>}
 
 
       <style>{`
