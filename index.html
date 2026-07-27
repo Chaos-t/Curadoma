@@ -7,36 +7,30 @@
       <link rel="icon" type="image/png" href="/favicon.png" />
       <link rel="apple-touch-icon" href="/favicon.png" />
 
-      <!-- Schriften: frueh verbinden und NICHT render-blockierend laden. Der
-           Stylesheet wird als media="print" geholt (blockiert dadurch nicht)
-           und beim onload auf "all" geschaltet. Mit display=swap erscheint der
-           Text sofort in der Systemschrift und wird danach ersetzt. -->
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-      <!-- Das Hero-Bild (LCP-Element) liegt bei Unsplash: Verbindung vorab
-           aufbauen, damit DNS/TLS nicht erst beim Bildabruf anfallen. -->
-      <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
 
-      <!-- Hero-Bild vorladen: es ist das LCP-Element, wird aber sonst erst
-           entdeckt, NACHDEM React gerendert hat (die Seite wird komplett im
-           Browser aufgebaut). So laeuft der Download parallel zum JavaScript.
-           imagesrcset/imagesizes MUESSEN mit HomePage.tsx uebereinstimmen,
-           sonst laedt der Browser zweimal. Hinweis: Wird im Editor ein eigenes
-           Hero-Bild hinterlegt, laeuft dieser Vorabruf ins Leere — dann diese
-           Zeilen an das neue Bild anpassen oder entfernen. -->
+      <!-- Schriften liegen LOKAL (src/styles/fonts.css) statt bei Google:
+           Lighthouse wies die Layout-Verschiebung (CLS 0,212) ausdruecklich der
+           Ursache "Web font loaded" zu — die Schriften kamen NACH dem ersten
+           Zeichnen, der Text floss um und schob die Hero-Bildspalte. Lokal +
+           vorgeladen sind sie rechtzeitig da. Spart zugleich zwei Fremd-
+           Verbindungen und die IP-Uebertragung an Google (DSGVO). -->
+      <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-400.woff2" crossorigin />
+      <link rel="preload" as="font" type="font/woff2" href="/fonts/plus-jakarta-sans-500.woff2" crossorigin />
+      <link rel="preload" as="font" type="font/woff2" href="/fonts/cormorant-600.woff2" crossorigin />
+      <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-300.woff2" crossorigin />
+      <link rel="preload" as="font" type="font/woff2" href="/fonts/cormorant-300.woff2" crossorigin />
+
+      <!-- Das Hero-Bild (LCP-Element) liegt bei Unsplash: Verbindung vorab
+           aufbauen und das Bild sofort holen — sonst wird es erst entdeckt,
+           NACHDEM React gerendert hat. imagesrcset/imagesizes MUESSEN zu
+           HomePage.tsx passen, sonst laedt der Browser zweimal.
+           ACHTUNG: Vite verwirft den Tag, wenn imagesrcset mehrzeilig steht. -->
+      <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
+      <!-- ContentProvider holt beim Start /site-content, /zones, /pages,
+           /blocks und /seo von Supabase. Verbindung vorab aufbauen —
+           Lighthouse beziffert die Ersparnis auf ~295 ms. -->
+      <link rel="preconnect" href="https://gjcleedoysndaagtsqjb.supabase.co" crossorigin />
       <link rel="preload" as="image" fetchpriority="high" href="https://images.unsplash.com/photo-1773227055624-07b515ba87c5?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXJlZ2l2ZXIlMjBob2xkaW5nJTIwZWxkZXJseSUyMHdvbWFuJTIwaGFuZHN8ZW58MXx8fHwxNzc1MzE0MDE0fDA&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=1080" imagesrcset="https://images.unsplash.com/photo-1773227055624-07b515ba87c5?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXJlZ2l2ZXIlMjBob2xkaW5nJTIwZWxkZXJseSUyMHdvbWFuJTIwaGFuZHN8ZW58MXx8fHwxNzc1MzE0MDE0fDA&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=480 480w, https://images.unsplash.com/photo-1773227055624-07b515ba87c5?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXJlZ2l2ZXIlMjBob2xkaW5nJTIwZWxkZXJseSUyMHdvbWFuJTIwaGFuZHN8ZW58MXx8fHwxNzc1MzE0MDE0fDA&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=640 640w, https://images.unsplash.com/photo-1773227055624-07b515ba87c5?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXJlZ2l2ZXIlMjBob2xkaW5nJTIwZWxkZXJseSUyMHdvbWFuJTIwaGFuZHN8ZW58MXx8fHwxNzc1MzE0MDE0fDA&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=828 828w, https://images.unsplash.com/photo-1773227055624-07b515ba87c5?crop=entropy&amp;cs=tinysrgb&amp;fit=max&amp;fm=jpg&amp;ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjYXJlZ2l2ZXIlMjBob2xkaW5nJTIwZWxkZXJseSUyMHdvbWFuJTIwaGFuZHN8ZW58MXx8fHwxNzc1MzE0MDE0fDA&amp;ixlib=rb-4.1.0&amp;q=80&amp;w=1080 1080w" imagesizes="(max-width: 1023px) 92vw, 46vw" />
-      <link
-        rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Cormorant:wght@300;600&family=Inter:wght@300;400;500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
-        media="print"
-        onload="this.media='all'; this.onload=null;"
-      />
-      <noscript>
-        <link
-          rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Cormorant:wght@300;600&family=Inter:wght@300;400;500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap"
-        />
-      </noscript>
 
       <!-- Google Search Console – Eigentumsnachweis (HTML-Tag-Methode) -->
       <meta name="google-site-verification" content="IV40jlW10Zvg3qfVaHK9fVCKWJ5_w6ZO307IwCA0jxo" />
