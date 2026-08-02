@@ -12,8 +12,32 @@
 import { useEffect, useRef, useState } from "react";
 import { Car, MapPin } from "lucide-react";
 import { Editable } from "./editor/Editable";
+import { EditableImage } from "./editor/EditableImage";
+import { Css } from "./Css";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
+
+// Dekorative Landkarte hinter der Route. Bewusst STATISCH — die Bewegung
+// liefert allein das scrollgesteuerte Auto.
+//
+// Als EditableImage eingebunden, damit der Betreiber sie im Bearbeitungs-
+// modus selbst austauschen kann, und zwar je Route getrennt.
+//
+// Bei Paderborn wird dieselbe Datei gespiegelt gezeigt: Das liest sich als
+// zweite Gegend, kostet aber keine zusätzlichen Bytes.
+const KARTE = "/karte-einzugsgebiet.webp";
+
+function RouteMap({ idBase }: { idBase: string }) {
+  return (
+    <EditableImage
+      id={`einzugsgebiet.roadmap.${idBase}.map`}
+      src={KARTE}
+      alt=""
+      aria-hidden="true"
+      className={`cura-route-map absolute inset-0 w-full h-full object-cover ${idBase === "paderborn" ? "scale-x-[-1] object-[60%_50%]" : "object-[40%_50%]"}`}
+    />
+  );
+}
 
 type Route = {
   /** Stable id prefix for the content editor (e.g. "hameln") */
@@ -198,6 +222,7 @@ function RouteSnake({ route, progress }: { route: Route; progress: number }) {
 
   return (
     <div className="relative w-full max-w-[460px] mx-auto" style={{ aspectRatio: `${vbWidth} / ${vbHeight}` }}>
+      <RouteMap idBase={route.idBase} />
       <svg
         viewBox={`0 0 ${vbWidth} ${vbHeight}`}
         className="absolute inset-0 w-full h-full"
@@ -305,7 +330,9 @@ function RouteTimelineMobile({ route, progress }: { route: Route; progress: numb
   const activeIdx = Math.floor(eased * route.cities.length);
 
   return (
-    <ol className="relative max-w-md mx-auto pl-12">
+    <div className="relative">
+      <RouteMap idBase={route.idBase} />
+      <ol className="relative max-w-md mx-auto pl-12">
       {/* Road line */}
       <span
         className="absolute top-2 bottom-2 left-[18px] w-0 border-l-2 border-dashed border-[#BFEAF2]"
@@ -362,7 +389,8 @@ function RouteTimelineMobile({ route, progress }: { route: Route; progress: numb
           </li>
         );
       })}
-    </ol>
+      </ol>
+    </div>
   );
 }
 
@@ -399,12 +427,29 @@ function SingleRoute({ route }: { route: Route }) {
 
 export function CityRoadmap() {
   return (
-    <section className="relative w-full">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-10">
-        {ROUTES.map((r) => (
-          <SingleRoute key={r.hub} route={r} />
-        ))}
-      </div>
-    </section>
+    <>
+      <section className="relative w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-10">
+          {ROUTES.map((r) => (
+            <SingleRoute key={r.hub} route={r} />
+          ))}
+        </div>
+      </section>
+
+      <Css>{`
+        /* Deckkraft per Media-Query, NICHT per JS-Breakpoint: Die Seiten
+           werden vorab gerendert, ein abweichender Erstrender im Client
+           bricht die Hydration. Mobil schwächer, damit die Ortsschildchen
+           auf schmalen Displays klar bleiben. */
+        .cura-route-map {
+          opacity: 0.3;
+          -webkit-mask-image: linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent);
+                  mask-image: linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent);
+        }
+        @media (min-width: 768px) {
+          .cura-route-map { opacity: 0.45; }
+        }
+      `}</Css>
+    </>
   );
 }
