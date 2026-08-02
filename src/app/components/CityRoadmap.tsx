@@ -233,14 +233,33 @@ function RouteSnake({ route, progress }: { route: Route; progress: number }) {
         className="absolute inset-0 w-full h-full"
         aria-hidden="true"
       >
-        {/* The road: dashed teal line */}
+        {/* Die Strecke, zweilagig gezeichnet.
+            Problem: Seit die Landkarte dahinter liegt, verschwand die Linie. Gemessen
+            hatte das alte #BFEAF2 gegen die Huegel der Karte nur 1,18 Kontrast — beide
+            im selben blassen Mint. Einfach nachzudunkeln waere falsch, weil die Linie
+            dann dunkler waere als die besuchten Haltepunkte (#6FD3D1) und die
+            Rangfolge Strasse < Haltepunkt < Auto (#0F7C77) kippen wuerde.
+            Loesung wie auf echten Landkarten: eine helle Kontur UNTER der Linie. Sie
+            gibt jedem Strich einen eigenen Untergrund, sodass die Strecke unabhaengig
+            davon lesbar bleibt, ob sie gerade ueber einen Huegel oder eine freie
+            Flaeche laeuft. Dieselbe Strichfolge, nur breiter — der Halo folgt exakt
+            den Strichen statt ein durchgehendes Band zu ziehen.
+            (Kein Kontrast-Thema im Sinne der Textregel: das ist eine Grafik.) */}
+        <path
+          d={pathD}
+          fill="none"
+          stroke="#F8FEFF"
+          strokeWidth={9}
+          strokeDasharray="9 8"
+          strokeLinecap="round"
+        />
         <path
           ref={pathRef}
           d={pathD}
           fill="none"
-          stroke="#BFEAF2"
-          strokeWidth={3}
-          strokeDasharray="6 10"
+          stroke="#5BC2C0"
+          strokeWidth={4}
+          strokeDasharray="9 8"
           strokeLinecap="round"
         />
 
@@ -338,22 +357,31 @@ function RouteTimelineMobile({ route, progress }: { route: Route; progress: numb
     <div className="relative">
       <RouteMap idBase={route.idBase} />
       <ol className="relative max-w-md mx-auto pl-12">
-      {/* Road line */}
-      <span
-        className="absolute top-2 bottom-2 left-[18px] w-0 border-l-2 border-dashed border-[#BFEAF2]"
-        aria-hidden="true"
-      />
-      {/* Car: vertical position tied to eased progress */}
-      <span
-        className="absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-9 h-9 rounded-full bg-[#0F7C77] text-white shadow-[0_8px_20px_rgb(111,211,209,0.4)] transition-all duration-150 ease-linear z-10"
-        style={{
-          left: "18px",
-          top: `calc(${eased * 100}% + ${(1 - eased) * 8 - eased * 8}px)`,
-        }}
-        aria-hidden="true"
-      >
-        <Car size={16} strokeWidth={1.8} />
-      </span>
+      {/* Strasse und Auto sind Deko, gehoeren aber in ein <li>: in <ol> sind nur
+          <li> als Kinder erlaubt. `contents` laesst das li selbst keine Box
+          erzeugen, damit bleibt das <ol> der Bezugsrahmen fuer die absolute
+          Positionierung und die Geometrie aendert sich nicht. */}
+      <li className="contents" aria-hidden="true">
+        {/* Strasse. Gleiche Logik wie beim Desktop-Pfad: eine helle Kontur
+            dahinter, damit die Linie auch dort lesbar bleibt, wo sie ueber
+            einen Huegel der Karte laeuft. */}
+        <span
+          className="absolute top-2 bottom-2 left-[16px] w-[6px] bg-[#F8FEFF] rounded-full"
+        />
+        <span
+          className="absolute top-2 bottom-2 left-[18px] w-0 border-l-2 border-dashed border-[#5BC2C0]"
+        />
+        {/* Car: vertical position tied to eased progress */}
+        <span
+          className="absolute -translate-x-1/2 -translate-y-1/2 flex items-center justify-center w-9 h-9 rounded-full bg-[#0F7C77] text-white shadow-[0_8px_20px_rgb(111,211,209,0.4)] transition-all duration-150 ease-linear z-10"
+          style={{
+            left: "18px",
+            top: `calc(${eased * 100}% + ${(1 - eased) * 8 - eased * 8}px)`,
+          }}
+        >
+          <Car size={16} strokeWidth={1.8} />
+        </span>
+      </li>
 
       {route.cities.map((c, i) => {
         const visited = i <= activeIdx;

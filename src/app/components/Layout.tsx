@@ -420,9 +420,25 @@ export function Layout() {
         @keyframes curaGlowFlow {
           to { background-position: 200% 50%; }
         }
+        /* Die position-Regel steht BEWUSST in einer Layer, alles andere bewusst nicht.
+           Grund: Der Inhalt von <Css> ist ungeschichtet, und ungeschichtetes CSS
+           schlaegt @layer utilities IMMER — unabhaengig von der Spezifitaet. Ein
+           absolute von Tailwind am selben Element wurde dadurch still ausgehebelt
+           (die "Anerkannter Partner"-Karte auf der Startseite stand deshalb unter
+           statt ueber dem Hero-Bild). In der components-Layer liegt die Regel
+           schwaecher als jede Utility und laesst sich am Element ueberschreiben.
+           Die Hover-Schatten bleiben ABSICHTLICH ungeschichtet: acht Karten setzen
+           zusaetzlich hover:shadow-md, das den Glow sonst verdraengen wuerde.
+           ACHTUNG: In diesem Block keine Backticks verwenden — das CSS steht in
+           einem Template-Literal, ein Backtick beendet es und der Build bricht ab. */
+        @layer components {
+          .cura-glow-item,
+          .cura-card-glow {
+            position: relative;
+          }
+        }
         .cura-glow-item,
         .cura-card-glow {
-          position: relative;
           isolation: isolate;
           transition: color 0.25s ease, background-color 0.25s ease, box-shadow 0.35s ease;
         }
