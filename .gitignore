@@ -23,3 +23,6 @@ supabase/.temp/
 .env
 .env.*
 !.env.example
+
+# Zwischenprodukt der Karten-Pipeline (aus karte-c2.svg reproduzierbar)
+src/assets-src/karte-c2-hell.svg
