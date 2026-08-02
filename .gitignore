@@ -26,3 +26,9 @@ supabase/.temp/
 
 # Zwischenprodukt der Karten-Pipeline (aus karte-c2.svg reproduzierbar)
 src/assets-src/karte-c2-hell.svg
+
+# Interne Arbeitsdokumentation: bleibt LOKAL, wird nicht nach GitHub hochgeladen.
+# Ausdruecklicher Wunsch des Betreibers (2026-08-02). Die Dateien existieren
+# weiter im Arbeitsverzeichnis und werden dort auch weiter gepflegt.
+/CLAUDE.md
+/docs/superpowers/
