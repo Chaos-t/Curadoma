@@ -10,6 +10,7 @@ import { InstagramFeed } from "./InstagramFeed";
 import { Editable } from "./editor/Editable";
 import { EditableImage } from "./editor/EditableImage";
 import { Css } from "./Css";
+import { ValueSeal } from "./ValueSeal";
 
 type Partner = {
   name: string;
@@ -173,7 +174,14 @@ export function HomePage() {
           </div>
 
           <div className="cura-hero-image flex-1 w-full max-w-lg lg:max-w-none relative">
-            <div className="relative rounded-3xl overflow-hidden shadow-[0_20px_60px_rgb(191,234,242,0.4)] border-4 border-white">
+            {/* Halb hinter dem Bild: Das entsteht AUSSCHLIESSLICH über die
+                Stapelreihenfolge — Siegel z-0, Bildrahmen relative z-10.
+                Kein Clipping, keine Maske. Der Rahmen hat overflow-hidden,
+                rounded-3xl und 4px weißen Rand, darunter verschwindet das
+                Siegel sauber. Oben LINKS, weil unten links schon die
+                "Anerkannter Partner"-Karte sitzt. */}
+            <ValueSeal className="absolute -top-6 -left-6 lg:-top-10 lg:-left-10 z-0 w-[110px] h-[110px] lg:w-[170px] lg:h-[170px]" />
+            <div className="relative z-10 rounded-3xl overflow-hidden shadow-[0_20px_60px_rgb(191,234,242,0.4)] border-4 border-white">
               {/* Bild ueber der Falz und LCP-Kandidat: bewusst NICHT lazy, mit
                   hoher Prioritaet holen + feste Groesse (Seitenverhaeltnis
                   reserviert Platz -> kein Layout-Sprung). fetchpriority wird
