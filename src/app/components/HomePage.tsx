@@ -180,7 +180,7 @@ export function HomePage() {
                 rounded-3xl und 4px weißen Rand, darunter verschwindet das
                 Siegel sauber. Oben LINKS, weil unten links schon die
                 "Anerkannter Partner"-Karte sitzt. */}
-            <ValueSeal className="absolute -top-6 -left-6 lg:-top-10 lg:-left-10 z-0 w-[110px] h-[110px] lg:w-[170px] lg:h-[170px]" />
+            <ValueSeal className="absolute -top-6 -left-6 lg:-top-10 lg:-left-10 z-0 w-[140px] h-[140px] lg:w-[170px] lg:h-[170px]" />
             <div className="relative z-10 rounded-3xl overflow-hidden shadow-[0_20px_60px_rgb(191,234,242,0.4)] border-4 border-white">
               {/* Bild ueber der Falz und LCP-Kandidat: bewusst NICHT lazy, mit
                   hoher Prioritaet holen + feste Groesse (Seitenverhaeltnis
@@ -193,7 +193,7 @@ export function HomePage() {
                 {...{ fetchpriority: "high" }}
                 className="w-full h-auto aspect-[4/3] object-cover" />
             </div>
-            <div className="cura-card-glow absolute -bottom-6 -left-4 lg:-left-12 bg-white p-5 rounded-2xl shadow-[0_10px_30px_rgb(0,0,0,0.05)] border border-[#E5F4F5] flex items-center gap-4">
+            <div className="cura-card-glow absolute -bottom-6 -left-4 lg:-left-12 z-20 bg-white p-5 rounded-2xl shadow-[0_10px_30px_rgb(0,0,0,0.05)] border border-[#E5F4F5] flex items-center gap-4">
               <div className="w-12 h-12 bg-[#DFF7F8] rounded-full flex items-center justify-center text-[#0E6E6A]">
                 <ShieldCheck size={24} strokeWidth={1.5} />
               </div>

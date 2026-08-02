@@ -13,20 +13,30 @@ const WORDS = ["MIT HERZ", "ZUVERLÄSSIG", "RESPEKTVOLL", "ZUHAUSE BETREUT"];
 // sich die Schriftgröße orientieren, siehe Step 4.
 const R = 76;
 
+// Erkennt, ob className bereits ein Tailwind-Positions-Utility mitbringt
+// (auch mit Breakpoint-Praefix wie "lg:absolute"). Nur wenn KEINS dabei ist,
+// wird unten "relative" nachgereicht — s. Begruendung im <Css>-Block, warum
+// dieser Fallback nicht dort landet.
+const POSITION_UTILITY = /\b(?:absolute|relative|fixed|sticky|static)\b/;
+
 export function ValueSeal({ className, idSuffix = "" }: { className?: string; idSuffix?: string }) {
   // Eigene id je Instanz: Würde das Siegel zweimal auf einer Seite stehen,
   // zeigten sonst beide <textPath> auf denselben Pfad.
   const pathId = `cura-seal-path${idSuffix}`;
   const text = WORDS.join(" · ") + " · ";
+  const hasPositionUtility = !!className && POSITION_UTILITY.test(className);
 
   return (
     // aria-hidden: Die Begriffe sind dekorative Wiederholung — die Sektion
     // "Warum sich Familien für uns entscheiden" nennt dieselben Werte weiter
     // unten als echten Inhalt. Ein zweites Vorlesen wäre nur Lärm.
-    // Fallback "relative" nur, wenn kein className mit eigenem Positions-Utility
-    // uebergeben wird (s. Begruendung im <Css>-Block unten) — HomePage.tsx
-    // ersetzt es mit "absolute ...", nicht kombiniert damit.
-    <div className={`cura-seal ${className ?? "relative"}`} aria-hidden="true">
+    // Fallback "relative" nur, wenn className KEIN eigenes Positions-Utility
+    // enthaelt (s. Begruendung im <Css>-Block unten) — HomePage.tsx ersetzt
+    // es mit "absolute ...", nicht kombiniert damit.
+    <div
+      className={`cura-seal ${className ?? ""} ${hasPositionUtility ? "" : "relative"}`.trim().replace(/\s+/g, " ")}
+      aria-hidden="true"
+    >
       <svg viewBox="0 0 200 200" className="cura-seal__ring block w-full h-full">
         <defs>
           <path
@@ -40,7 +50,7 @@ export function ValueSeal({ className, idSuffix = "" }: { className?: string; id
           style={{
             fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif",
             fontWeight: 500,
-            fontSize: 11.5,
+            fontSize: 12.1,
             letterSpacing: "0.16em",
           }}
         >

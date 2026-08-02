@@ -12,7 +12,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Car, MapPin } from "lucide-react";
 import { Editable } from "./editor/Editable";
-import { EditableImage } from "./editor/EditableImage";
 import { Css } from "./Css";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
@@ -20,8 +19,13 @@ const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback'
 // Dekorative Landkarte hinter der Route. Bewusst STATISCH — die Bewegung
 // liefert allein das scrollgesteuerte Auto.
 //
-// Als EditableImage eingebunden, damit der Betreiber sie im Bearbeitungs-
-// modus selbst austauschen kann, und zwar je Route getrennt.
+// Bewusst NICHT editierbar (Entscheidung des Betreibers, s. §3.4 der Spec):
+// die Routen-Grafik liegt lückenlos über der Karte, sodass im Bearbeitungs-
+// modus nirgends eine Klickfläche zum Austauschen frei bleibt — und
+// EditableImage haengt im Bearbeitungsmodus zusaetzlich role="button"
+// tabIndex={0} an ein Element, das gleichzeitig aria-hidden="true" traegt
+// (fokussierbar, aber fuer Screenreader stumm). Ein simples <img> vermeidet
+// beides.
 //
 // Bei Paderborn wird dieselbe Datei gespiegelt gezeigt: Das liest sich als
 // zweite Gegend, kostet aber keine zusätzlichen Bytes.
@@ -29,11 +33,12 @@ const KARTE = "/karte-einzugsgebiet.webp";
 
 function RouteMap({ idBase }: { idBase: string }) {
   return (
-    <EditableImage
-      id={`einzugsgebiet.roadmap.${idBase}.map`}
+    <img
       src={KARTE}
       alt=""
       aria-hidden="true"
+      loading="lazy"
+      decoding="async"
       className={`cura-route-map absolute inset-0 w-full h-full object-cover ${idBase === "paderborn" ? "scale-x-[-1] object-[60%_50%]" : "object-[40%_50%]"}`}
     />
   );

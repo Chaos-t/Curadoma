@@ -142,7 +142,7 @@ Warum dieser Weg: lokal ist **kein** Rasterizer vorhanden (`cwebp`, ImageMagick,
 
 In [CityRoadmap.tsx](../../../src/app/components/CityRoadmap.tsx):
 
-- **`RouteSnake` (Desktop):** ein `<EditableImage>` als erstes Kind des Wrappers, `absolute inset-0`, `object-cover`, hinter dem Routen-SVG. Der Wrapper hat bereits `relative`.
+- **`RouteSnake` (Desktop):** ein einfaches, rein dekoratives `<img>` als erstes Kind des Wrappers, `absolute inset-0`, `object-cover`, hinter dem Routen-SVG. Der Wrapper hat bereits `relative`.
 - **`RouteTimelineMobile`:** dieselbe Karte, aber schwächer (siehe Deckkraft), damit die Ortsschildchen auf schmalen Displays klar bleiben. Mobile-first ist Pflicht — die mobile Fassung kommt im **selben** Commit.
 - **Deckkraft:** `opacity: .45` Desktop, `opacity: .30` mobil (CSS-Media-Query, kein JS).
 - **Kantenabschluss:** `mask-image: linear-gradient(to bottom, transparent, #000 6%, #000 94%, transparent)`, damit die Karte oben und unten ausblendet statt hart abzuschneiden.
@@ -151,9 +151,12 @@ In [CityRoadmap.tsx](../../../src/app/components/CityRoadmap.tsx):
 
 ### 3.4 Editierbarkeit
 
-Als `EditableImage` mit den IDs `einzugsgebiet.roadmap.hameln.map` und `einzugsgebiet.roadmap.paderborn.map`. Der Betreiber kann die Karte damit selbst austauschen, ohne dass wir ran müssen — und pro Route unterschiedlich.
+**Entscheidung des Betreibers (Nachtrag Abschlussreview, 2026-08-02): bewusst NICHT editierbar.** Ursprünglich als `EditableImage` eingebunden, aber das funktioniert nicht:
 
-Bekannte Eigenheit, kein Fehler: `EditableImage` entfernt `srcSet`/`sizes`, sobald ein eigenes Bild hinterlegt ist. Wir setzen hier ohnehin keine.
+- **Nicht anklickbar.** Die Routen-Grafik (SVG, Ortsschildchen, Auto) liegt lückenlos über der Karte. Im Bearbeitungsmodus bleibt an keiner Stelle eine Klickfläche frei, über die sich das Bild ersetzen ließe.
+- **A11y-Konflikt.** `EditableImage` hängt im Bearbeitungsmodus zusätzlich `role="button" tabIndex={0}` an dasselbe Element, das gleichzeitig `aria-hidden="true"` trägt — ein fokussierbarer, aber für Screenreader stummer Knoten.
+
+Die Karte ist daher ein schlichtes `<img aria-hidden="true" loading="lazy" decoding="async">` ohne Editor-Anbindung. Ein Austausch läuft über die eingecheckte Pipeline (§3.2, beide Skripte unter `scripts/`), nicht über den Inhalts-Editor.
 
 ---
 
