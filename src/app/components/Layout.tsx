@@ -149,7 +149,7 @@ export function Layout() {
 
   return (
     <div
-      className="min-h-screen flex flex-col bg-[#F8FEFF] text-[#111111] antialiased selection:bg-[#BFEAF2] selection:text-[#111111]"
+      className="min-h-screen flex flex-col bg-[#F8FEFF] text-[#111111] antialiased break-words selection:bg-[#BFEAF2] selection:text-[#111111]"
       style={{ fontFamily: "'Inter', 'Inter Fallback', sans-serif" }}
     >
       <Seo />
