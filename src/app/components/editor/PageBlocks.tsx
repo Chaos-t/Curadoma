@@ -17,6 +17,8 @@ const BUILTIN: Record<string, string> = {
   "/verhinderungspflege": "verhinderung",
   "/umwandlung-sachleistungen": "umwandlung",
   "/einzugsgebiet": "einzugsgebiet",
+  "/standort-hameln": "standort-hameln",
+  "/standort-paderborn": "standort-paderborn",
   "/kontakt": "kontakt",
   "/karriere": "karriere",
 };

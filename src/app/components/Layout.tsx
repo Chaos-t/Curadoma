@@ -29,9 +29,16 @@ const leistungenLinks = [
   { path: "/umwandlung-sachleistungen", label: "Umwandlungsanspruch", id: "shared.leistungenmenu.5.label" },
 ];
 
+// Standorte: eigenes Aufklappmenue wie "Leistungen". "Einzugsgebiet" war
+// frueher ein eigener Menuepunkt und ist jetzt der dritte Eintrag hier.
+const standorteLinks = [
+  { path: "/standort-hameln", label: "Standort Hameln", id: "shared.standortemenu.0.label" },
+  { path: "/standort-paderborn", label: "Standort Paderborn", id: "shared.standortemenu.1.label" },
+  { path: "/einzugsgebiet", label: "Einzugsgebiet & Orte", id: "shared.standortemenu.2.label" },
+];
+
 const topNav = [
   { path: "/", label: "Startseite", id: "shared.nav.startseite" },
-  { path: "/einzugsgebiet", label: "Einzugsgebiet", id: "shared.nav.einzugsgebiet" },
   { path: "/karriere", label: "Karriere", id: "shared.nav.karriere" },
   { path: "/kontakt", label: "Kontakt", id: "shared.nav.kontakt" },
   // { path: "/termin", label: "Termin vereinbaren", id: "shared.nav.termin_mobile" }, // TEMP deaktiviert – Termin-Bereich vorerst ausgeblendet
@@ -40,13 +47,16 @@ const topNav = [
 export function Layout() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileMenuMounted, setMobileMenuMounted] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [mobileSubOpen, setMobileSubOpen] = useState(false);
+  // Welches Aufklappmenue (Desktop) bzw. Untermenue (mobil) offen ist.
+  type MenuKey = "leistungen" | "standorte";
+  const [openMenu, setOpenMenu] = useState<MenuKey | null>(null);
+  const [mobileSub, setMobileSub] = useState<MenuKey | null>(null);
   const [scrolled, setScrolled] = useState(false);
   const { getPages, editMode } = useContent();
   const extraPages = getPages().filter((p) => p.inMenu);
   const location = useLocation();
-  const dropdownRef = useRef<HTMLDivElement>(null);
+  const leistungenRef = useRef<HTMLDivElement>(null);
+  const standorteRef = useRef<HTMLDivElement>(null);
   const closeTimer = useRef<number | undefined>(undefined);
 
   const prefersReducedMotion = () =>
@@ -61,7 +71,7 @@ export function Layout() {
 
   const closeMobileMenu = () => {
     setMobileMenuOpen(false);
-    setMobileSubOpen(false);
+    setMobileSub(null);
     window.clearTimeout(closeTimer.current);
     if (prefersReducedMotion()) {
       setMobileMenuMounted(false);
@@ -86,8 +96,8 @@ export function Layout() {
     window.clearTimeout(closeTimer.current);
     setMobileMenuOpen(false);
     setMobileMenuMounted(false);
-    setMobileSubOpen(false);
-    setDropdownOpen(false);
+    setMobileSub(null);
+    setOpenMenu(null);
   }, [location.pathname]);
 
   useEffect(() => () => window.clearTimeout(closeTimer.current), []);
@@ -133,16 +143,23 @@ export function Layout() {
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setDropdownOpen(false);
-      }
+      const t = e.target as Node;
+      if (leistungenRef.current?.contains(t) || standorteRef.current?.contains(t)) return;
+      setOpenMenu(null);
     };
+    // Escape schliesst das offene Aufklappmenue (Tastaturbedienung).
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpenMenu(null); };
     document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("keydown", onKey);
+    };
   }, []);
 
   const isActive = (path: string) => location.pathname === path;
   const isLeistungenActive = leistungenLinks.some((l) => location.pathname === l.path);
+  const isStandorteActive = standorteLinks.some((l) => location.pathname === l.path);
 
   // Each row in the mobile menu cascades in; delay is set per-item via inline style.
   const itemAnim = "motion-safe:animate-[curaMenuItem_300ms_cubic-bezier(0.22,1,0.36,1)_both]";
@@ -187,15 +204,17 @@ export function Layout() {
               <Editable as="span" id="shared.nav.startseite">Startseite</Editable>
             </Link>
 
-            <div className="relative" ref={dropdownRef}>
+            <div className="relative" ref={leistungenRef}>
               <button
-                onClick={() => setDropdownOpen(!dropdownOpen)}
+                type="button"
+                aria-expanded={openMenu === "leistungen"}
+                onClick={() => setOpenMenu((m) => (m === "leistungen" ? null : "leistungen"))}
                 className={`flex items-center gap-1 text-sm font-light transition-colors ${isLeistungenActive ? "text-[#0F7C77]" : "text-[#5F6B73] hover:text-[#0F7C77]"}`}
               >
                 <Editable as="span" id="shared.nav.leistungen">Leistungen</Editable>
-                <ChevronDown size={14} className={`transition-transform ${dropdownOpen ? "rotate-180" : ""}`} />
+                <ChevronDown size={14} className={`transition-transform ${openMenu === "leistungen" ? "rotate-180" : ""}`} />
               </button>
-              {dropdownOpen && (
+              {openMenu === "leistungen" && (
                 <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-72 bg-white rounded-2xl border border-[#E5F4F5] shadow-[0_10px_40px_rgb(191,234,242,0.4)] p-2 space-y-0.5">
                   {leistungenLinks.map((l) => (
                     <Link
@@ -210,9 +229,30 @@ export function Layout() {
               )}
             </div>
 
-            <Link to="/einzugsgebiet" className={`text-sm font-light transition-colors ${isActive("/einzugsgebiet") ? "text-[#0F7C77]" : "text-[#5F6B73] hover:text-[#0F7C77]"}`}>
-              <Editable as="span" id="shared.nav.einzugsgebiet">Einzugsgebiet</Editable>
-            </Link>
+            <div className="relative" ref={standorteRef}>
+              <button
+                type="button"
+                aria-expanded={openMenu === "standorte"}
+                onClick={() => setOpenMenu((m) => (m === "standorte" ? null : "standorte"))}
+                className={`flex items-center gap-1 text-sm font-light transition-colors ${isStandorteActive ? "text-[#0F7C77]" : "text-[#5F6B73] hover:text-[#0F7C77]"}`}
+              >
+                <Editable as="span" id="shared.nav.standorte">Standorte</Editable>
+                <ChevronDown size={14} className={`transition-transform ${openMenu === "standorte" ? "rotate-180" : ""}`} />
+              </button>
+              {openMenu === "standorte" && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-64 bg-white rounded-2xl border border-[#E5F4F5] shadow-[0_10px_40px_rgb(191,234,242,0.4)] p-2 space-y-0.5">
+                  {standorteLinks.map((l) => (
+                    <Link
+                      key={l.path}
+                      to={l.path}
+                      className={`cura-glow-item block px-4 py-2.5 rounded-xl text-sm font-light ${isActive(l.path) ? "bg-[#DFF7F8] text-[#0E6E6A]" : "text-[#5F6B73] hover:text-[#0E6E6A]"}`}
+                    >
+                      <Editable as="span" id={l.id}>{l.label}</Editable>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
             <Link to="/karriere" className={`text-sm font-light transition-colors ${isActive("/karriere") ? "text-[#0F7C77]" : "text-[#5F6B73] hover:text-[#0F7C77]"}`}>
               <Editable as="span" id="shared.nav.karriere">Karriere</Editable>
             </Link>
@@ -278,16 +318,36 @@ export function Layout() {
               </Link>
             ))}
             <button
-              onClick={() => setMobileSubOpen(!mobileSubOpen)}
+              aria-expanded={mobileSub === "leistungen"}
+              onClick={() => setMobileSub((m) => (m === "leistungen" ? null : "leistungen"))}
               style={{ animationDelay: "90ms" }}
               className={`flex items-center justify-between w-full py-2 text-sm font-light ${itemAnim} ${isLeistungenActive ? "text-[#0F7C77]" : "text-[#5F6B73]"}`}
             >
               <Editable as="span" id="shared.nav.leistungen">Leistungen</Editable>
-              <ChevronDown size={16} className={`transition-transform ${mobileSubOpen ? "rotate-180" : ""}`} />
+              <ChevronDown size={16} className={`transition-transform ${mobileSub === "leistungen" ? "rotate-180" : ""}`} />
             </button>
-            {mobileSubOpen && (
+            {mobileSub === "leistungen" && (
               <div className="pl-4 space-y-1 border-l border-[#E5F4F5] overflow-hidden motion-safe:animate-[curaSubIn_240ms_cubic-bezier(0.22,1,0.36,1)_both]">
                 {leistungenLinks.map((l, i) => (
+                  <Link key={l.path} to={l.path} style={{ animationDelay: `${i * 35}ms` }} className={`block py-2 text-sm font-light ${itemAnim} ${isActive(l.path) ? "text-[#0F7C77]" : "text-[#5F6B73]"}`}>
+                    <Editable as="span" id={l.id}>{l.label}</Editable>
+                  </Link>
+                ))}
+              </div>
+            )}
+            <button
+              type="button"
+              aria-expanded={mobileSub === "standorte"}
+              onClick={() => setMobileSub((m) => (m === "standorte" ? null : "standorte"))}
+              style={{ animationDelay: "115ms" }}
+              className={`flex items-center justify-between w-full py-2 text-sm font-light ${itemAnim} ${isStandorteActive ? "text-[#0F7C77]" : "text-[#5F6B73]"}`}
+            >
+              <Editable as="span" id="shared.nav.standorte">Standorte</Editable>
+              <ChevronDown size={16} className={`transition-transform ${mobileSub === "standorte" ? "rotate-180" : ""}`} />
+            </button>
+            {mobileSub === "standorte" && (
+              <div className="pl-4 space-y-1 border-l border-[#E5F4F5] overflow-hidden motion-safe:animate-[curaSubIn_240ms_cubic-bezier(0.22,1,0.36,1)_both]">
+                {standorteLinks.map((l, i) => (
                   <Link key={l.path} to={l.path} style={{ animationDelay: `${i * 35}ms` }} className={`block py-2 text-sm font-light ${itemAnim} ${isActive(l.path) ? "text-[#0F7C77]" : "text-[#5F6B73]"}`}>
                     <Editable as="span" id={l.id}>{l.label}</Editable>
                   </Link>
@@ -324,7 +384,7 @@ export function Layout() {
                 <CuraDomaLogo className="h-24 sm:h-28 md:h-32 w-auto" />
               </Link>
               <p className="text-sm text-[#5F6B73] leading-relaxed font-light max-w-sm">
-                <Editable as="span" id="shared.footer.description">Ihr würdevoller, ambulanter Betreuungsdienst. Wir unterstützen Senioren und Pflegebedürftige dabei, sicher und umsorgt im eigenen Zuhause zu leben.</Editable>
+                <Editable as="span" id="shared.footer.description">Ihr würdevoller, ambulanter Betreuungsdienst in Hameln und im Kreis Paderborn. Wir unterstützen Senioren und Pflegebedürftige dabei, sicher und umsorgt im eigenen Zuhause zu leben.</Editable>
               </p>
             </div>
 
@@ -348,9 +408,22 @@ export function Layout() {
                   <Mail size={16} className="mt-0.5 shrink-0 text-[#6FD3D1]" />
                   <EmailText className="hover:text-[#0F7C77] transition-colors" />
                 </li>
+                {/* Beide Standorte, verlinkt auf die Standortseiten (dort gibt es
+                    Karte + "Route planen"). Frueher fuehrte die einzige Adresse
+                    direkt zu Google Maps. */}
                 <li className="flex items-start gap-2">
                   <MapPin size={16} className="mt-0.5 shrink-0 text-[#6FD3D1]" />
-                  <a href="https://www.google.com/maps/search/?api=1&query=S%C3%BCntelhang+9%2C+31787+Hameln%2C+Germany" target="_blank" rel="noopener noreferrer" className="hover:text-[#0F7C77] transition-colors"><AddressBlock variant="br" /></a>
+                  <Link to="/standort-hameln" className="hover:text-[#0F7C77] transition-colors">
+                    <span className="block text-[#111111] font-normal"><Editable as="span" id="shared.footer.standort.hameln">Standort Hameln</Editable></span>
+                    <AddressBlock variant="br" />
+                  </Link>
+                </li>
+                <li className="flex items-start gap-2">
+                  <MapPin size={16} className="mt-0.5 shrink-0 text-[#6FD3D1]" />
+                  <Link to="/standort-paderborn" className="hover:text-[#0F7C77] transition-colors">
+                    <span className="block text-[#111111] font-normal"><Editable as="span" id="shared.footer.standort.paderborn">Standort Paderborn</Editable></span>
+                    <AddressBlock variant="br" location="paderborn" />
+                  </Link>
                 </li>
               </ul>
             </div>

@@ -12,6 +12,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Car, MapPin } from "lucide-react";
 import { Editable } from "./editor/Editable";
+import { LOCATIONS } from "../../lib/locations";
 import { Css } from "./Css";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
@@ -76,25 +77,14 @@ const HAMELN_ROUTE: Route = {
     "C 660,1440 140,1580 400,1720",
     "C 540,1800 400,1860 400,1860",
   ].join(" "),
-  cities: [
-    "Hameln",
-    "Afferde/Hastenbeck",
-    "Tündern/Emmerthal",
-    "Hessisch Oldendorf/Fischbeck",
-    "Klein Berkel/Groß Berkel",
-    "Aerzen",
-    "Sünteltal",
-    "Bad Münder/Altenhagen",
-    "Springe",
-    "Völksen",
-    "Bennigsen",
-    "Gehrden",
-  ],
+  // Quelle: lib/locations — dieselbe Liste speist die Standortseite.
+  cities: LOCATIONS.hameln.routeStops,
 };
 
 const PADERBORN_ROUTE: Route = {
   idBase: "paderborn",
   label: "Tour Paderborn",
+  // Tour-Region, bewusst "Paderborn" — das Buero in Salzkotten ist nur der Sitz.
   hub: "Paderborn",
   vbWidth: 800,
   vbHeight: 1440,
@@ -106,16 +96,8 @@ const PADERBORN_ROUTE: Route = {
     "C 660,1020 140,1160 400,1300",
     "C 540,1370 400,1420 400,1420",
   ].join(" "),
-  cities: [
-    "Paderborn",
-    "Delbrück",
-    "Geseke",
-    "Salzkotten",
-    "Thüle",
-    "Wewer",
-    "Borchen",
-    "Wewelsburg",
-  ],
+  // Quelle: lib/locations — dieselbe Liste speist die Standortseite.
+  cities: LOCATIONS.paderborn.routeStops,
 };
 
 const ROUTES: Route[] = [HAMELN_ROUTE, PADERBORN_ROUTE];

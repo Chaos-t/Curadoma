@@ -156,7 +156,7 @@ export function HomePage() {
               <span className="text-[#0F7C77]"><Editable as="span" id="home.hero.title-highlight">Wir können es.</Editable></span>
             </h1>
             <Editable as="p" id="home.hero.subtitle" className="text-lg lg:text-xl text-[#5F6B73] leading-relaxed max-w-2xl mx-auto lg:mx-0 mb-10 font-light">
-              Liebevolle und individuelle Unterstützung für pflegebedürftige Menschen in ihrer gewohnten Umgebung. Wir entlasten Angehörige und fördern ein würdevolles, selbstbestimmtes Leben.
+              Liebevolle und individuelle Unterstützung für pflegebedürftige Menschen in ihrer gewohnten Umgebung – rund um Hameln und Paderborn. Wir entlasten Angehörige und fördern ein würdevolles, selbstbestimmtes Leben.
             </Editable>
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 mb-10">
               <Link to="/kontakt" className="w-full sm:w-auto bg-[#0F7C77] text-white hover:bg-[#0E6E6A] px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)] flex items-center justify-center gap-2">
@@ -244,7 +244,7 @@ export function HomePage() {
             Der Mensch im Mittelpunkt
           </Editable>
           <Editable as="p" id="home.intro.text" className="text-lg lg:text-xl text-[#5F6B73] leading-relaxed font-light">
-            Cura Doma ist Ihr anerkannter ambulanter Betreuungsdienst. Unsere Mission ist es, pflegebedürftigen Menschen und ihren Familien zur Seite zu stehen. Wir fördern die Selbstständigkeit, schaffen Freiräume für pflegende Angehörige und machen es möglich, so lange wie möglich sicher und geborgen im eigenen Zuhause zu leben.
+            Cura Doma ist Ihr anerkannter ambulanter Betreuungsdienst aus Hameln – und auch im Kreis Paderborn für Sie da. Unsere Mission ist es, pflegebedürftigen Menschen und ihren Familien zur Seite zu stehen. Wir fördern die Selbstständigkeit, schaffen Freiräume für pflegende Angehörige und machen es möglich, so lange wie möglich sicher und geborgen im eigenen Zuhause zu leben.
           </Editable>
         </div>
       </section>
@@ -257,7 +257,7 @@ export function HomePage() {
               Wie wir Sie unterstützen können
             </Editable>
             <Editable as="p" id="home.services.intro" className="text-lg text-[#5F6B73] font-light">
-              Individuelle Leistungen, die sich sanft in Ihren Alltag einfügen.
+              Individuelle Leistungen, die sich sanft in Ihren Alltag einfügen – in Hameln, Paderborn und Umgebung.
             </Editable>
           </div>
 

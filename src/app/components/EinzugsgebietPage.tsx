@@ -16,7 +16,7 @@ export function EinzugsgebietPage() {
             <span className="text-[#0F7C77]"><Editable as="span" id="einzugsgebiet.hero.title.span">für Sie da sind</Editable></span>
           </h1>
           <p className="text-lg text-[#5F6B73] leading-relaxed font-light">
-            <Editable as="span" id="einzugsgebiet.hero.intro">Unser Betreuungsdienst ist im Raum Springe, Hameln, Paderborn und Umgebung für Sie da. Wir bieten unsere Leistungen in zahlreichen Städten, Gemeinden und Ortsteilen der Region an, um eine wohnortnahe und verlässliche Betreuung sicherzustellen.</Editable>
+            <Editable as="span" id="einzugsgebiet.hero.intro">Unser Betreuungsdienst ist im Raum Springe, Hameln, Paderborn und Umgebung für Sie da – mit zwei Standorten in Hameln und im Kreis Paderborn. Wir bieten unsere Leistungen in zahlreichen Städten, Gemeinden und Ortsteilen der Region an, um eine wohnortnahe und verlässliche Betreuung sicherzustellen.</Editable>
           </p>
         </div>
       </section>

@@ -161,6 +161,8 @@ test("validatePages accepts good pages and rejects bad/reserved/dupes", () => {
   assert.ok(!validatePages("nope").ok);
   assert.ok(!validatePages([{ slug: "Admin", label: "x", inMenu: false }]).ok);      // uppercase -> bad slug
   assert.ok(!validatePages([{ slug: "kontakt", label: "x", inMenu: false }]).ok);    // reserved
+  assert.ok(!validatePages([{ slug: "standort-hameln", label: "x", inMenu: false }]).ok);    // reserved (Standortseite)
+  assert.ok(!validatePages([{ slug: "standort-paderborn", label: "x", inMenu: false }]).ok); // reserved (Standortseite)
   assert.ok(!validatePages([{ slug: "../evil", label: "x", inMenu: false }]).ok);    // traversal
   assert.ok(!validatePages([{ slug: "ok-slug", label: "", inMenu: false }]).ok);     // empty label
   assert.ok(!validatePages([{ slug: "a", label: "x" }, { slug: "a", label: "y" }]).ok); // dup

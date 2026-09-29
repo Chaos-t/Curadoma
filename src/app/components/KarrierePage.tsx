@@ -220,7 +220,7 @@ export function KarrierePage() {
               <Editable as="span" id="karriere.jobs.title">Offene Stellen</Editable>
             </h2>
             <p className="text-[#5F6B73] font-light">
-              <Editable as="span" id="karriere.jobs.intro">Aktuell suchen wir Verstärkung für unser Team rund um Hameln.</Editable>
+              <Editable as="span" id="karriere.jobs.intro">Aktuell suchen wir Verstärkung für unser Team rund um Hameln und Paderborn.</Editable>
             </p>
           </div>
 

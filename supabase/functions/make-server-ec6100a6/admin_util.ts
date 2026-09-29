@@ -161,6 +161,7 @@ export const RESERVED_SLUGS = new Set([
   "leistungen", "entlastung", "demenzbetreuung", "haushaltsnahe-dienstleistungen",
   "verhinderungspflege", "umwandlung-sachleistungen", "einzugsgebiet", "kontakt",
   "impressum", "datenschutz", "karriere", "termin", "termin-status", "admin",
+  "standort-hameln", "standort-paderborn",
   "api", "assets", "src", "index",
 ]);
 

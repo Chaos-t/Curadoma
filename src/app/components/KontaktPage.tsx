@@ -14,25 +14,22 @@ import {
 } from "../../lib/validation";
 import { Editable } from "./editor/Editable";
 import { EditableImage } from "./editor/EditableImage";
-import { AddressBlock, HoursText, PhoneText, EmailText } from "./editor/Shared";
+import { AddressBlock, HoursText, PhoneText, EmailText, useAddress } from "./editor/Shared";
+import { ConsentMap } from "./ConsentMap";
+import { LOCATIONS, LOCATION_LIST, type LocationKey } from "../../lib/locations";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 const img = "https://images.unsplash.com/photo-1758518725921-1eb74ed293be?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmcmllbmRseSUyMGNvbnN1bHRhdGlvbiUyMG9mZmljZSUyMG1lZXRpbmclMjB3YXJtfGVufDF8fHx8MTc3NTMxNDQ5MXww&ixlib=rb-4.1.0&q=80&w=1080";
 
-const GOOGLE_MAPS_EMBED = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2440.5!2d9.3567!3d52.1037!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zU8O8bnRlbGhhbmcgOSwgMzE3ODcgSGFtZWxu!5e0!3m2!1sde!2sde!4v1700000000000!5m2!1sde!2sde";
-const GOOGLE_MAPS_URL = "https://www.google.com/maps/search/?api=1&query=S%C3%BCntelhang+9%2C+31787+Hameln%2C+Germany";
-
-function getMapsUrl() {
-  const encoded = encodeURIComponent("Süntelhang 9, 31787 Hameln, Germany");
-  // On iOS/Android, geo: and maps: protocols try native apps
+// Auf dem Handy die Karten-App oeffnen (maps:/geo:), sonst Google Maps im
+// Browser. Adresse kommt aus useAddress — also die (ggf. im Editor geaenderte)
+// Adresse des jeweiligen Standorts, nie eine hartcodierte.
+function nativeMapsUrl(address: string, webUrl: string) {
+  const encoded = encodeURIComponent(`${address}, Deutschland`);
   const ua = typeof navigator !== "undefined" ? navigator.userAgent : "";
-  if (/iPhone|iPad|iPod/i.test(ua)) {
-    return `maps://maps.apple.com/?q=${encoded}`;
-  }
-  if (/Android/i.test(ua)) {
-    return `geo:0,0?q=${encoded}`;
-  }
-  return GOOGLE_MAPS_URL;
+  if (/iPhone|iPad|iPod/i.test(ua)) return `maps://maps.apple.com/?q=${encoded}`;
+  if (/Android/i.test(ua)) return `geo:0,0?q=${encoded}`;
+  return webUrl;
 }
 
 export function KontaktPage() {
@@ -142,8 +139,15 @@ export function KontaktPage() {
     }
   };
 
-  const handleOpenMaps = () => {
-    window.open(getMapsUrl(), "_blank", "noopener,noreferrer");
+  // Welcher Standort in Karte + Adresskarte gezeigt wird.
+  const [mapLoc, setMapLoc] = useState<LocationKey>("hameln");
+  const addrHameln = useAddress("hameln");
+  const addrPaderborn = useAddress("paderborn");
+  const addrOf = (k: LocationKey) => (k === "hameln" ? addrHameln : addrPaderborn);
+  const mapAddr = addrOf(mapLoc);
+  const openMaps = (k: LocationKey) => {
+    const a = addrOf(k);
+    window.open(nativeMapsUrl(a.line, a.maps.search), "_blank", "noopener,noreferrer");
   };
 
   return (
@@ -159,7 +163,7 @@ export function KontaktPage() {
             <Editable as="span" id="kontakt.hero.title.pre">Wir sind </Editable><span className="text-[#0F7C77]"><Editable as="span" id="kontakt.hero.title.highlight">für Sie da</Editable></span>
           </h1>
           <p className="text-lg text-[#5F6B73] leading-relaxed max-w-2xl mx-auto font-light">
-            <Editable as="span" id="kontakt.hero.subtitle">Nehmen Sie Kontakt auf für ein kostenfreies Erstgespräch. Wir nehmen uns Zeit für Sie, beantworten alle Fragen und finden gemeinsam die beste Lösung für Ihre Situation.</Editable>
+            <Editable as="span" id="kontakt.hero.subtitle">Nehmen Sie Kontakt auf für ein kostenfreies Erstgespräch in Hameln, Paderborn und Umgebung. Wir nehmen uns Zeit für Sie, beantworten alle Fragen und finden gemeinsam die beste Lösung für Ihre Situation.</Editable>
           </p>
         </div>
       </section>
@@ -345,7 +349,8 @@ export function KontaktPage() {
               </div>
 
               <button
-                onClick={handleOpenMaps}
+                type="button"
+                onClick={() => openMaps("hameln")}
                 className="cura-card-glow w-full flex items-center gap-4 p-4 rounded-2xl bg-[#F8FEFF] border border-[#E5F4F5] hover:shadow-md transition-shadow text-left cursor-pointer"
               >
                 <div className="w-12 h-12 bg-[#DFF7F8] rounded-full flex items-center justify-center text-[#0E6E6A] shrink-0">
@@ -354,6 +359,21 @@ export function KontaktPage() {
                 <div className="flex-1">
                   <div className="text-base font-medium text-[#111111]"><AddressBlock variant="inline" /></div>
                   <div className="text-sm text-[#5F6B73] font-light"><Editable as="span" id="kontakt.info.address.desc">Einsatzgebiet: Hameln, Springe & Umgebung</Editable></div>
+                </div>
+                <ExternalLink size={16} className="text-[#6FD3D1] shrink-0" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => openMaps("paderborn")}
+                className="cura-card-glow w-full flex items-center gap-4 p-4 rounded-2xl bg-[#F8FEFF] border border-[#E5F4F5] hover:shadow-md transition-shadow text-left cursor-pointer"
+              >
+                <div className="w-12 h-12 bg-[#DFF7F8] rounded-full flex items-center justify-center text-[#0E6E6A] shrink-0">
+                  <MapPin size={20} />
+                </div>
+                <div className="flex-1">
+                  <div className="text-base font-medium text-[#111111]"><AddressBlock variant="inline" location="paderborn" /></div>
+                  <div className="text-sm text-[#5F6B73] font-light"><Editable as="span" id="kontakt.info.address-paderborn.desc">Einsatzgebiet: Paderborn, Delbrück, Geseke & Umgebung</Editable></div>
                 </div>
                 <ExternalLink size={16} className="text-[#6FD3D1] shrink-0" />
               </button>
@@ -383,34 +403,31 @@ export function KontaktPage() {
               <Editable as="span" id="kontakt.map.heading">Hier finden Sie uns</Editable>
             </h2>
             <p className="text-lg text-[#5F6B73] font-light max-w-2xl mx-auto">
-              <Editable as="span" id="kontakt.map.subtitle">Besuchen Sie uns in Hameln oder kontaktieren Sie uns für einen Hausbesuch in Ihrem Zuhause.</Editable>
+              <Editable as="span" id="kontakt.map.subtitle">Besuchen Sie uns in Hameln und Salzkotten oder kontaktieren Sie uns für einen Hausbesuch in Ihrem Zuhause.</Editable>
             </p>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Map */}
-            <div className="cura-reveal cura-reveal-left lg:col-span-2">
-              <div
-                className="rounded-3xl overflow-hidden border border-[#E5F4F5] shadow-[0_10px_40px_rgb(191,234,242,0.2)] cursor-pointer relative group"
-                onClick={handleOpenMaps}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => { if (e.key === "Enter") handleOpenMaps(); }}
-                aria-label="Standort in Google Maps öffnen"
-              >
-                <iframe
-                  src={`https://www.google.com/maps?q=${encodeURIComponent("Süntelhang 9, 31787 Hameln, Germany")}&output=embed&z=15`}
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0, minHeight: 400 }}
-                  allowFullScreen
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                  title="Cura Doma Standort – Süntelhang 9, 31787 Hameln"
-                  className="w-full aspect-[16/10] lg:aspect-auto lg:h-full pointer-events-auto"
-                ></iframe>
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-[#6FD3D1]/0 group-hover:bg-[#6FD3D1]/5 transition-colors pointer-events-none"></div>
+            <div className="cura-reveal cura-reveal-left lg:col-span-2 flex flex-col gap-4">
+              {/* Umschalter: Karte UND Adresskarte daneben zeigen den gewaehlten Standort. */}
+              <div role="group" aria-label="Standort wählen" className="inline-flex self-center lg:self-start p-1 rounded-full bg-white border border-[#E5F4F5] shadow-sm">
+                {LOCATION_LIST.map((l) => (
+                  <button
+                    key={l.key}
+                    type="button"
+                    aria-pressed={mapLoc === l.key}
+                    onClick={() => setMapLoc(l.key)}
+                    className={`px-4 sm:px-5 py-2 rounded-full text-sm transition-colors ${mapLoc === l.key ? "bg-[#0F7C77] text-white" : "text-[#5F6B73] hover:text-[#111111]"}`}
+                  >
+                    <Editable as="span" id={`kontakt.map.toggle.${l.key}`}>{l.name}</Editable>
+                  </button>
+                ))}
+              </div>
+              {/* Karte nur nach Einwilligung — vorher lud sie hier OHNE Pruefung,
+                  im Widerspruch zum Cookie-Banner. */}
+              <div className="rounded-3xl overflow-hidden border border-[#E5F4F5] shadow-[0_10px_40px_rgb(191,234,242,0.2)] aspect-[16/10] lg:aspect-auto lg:min-h-[420px] lg:flex-1">
+                <ConsentMap src={mapAddr.maps.embed} title={`${LOCATIONS[mapLoc].name} – ${mapAddr.line}`} />
               </div>
             </div>
 
@@ -423,14 +440,16 @@ export function KontaktPage() {
 
                 <div className="space-y-5">
                   <button
-                    onClick={handleOpenMaps}
+                    type="button"
+                    onClick={() => openMaps(mapLoc)}
                     className="w-full flex items-start gap-4 text-left group/addr cursor-pointer"
                   >
                     <div className="w-10 h-10 bg-[#DFF7F8] rounded-xl flex items-center justify-center text-[#0E6E6A] shrink-0 mt-0.5">
                       <MapPin size={18} />
                     </div>
                     <div>
-                      <div className="text-base font-medium text-[#111111] group-hover/addr:text-[#0F7C77] transition-colors"><AddressBlock variant="br" /></div>
+                      <div className="text-sm text-[#5F6B73] font-light mb-0.5">{LOCATIONS[mapLoc].name}</div>
+                      <div className="text-base font-medium text-[#111111] group-hover/addr:text-[#0F7C77] transition-colors"><AddressBlock variant="br" location={mapLoc} /></div>
                     </div>
                   </button>
 
@@ -467,7 +486,8 @@ export function KontaktPage() {
 
                 {/* Open in Maps button */}
                 <button
-                  onClick={handleOpenMaps}
+                  type="button"
+                  onClick={() => openMaps(mapLoc)}
                   className="mt-8 w-full bg-[#0F7C77] text-white hover:bg-[#0E6E6A] px-6 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)] flex items-center justify-center gap-2"
                 >
                   <Navigation size={18} />
@@ -475,7 +495,7 @@ export function KontaktPage() {
                 </button>
 
                 <a
-                  href={GOOGLE_MAPS_URL}
+                  href={mapAddr.maps.search}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-3 w-full bg-white text-[#5F6B73] border border-[#E5F4F5] hover:bg-[#F8FEFF] hover:text-[#111111] px-6 py-3 rounded-full text-sm font-normal transition-all flex items-center justify-center gap-2"

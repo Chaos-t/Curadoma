@@ -6,53 +6,63 @@
 export const SEO_DEFAULT = {
   title: "Cura Doma – Ambulanter Betreuungsdienst Hameln & Paderborn",
   description:
-    "Cura Doma: liebevolle ambulante Betreuung – Demenz- & Seniorenbetreuung, Verhinderungspflege und haushaltsnahe Dienstleistungen in Hameln, Paderborn und Umgebung. Kostenlos & unverbindlich beraten lassen.",
+    "Cura Doma: liebevolle ambulante Betreuung – Demenzbetreuung, Verhinderungspflege und Haushaltshilfe in Hameln, Paderborn & Umgebung. Kostenlos beraten lassen.",
 };
 
 export const SEO_BY_PATH = {
   "/": SEO_DEFAULT,
   "/leistungen": {
-    title: "Leistungen – Ambulante Betreuung & Pflege | Cura Doma Hameln",
+    title: "Leistungen – Betreuung in Hameln & Paderborn | Cura Doma",
     description:
-      "Alle Betreuungsleistungen von Cura Doma in Hameln, Paderborn & Umgebung: Demenzbetreuung, Verhinderungspflege, Entlastungsleistungen, Haushaltshilfe und Alltagsbegleitung.",
+      "Alle Betreuungsleistungen von Cura Doma in Hameln, Paderborn & Umgebung: Demenzbetreuung, Verhinderungspflege, Entlastung, Haushaltshilfe & Alltagsbegleitung.",
   },
   "/entlastung": {
     title: "Entlastungsleistungen § 45a/45b SGB XI in Hameln | Cura Doma",
     description:
-      "Monatlich 131 € Entlastungsbetrag (§ 45a/45b SGB XI) nutzen: Alltagsbegleitung & Haushaltshilfe in Hameln, Paderborn & Umgebung – direkt mit der Pflegekasse abgerechnet.",
+      "Monatlich 131 € Entlastungsbetrag (§ 45b SGB XI): Alltagsbegleitung & Haushaltshilfe in Hameln, Paderborn & Umgebung – direkt mit der Pflegekasse abgerechnet.",
   },
   "/demenzbetreuung": {
     title: "Demenz- & Seniorenbetreuung Hameln & Paderborn | Cura Doma",
     description:
-      "Einfühlsame Demenz- und Seniorenbetreuung zu Hause in Hameln, Paderborn & Umgebung – mit Empathie, Geduld und fachlicher Kompetenz für ein würdevolles Leben daheim.",
+      "Einfühlsame Demenz- und Seniorenbetreuung zu Hause in Hameln, Paderborn & Umgebung – mit Empathie, Geduld und Fachkompetenz für ein würdevolles Leben daheim.",
   },
   "/haushaltsnahe-dienstleistungen": {
     title: "Haushaltsnahe Dienstleistungen Hameln & Paderborn | Cura Doma",
     description:
-      "Reinigung, Wäsche, Einkaufshilfe und Zubereitung von Mahlzeiten in Hameln, Paderborn & Umgebung – haushaltsnahe Dienstleistungen von Cura Doma, damit Sie sich zu Hause wohlfühlen.",
+      "Reinigung, Wäsche, Einkaufshilfe und Mahlzeiten in Hameln, Paderborn & Umgebung – haushaltsnahe Dienstleistungen, damit Sie sich zu Hause wohlfühlen.",
   },
   "/verhinderungspflege": {
     title: "Verhinderungspflege Hameln & Paderborn | Cura Doma",
     description:
-      "Verhinderungspflege in Hameln, Paderborn & Umgebung: bis zu 3.539 € pro Jahr (gemeinsamer Jahresbetrag mit Kurzzeitpflege), wenn die private Pflegeperson eine Pause braucht.",
+      "Verhinderungspflege in Hameln, Paderborn & Umgebung: bis zu 3.539 € pro Jahr (gemeinsam mit der Kurzzeitpflege), wenn die Pflegeperson eine Pause braucht.",
   },
   "/umwandlung-sachleistungen": {
     title: "Umwandlung von Pflegesachleistungen | Cura Doma Hameln",
     description:
-      "Bis zu 40 % ungenutzter Pflegesachleistungen (ab Pflegegrad 2) in konkrete Betreuung umwandeln – mehr Alltagshilfe in Hameln, Paderborn & Umgebung mit Cura Doma.",
+      "Bis zu 40 % ungenutzter Pflegesachleistungen (ab Pflegegrad 2) in Betreuung umwandeln – mehr Alltagshilfe in Hameln, Paderborn & Umgebung mit Cura Doma.",
   },
   "/einzugsgebiet": {
     title: "Einzugsgebiet Hameln, Paderborn & Umgebung | Cura Doma",
     description:
-      "Cura Doma betreut in Hameln, Paderborn, Emmerthal, Hessisch Oldendorf, Aerzen, Bad Münder, Springe, Delbrück, Geseke, Salzkotten und Umgebung. Finden Sie Ihren Ort.",
+      "Cura Doma betreut Hameln, Paderborn, Emmerthal, Hessisch Oldendorf, Aerzen, Bad Münder, Springe, Delbrück, Geseke, Salzkotten & Umgebung. Ist Ihr Ort dabei?",
+  },
+  "/standort-hameln": {
+    title: "Ambulanter Betreuungsdienst Hameln | Cura Doma",
+    description:
+      "Cura Doma in Hameln: Alltagsbegleitung, Demenzbetreuung, Haushaltshilfe & Verhinderungspflege für Hameln, Emmerthal, Aerzen, Springe & Umgebung.",
+  },
+  "/standort-paderborn": {
+    title: "Ambulanter Betreuungsdienst Paderborn | Cura Doma",
+    description:
+      "Cura Doma im Kreis Paderborn: Alltagsbegleitung, Demenzbetreuung & Haushaltshilfe für Paderborn, Delbrück, Geseke, Salzkotten & Umgebung.",
   },
   "/kontakt": {
     title: "Kontakt – Kostenlose Beratung | Cura Doma Hameln & Paderborn",
     description:
-      "Kontakt zu Cura Doma: kostenloses, unverbindliches Erstgespräch zur ambulanten Betreuung in Hameln, Paderborn & Umgebung. Telefon 05151 7107093, info@curadoma.de.",
+      "Kontakt zu Cura Doma: kostenloses, unverbindliches Erstgespräch zur Betreuung in Hameln, Paderborn & Umgebung. Telefon 05151 7107093, info@curadoma.de.",
   },
   "/karriere": {
-    title: "Karriere & Stellenangebote | Cura Doma Hameln",
+    title: "Karriere & Jobs in Hameln & Paderborn | Cura Doma",
     description:
       "Werden Sie Teil von Cura Doma in Hameln & Paderborn: Stellen in der ambulanten Betreuung & Alltagsbegleitung. Jetzt bewerben – wir freuen uns auf Sie.",
   },

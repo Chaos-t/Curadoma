@@ -50,7 +50,7 @@ export function HaushaltPage() {
       <section className="py-20 bg-[#F8FEFF]/80">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           <h2 className="cura-reveal cura-reveal-up text-3xl font-medium tracking-tight text-[#111111] mb-12 text-center" style={jakarta}>
-            <Editable as="span" id="haushalt.services.heading">Unsere haushaltsnahen Dienstleistungen im Überblick</Editable>
+            <Editable as="span" id="haushalt.services.heading">Unsere haushaltsnahen Dienstleistungen in Hameln und Paderborn im Überblick</Editable>
           </h2>
           <div className="cura-reveal cura-reveal-up grid grid-cols-1 md:grid-cols-2 gap-6">
             {leistungen.map((l, i) => (

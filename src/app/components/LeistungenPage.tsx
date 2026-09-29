@@ -127,7 +127,7 @@ export function LeistungenPage() {
               <span className="text-[#0F7C77]"><Editable as="span" id="leistungen.hero.title-span">die Ihren Alltag bereichert</Editable></span>
             </h1>
             <p className="text-lg text-[#5F6B73] leading-relaxed max-w-2xl mx-auto lg:mx-0 font-light">
-              <Editable as="span" id="leistungen.hero.intro">Unser Angebot umfasst vielfältige Leistungen, die sich sanft und flexibel in den Alltag pflegebedürftiger Menschen einfügen. Jeder Mensch ist einzigartig – und genau so gestalten wir unsere Betreuung.</Editable>
+              <Editable as="span" id="leistungen.hero.intro">Unser Angebot in Hameln, Paderborn und Umgebung umfasst vielfältige Leistungen, die sich sanft und flexibel in den Alltag pflegebedürftiger Menschen einfügen. Jeder Mensch ist einzigartig – und genau so gestalten wir unsere Betreuung.</Editable>
             </p>
           </div>
           <div className="cura-reveal cura-reveal-right flex-1 w-full max-w-md lg:max-w-none">
@@ -196,7 +196,7 @@ export function LeistungenPage() {
               <Editable as="span" id="leistungen.fahrzeug.title">Wir kommen zu Ihnen nach Hause</Editable>
             </h2>
             <p className="text-[15px] lg:text-base text-[#5F6B73] font-light leading-relaxed">
-              <Editable as="span" id="leistungen.fahrzeug.intro">{"Mit unserem Cura Doma Fahrzeug sind wir flexibel im gesamten Einzugsgebiet rund um Hameln im Einsatz — für Betreuung, Begleitung und haushaltsnahe Dienstleistungen direkt bei Ihnen vor Ort."}</Editable>
+              <Editable as="span" id="leistungen.fahrzeug.intro">{"Mit unserem Cura Doma Fahrzeug sind wir flexibel im gesamten Einzugsgebiet rund um Hameln und Paderborn im Einsatz — für Betreuung, Begleitung und haushaltsnahe Dienstleistungen direkt bei Ihnen vor Ort."}</Editable>
             </p>
           </div>
 

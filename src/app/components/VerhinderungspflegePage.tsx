@@ -16,7 +16,7 @@ export function VerhinderungspflegePage() {
             <span className="text-[#0F7C77]"><Editable as="span" id="verhinderung.hero.title">Verhinderungspflege</Editable></span>
           </h1>
           <p className="text-lg text-[#5F6B73] leading-relaxed font-light">
-            <Editable as="span" id="verhinderung.hero.subtitle">So können Sie es über uns nutzen – wenn pflegende Angehörige einmal eine Pause brauchen.</Editable>
+            <Editable as="span" id="verhinderung.hero.subtitle">So können Sie es über uns in Hameln, Paderborn und Umgebung nutzen – wenn pflegende Angehörige einmal eine Pause brauchen.</Editable>
           </p>
         </div>
       </section>

@@ -39,7 +39,7 @@
       <!-- lokale Signale -->
       <meta name="geo.region" content="DE-NI" />
       <meta name="geo.placename" content="Hameln" />
-      <meta name="geo.position" content="52.1037;9.3567" />
+      <meta name="geo.position" content="52.15819;9.38297" />
       <meta name="ICBM" content="52.1037, 9.3567" />
 
       <!-- Open Graph / Social -->
@@ -59,65 +59,238 @@
       <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "LocalBusiness",
-        "@id": "https://curadoma.de/#business",
-        "name": "Cura Doma",
-        "alternateName": "Cura Doma – Ambulanter Betreuungsdienst",
-        "description": "Anerkannter ambulanter Betreuungsdienst in Hameln und Paderborn: Demenz- und Seniorenbetreuung, Verhinderungspflege, Entlastungsleistungen (§ 45a/45b SGB XI) und haushaltsnahe Dienstleistungen.",
-        "url": "https://curadoma.de/",
-        "telephone": "+4951517107093",
-        "email": "info@curadoma.de",
-        "image": "https://curadoma.de/favicon.png",
-        "logo": "https://curadoma.de/favicon.png",
-        "priceRange": "€€",
-        "address": {
-          "@type": "PostalAddress",
-          "streetAddress": "Süntelhang 9",
-          "postalCode": "31787",
-          "addressLocality": "Hameln",
-          "addressRegion": "Niedersachsen",
-          "addressCountry": "DE"
-        },
-        "geo": {
-          "@type": "GeoCoordinates",
-          "latitude": 52.1037,
-          "longitude": 9.3567
-        },
-        "openingHoursSpecification": [
+        "@graph": [
           {
-            "@type": "OpeningHoursSpecification",
-            "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-            "opens": "08:00",
-            "closes": "17:00"
+            "@type": "Organization",
+            "@id": "https://curadoma.de/#organization",
+            "name": "Cura Doma",
+            "alternateName": "Cura Doma – Ambulanter Betreuungsdienst",
+            "description": "Ambulanter Betreuungsdienst mit Standorten in Hameln und im Kreis Paderborn: Demenz- und Seniorenbetreuung, Verhinderungspflege, Entlastungsleistungen (§ 45a/45b SGB XI) und haushaltsnahe Dienstleistungen.",
+            "url": "https://curadoma.de/",
+            "logo": "https://curadoma.de/favicon.png",
+            "telephone": "+4951517107093",
+            "email": "info@curadoma.de",
+            "knowsAbout": [
+              "Demenzbetreuung",
+              "Seniorenbetreuung",
+              "Verhinderungspflege",
+              "Entlastungsleistungen",
+              "haushaltsnahe Dienstleistungen",
+              "Alltagsbegleitung"
+            ],
+            "department": [
+              {
+                "@id": "https://curadoma.de/#standort-hameln"
+              },
+              {
+                "@id": "https://curadoma.de/#standort-paderborn"
+              }
+            ]
+          },
+          {
+            "@type": "LocalBusiness",
+            "@id": "https://curadoma.de/#standort-hameln",
+            "name": "Cura Doma – Standort Hameln",
+            "url": "https://curadoma.de/standort-hameln",
+            "parentOrganization": {
+              "@id": "https://curadoma.de/#organization"
+            },
+            "telephone": "+4951517107093",
+            "email": "info@curadoma.de",
+            "image": "https://curadoma.de/favicon.png",
+            "priceRange": "€€",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "Süntelhang 9",
+              "postalCode": "31787",
+              "addressLocality": "Hameln",
+              "addressRegion": "Niedersachsen",
+              "addressCountry": "DE"
+            },
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": 52.15819,
+              "longitude": 9.38297
+            },
+            "openingHoursSpecification": [
+              {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": [
+                  "Monday",
+                  "Tuesday",
+                  "Wednesday",
+                  "Thursday",
+                  "Friday"
+                ],
+                "opens": "08:00",
+                "closes": "17:00"
+              }
+            ],
+            "areaServed": [
+              {
+                "@type": "City",
+                "name": "Hameln"
+              },
+              {
+                "@type": "City",
+                "name": "Emmerthal"
+              },
+              {
+                "@type": "City",
+                "name": "Hessisch Oldendorf"
+              },
+              {
+                "@type": "City",
+                "name": "Aerzen"
+              },
+              {
+                "@type": "City",
+                "name": "Bad Münder"
+              },
+              {
+                "@type": "City",
+                "name": "Springe"
+              },
+              {
+                "@type": "City",
+                "name": "Gehrden"
+              }
+            ],
+            "description": "Anerkannter ambulanter Betreuungsdienst in Hameln: Demenz- und Seniorenbetreuung, Verhinderungspflege, Entlastungsleistungen (§ 45a/45b SGB XI) und haushaltsnahe Dienstleistungen.",
+            "makesOffer": [
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Demenz- & Seniorenbetreuung"
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Verhinderungspflege"
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Entlastungsleistungen (§ 45a SGB XI)"
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Haushaltsnahe Dienstleistungen"
+                }
+              }
+            ]
+          },
+          {
+            "@type": "LocalBusiness",
+            "@id": "https://curadoma.de/#standort-paderborn",
+            "name": "Cura Doma – Standort Paderborn",
+            "url": "https://curadoma.de/standort-paderborn",
+            "parentOrganization": {
+              "@id": "https://curadoma.de/#organization"
+            },
+            "telephone": "+4951517107093",
+            "email": "info@curadoma.de",
+            "image": "https://curadoma.de/favicon.png",
+            "priceRange": "€€",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "Bachstraße 13",
+              "postalCode": "33154",
+              "addressLocality": "Salzkotten",
+              "addressRegion": "Nordrhein-Westfalen",
+              "addressCountry": "DE"
+            },
+            "geo": {
+              "@type": "GeoCoordinates",
+              "latitude": 51.70813,
+              "longitude": 8.59807
+            },
+            "openingHoursSpecification": [
+              {
+                "@type": "OpeningHoursSpecification",
+                "dayOfWeek": [
+                  "Monday",
+                  "Tuesday",
+                  "Wednesday",
+                  "Thursday",
+                  "Friday"
+                ],
+                "opens": "08:00",
+                "closes": "17:00"
+              }
+            ],
+            "areaServed": [
+              {
+                "@type": "City",
+                "name": "Paderborn"
+              },
+              {
+                "@type": "City",
+                "name": "Salzkotten"
+              },
+              {
+                "@type": "City",
+                "name": "Delbrück"
+              },
+              {
+                "@type": "City",
+                "name": "Geseke"
+              },
+              {
+                "@type": "City",
+                "name": "Borchen"
+              }
+            ],
+            "description": "Ambulante Betreuung im Kreis Paderborn (Büro in Salzkotten): Demenz- und Seniorenbetreuung, Verhinderungspflege, Alltagsbegleitung und haushaltsnahe Dienstleistungen.",
+            "makesOffer": [
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Demenz- & Seniorenbetreuung"
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Verhinderungspflege"
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Alltagsbegleitung"
+                }
+              },
+              {
+                "@type": "Offer",
+                "itemOffered": {
+                  "@type": "Service",
+                  "name": "Haushaltsnahe Dienstleistungen"
+                }
+              }
+            ]
+          },
+          {
+            "@type": "WebSite",
+            "@id": "https://curadoma.de/#website",
+            "url": "https://curadoma.de/",
+            "name": "Cura Doma",
+            "inLanguage": "de-DE",
+            "publisher": {
+              "@id": "https://curadoma.de/#organization"
+            }
           }
-        ],
-        "areaServed": [
-          { "@type": "City", "name": "Hameln" },
-          { "@type": "City", "name": "Paderborn" },
-          { "@type": "City", "name": "Emmerthal" },
-          { "@type": "City", "name": "Hessisch Oldendorf" },
-          { "@type": "City", "name": "Aerzen" },
-          { "@type": "City", "name": "Bad Münder" },
-          { "@type": "City", "name": "Springe" },
-          { "@type": "City", "name": "Gehrden" },
-          { "@type": "City", "name": "Delbrück" },
-          { "@type": "City", "name": "Geseke" },
-          { "@type": "City", "name": "Salzkotten" },
-          { "@type": "City", "name": "Borchen" }
-        ],
-        "knowsAbout": [
-          "Demenzbetreuung",
-          "Seniorenbetreuung",
-          "Verhinderungspflege",
-          "Entlastungsleistungen",
-          "haushaltsnahe Dienstleistungen",
-          "Alltagsbegleitung"
-        ],
-        "makesOffer": [
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Demenz- & Seniorenbetreuung" } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Verhinderungspflege" } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Entlastungsleistungen (§ 45a SGB XI)" } },
-          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Haushaltsnahe Dienstleistungen" } }
         ]
       }
       </script>

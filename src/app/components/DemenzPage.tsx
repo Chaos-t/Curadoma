@@ -41,7 +41,7 @@ export function DemenzPage() {
       <section className="py-20 bg-white/80">
         <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 space-y-6 text-[17px] text-[#5F6B73] font-light leading-relaxed">
           <h2 className="text-3xl font-medium tracking-tight text-[#111111] mb-2" style={jakarta}>
-            <Editable as="span" id="demenz.intro.title">Demenz und Seniorenbetreuung – Mit Herz und Kompetenz an Ihrer Seite</Editable>
+            <Editable as="span" id="demenz.intro.title">Demenz- und Seniorenbetreuung in Hameln und Paderborn – Mit Herz und Kompetenz an Ihrer Seite</Editable>
           </h2>
           <p>
             <Editable as="span" id="demenz.intro.p1">Mit zunehmendem Alter stehen viele Menschen vor besonderen Herausforderungen – körperlich wie geistig. Eine der häufigsten Erkrankungen im Alter ist die Demenz. Sie verändert nicht nur das Leben der Betroffenen, sondern auch das ihrer Angehörigen. In dieser sensiblen Phase braucht es mehr als nur Betreuung – es braucht Verständnis, Geduld und fachliche Kompetenz.</Editable>

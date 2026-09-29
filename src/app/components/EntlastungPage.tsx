@@ -21,7 +21,7 @@ export function EntlastungPage() {
               <span className="text-[#0F7C77]"><Editable as="span" id="entlastung.hero.title-highlight">nach § 45b SGB XI</Editable></span>
             </h1>
             <p className="text-lg text-[#5F6B73] leading-relaxed max-w-2xl mx-auto lg:mx-0 font-light">
-              <Editable as="span" id="entlastung.hero.subtitle">Unterstützung im Alltag für Pflegebedürftige und Angehörige – finanziert über die Pflegekasse.</Editable>
+              <Editable as="span" id="entlastung.hero.subtitle">Unterstützung im Alltag für Pflegebedürftige und Angehörige in Hameln, Paderborn und Umgebung – finanziert über die Pflegekasse.</Editable>
             </p>
           </div>
           <div className="cura-reveal cura-reveal-right flex-1 w-full max-w-md lg:max-w-none">

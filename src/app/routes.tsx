@@ -26,6 +26,8 @@ export const routes = [
       { path: "verhinderungspflege", lazy: async () => ({ Component: (await import("./components/VerhinderungspflegePage")).VerhinderungspflegePage }) },
       { path: "umwandlung-sachleistungen", lazy: async () => ({ Component: (await import("./components/UmwandlungPage")).UmwandlungPage }) },
       { path: "einzugsgebiet", lazy: async () => ({ Component: (await import("./components/EinzugsgebietPage")).EinzugsgebietPage }) },
+      { path: "standort-hameln", lazy: async () => { const { StandortPage } = await import("./components/StandortPage"); return { Component: () => <StandortPage location="hameln" /> }; } },
+      { path: "standort-paderborn", lazy: async () => { const { StandortPage } = await import("./components/StandortPage"); return { Component: () => <StandortPage location="paderborn" /> }; } },
       { path: "kontakt", lazy: async () => ({ Component: (await import("./components/KontaktPage")).KontaktPage }) },
       { path: "impressum", lazy: async () => ({ Component: (await import("./components/ImpressumPage")).ImpressumPage }) },
       { path: "datenschutz", lazy: async () => ({ Component: (await import("./components/DatenschutzPage")).DatenschutzPage }) },
