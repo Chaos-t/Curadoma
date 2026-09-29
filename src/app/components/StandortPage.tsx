@@ -27,11 +27,10 @@ const SITE = "https://curadoma.de";
 // ausgegeben — aus DENSELBEN (editierbaren) Werten, damit sichtbarer Text und
 // Structured Data nie auseinanderlaufen (Google-Richtlinie).
 //
-// INHALTLICHE GRENZE: Nur Fakten, die bereits auf der Seite stehen. Auf der
-// Paderborn-Seite wird bewusst KEINE Anerkennung nach § 45a SGB XI behauptet:
-// Das Impressum belegt sie nur nach niedersaechsischem Landesrecht, der
-// Standort Salzkotten liegt in NRW. Aus demselben Grund fehlt dort die
-// Kachel "Umwandlungsanspruch" (setzt ein anerkanntes Landesangebot voraus).
+// INHALTLICHE GRENZE: Nur Fakten, die bereits auf der Seite stehen. Die
+// Anerkennung nach § 45a SGB XI gilt fuer beide Standorte (Niedersachsen und
+// NRW, vom Betreiber am 29.09.2026 bestaetigt, siehe Impressum) — deshalb hat
+// auch Paderborn Entlastungsbetrag und Umwandlungsanspruch.
 
 type Service = { icon: ReactNode; title: string; desc: string; link: string };
 type Faq = { q: string; a: string };
@@ -121,7 +120,7 @@ const CONTENT: Record<LocationKey, Content> = {
     intro:
       "Von unserem Standort in Salzkotten aus betreut Cura Doma pflegebedürftige Menschen in Paderborn, Delbrück, Geseke, Salzkotten, Borchen und den umliegenden Orten. Wir unterstützen im Alltag, im Haushalt und bei Demenz und entlasten pflegende Angehörige – damit Ihre Liebsten sicher und selbstbestimmt zu Hause leben können.",
     servicesTitle: "Unsere Leistungen in Paderborn und Umgebung",
-    services: [svcEntlastung, svcDemenz, svcHaushalt, svcVerhinderung],
+    services: [svcEntlastung, svcDemenz, svcHaushalt, svcVerhinderung, svcUmwandlung],
     placesTitle: "Hier sind wir rund um Paderborn unterwegs",
     faqs: [
       {
@@ -134,7 +133,7 @@ const CONTENT: Record<LocationKey, Content> = {
       },
       {
         q: "Kann ich die Betreuung über die Pflegekasse finanzieren?",
-        a: "Die Pflegeversicherung sieht dafür verschiedene Leistungen vor – etwa die Verhinderungspflege mit bis zu 3.539 € im Jahr (gemeinsam mit der Kurzzeitpflege) oder den monatlichen Entlastungsbetrag. Welche Möglichkeiten Sie für unsere Betreuung nutzen können, klären wir gemeinsam im kostenlosen Beratungsgespräch.",
+        a: "In vielen Fällen ja. Als nach § 45a SGB XI anerkanntes Angebot zur Unterstützung im Alltag (Land Nordrhein-Westfalen) rechnen wir unsere Leistungen direkt mit Ihrer Pflegekasse ab – etwa über den Entlastungsbetrag von 131 € im Monat ab Pflegegrad 1, die Verhinderungspflege oder die Umwandlung von Pflegesachleistungen. Welche Möglichkeiten Ihnen zustehen, klären wir im kostenlosen Beratungsgespräch.",
       },
       faqBeratung,
       {

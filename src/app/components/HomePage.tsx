@@ -244,7 +244,7 @@ export function HomePage() {
             Der Mensch im Mittelpunkt
           </Editable>
           <Editable as="p" id="home.intro.text" className="text-lg lg:text-xl text-[#5F6B73] leading-relaxed font-light">
-            Cura Doma ist Ihr anerkannter ambulanter Betreuungsdienst aus Hameln – und auch im Kreis Paderborn für Sie da. Unsere Mission ist es, pflegebedürftigen Menschen und ihren Familien zur Seite zu stehen. Wir fördern die Selbstständigkeit, schaffen Freiräume für pflegende Angehörige und machen es möglich, so lange wie möglich sicher und geborgen im eigenen Zuhause zu leben.
+            Cura Doma ist Ihr anerkannter ambulanter Betreuungsdienst in Hameln und im Kreis Paderborn. Unsere Mission ist es, pflegebedürftigen Menschen und ihren Familien zur Seite zu stehen. Wir fördern die Selbstständigkeit, schaffen Freiräume für pflegende Angehörige und machen es möglich, so lange wie möglich sicher und geborgen im eigenen Zuhause zu leben.
           </Editable>
         </div>
       </section>

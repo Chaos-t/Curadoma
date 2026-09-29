@@ -60,7 +60,7 @@ export function ImpressumPage() {
               <li><span className="text-[#111111]"><Editable as="span" id="impressum.unternehmensangaben.1.label">Rechtsform:</Editable></span> <Editable as="span" id="impressum.unternehmensangaben.1.value">Einzelunternehmen</Editable></li>
               <li><span className="text-[#111111]"><Editable as="span" id="impressum.unternehmensangaben.2.label">Steuernummer:</Editable></span> <Editable as="span" id="impressum.unternehmensangaben.2.value">22/127/01564</Editable></li>
               <li><span className="text-[#111111]"><Editable as="span" id="impressum.unternehmensangaben.3.label">Aufsichtsbehörde / zuständige Stelle:</Editable></span> <Editable as="span" id="impressum.unternehmensangaben.3.value">Niedersächsisches Landesamt für Soziales, Jugend und Familie (LS), Regionalstelle Hildesheim</Editable></li>
-              <li><span className="text-[#111111]"><Editable as="span" id="impressum.unternehmensangaben.4.label">Berufsrechtliche Angaben:</Editable></span> <Editable as="span" id="impressum.unternehmensangaben.4.value">Anerkanntes Angebot zur Unterstützung im Alltag gemäß § 45a SGB XI nach den Vorschriften des Landes Niedersachsen.</Editable></li>
+              <li><span className="text-[#111111]"><Editable as="span" id="impressum.unternehmensangaben.4.label">Berufsrechtliche Angaben:</Editable></span> <Editable as="span" id="impressum.unternehmensangaben.4.value">Anerkanntes Angebot zur Unterstützung im Alltag gemäß § 45a SGB XI nach den Vorschriften der Länder Niedersachsen und Nordrhein-Westfalen.</Editable></li>
             </ul>
           </Block>
         </div>

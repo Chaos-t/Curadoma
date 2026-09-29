@@ -19,7 +19,7 @@ export const SEO_BY_PATH = {
   "/entlastung": {
     title: "Entlastungsleistungen § 45a/45b SGB XI in Hameln | Cura Doma",
     description:
-      "Monatlich 131 € Entlastungsbetrag (§ 45b SGB XI): Alltagsbegleitung & Haushaltshilfe in Hameln & Umgebung – direkt mit der Pflegekasse abgerechnet.",
+      "Monatlich 131 € Entlastungsbetrag (§ 45b SGB XI): Alltagsbegleitung & Haushaltshilfe in Hameln, Paderborn & Umgebung – direkt mit der Pflegekasse abgerechnet.",
   },
   "/demenzbetreuung": {
     title: "Demenz- & Seniorenbetreuung Hameln & Paderborn | Cura Doma",
@@ -39,7 +39,7 @@ export const SEO_BY_PATH = {
   "/umwandlung-sachleistungen": {
     title: "Umwandlung von Pflegesachleistungen | Cura Doma Hameln",
     description:
-      "Bis zu 40 % ungenutzter Pflegesachleistungen (ab Pflegegrad 2) in Betreuung umwandeln – mehr Alltagshilfe in Hameln & Umgebung mit Cura Doma.",
+      "Bis zu 40 % ungenutzter Pflegesachleistungen (ab Pflegegrad 2) in Betreuung umwandeln – mehr Alltagshilfe in Hameln, Paderborn & Umgebung mit Cura Doma.",
   },
   "/einzugsgebiet": {
     title: "Einzugsgebiet Hameln, Paderborn & Umgebung | Cura Doma",
