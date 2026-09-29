@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useContent } from "../../../lib/content";
 import { LOCATIONS, oneLineAddress, mapsLinks, type LocationKey } from "../../../lib/locations";
 import { plainText } from "../../../lib/text";
@@ -8,10 +9,11 @@ function telHref(display: string) {
   const digits = display.replace(/[^\d+]/g, "");
   return digits.startsWith("+") ? `tel:${digits}` : `tel:+49${digits.replace(/^0/, "")}`;
 }
-export function PhoneText({ id = "shared.tel_display", def = "05151 7107093", className }: { id?: string; def?: string; className?: string }) {
+// icon: optional INNERHALB des Links, damit z. B. eine Telefon-"Pille" als Ganzes tippbar ist.
+export function PhoneText({ id = "shared.tel_display", def = "05151 7107093", className, icon }: { id?: string; def?: string; className?: string; icon?: ReactNode }) {
   const { get } = useContent();
   const display = get(id) ?? def;
-  return <a href={telHref(display)} className={className}><Editable as="span" id={id}>{def}</Editable></a>;
+  return <a href={telHref(display)} className={className}>{icon}<Editable as="span" id={id}>{def}</Editable></a>;
 }
 export function EmailText({ id = "shared.email", def = "info@curadoma.de", className }: { id?: string; def?: string; className?: string }) {
   const { get } = useContent();

@@ -449,7 +449,7 @@ export function KontaktPage() {
                     </div>
                     <div>
                       <div className="text-sm text-[#5F6B73] font-light mb-0.5">{LOCATIONS[mapLoc].name}</div>
-                      <div className="text-base font-medium text-[#111111] group-hover/addr:text-[#0F7C77] transition-colors"><AddressBlock variant="br" location={mapLoc} /></div>
+                      <div className="text-base font-medium text-[#111111] group-hover/addr:text-[#0F7C77] transition-colors"><AddressBlock key={mapLoc} variant="br" location={mapLoc} /></div>
                     </div>
                   </button>
 

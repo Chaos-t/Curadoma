@@ -25,7 +25,7 @@ export function UmwandlungPage() {
             <span className="text-[#0F7C77]"><Editable as="span" id="umwandlung.hero.title.accent">nach § 45a SGB XI</Editable></span>
           </h1>
           <p className="text-lg text-[#5F6B73] leading-relaxed font-light">
-            <Editable as="span" id="umwandlung.hero.subtitle">Mehr praktische Hilfe im Alltag in Hameln, Paderborn und Umgebung – kombinieren Sie finanzielle Unterstützung mit konkreter Entlastung.</Editable>
+            <Editable as="span" id="umwandlung.hero.subtitle">Mehr praktische Hilfe im Alltag in Hameln und Umgebung – kombinieren Sie finanzielle Unterstützung mit konkreter Entlastung.</Editable>
           </p>
         </div>
       </section>

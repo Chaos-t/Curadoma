@@ -215,9 +215,10 @@ export function StandortPage({ location }: { location: LocationKey }) {
                 <Link to="/kontakt" className="w-full sm:w-auto bg-[#0F7C77] text-white hover:bg-[#0E6E6A] px-8 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)] flex items-center justify-center gap-2">
                   <Editable as="span" id={`${p}.hero.cta-primary`}>Kostenlos beraten lassen</Editable>
                 </Link>
-                <div className="w-full sm:w-auto bg-white text-[#111111] border border-[#E5F4F5] hover:bg-[#F8FEFF] px-8 py-3.5 rounded-full text-base font-normal transition-all flex items-center justify-center gap-2">
-                  <Phone size={18} className="text-[#6FD3D1]" /> <PhoneText />
-                </div>
+                <PhoneText
+                  icon={<Phone size={18} className="text-[#6FD3D1]" />}
+                  className="w-full sm:w-auto bg-white text-[#111111] border border-[#E5F4F5] hover:bg-[#F8FEFF] px-8 py-3.5 rounded-full text-base font-normal transition-all flex items-center justify-center gap-2"
+                />
               </div>
             </div>
 
@@ -351,9 +352,10 @@ export function StandortPage({ location }: { location: LocationKey }) {
             <Link to="/kontakt" className="w-full sm:w-auto bg-[#0F7C77] text-white hover:bg-[#0E6E6A] px-8 py-4 rounded-full text-base font-normal transition-all flex items-center justify-center gap-2 shadow-sm">
               <Mail size={20} /> <Editable as="span" id={`${p}.cta.button`}>Jetzt anfragen</Editable>
             </Link>
-            <div className="w-full sm:w-auto bg-white text-[#111111] border border-[#E5F4F5] hover:bg-[#DFF7F8] px-8 py-4 rounded-full text-base font-normal transition-all flex items-center justify-center gap-2">
-              <Phone size={20} className="text-[#6FD3D1]" /> <PhoneText />
-            </div>
+            <PhoneText
+              icon={<Phone size={20} className="text-[#6FD3D1]" />}
+              className="w-full sm:w-auto bg-white text-[#111111] border border-[#E5F4F5] hover:bg-[#DFF7F8] px-8 py-4 rounded-full text-base font-normal transition-all flex items-center justify-center gap-2"
+            />
           </div>
         </div>
       </section>

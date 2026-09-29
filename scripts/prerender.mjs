@@ -81,6 +81,15 @@ for (const path of routes) {
       .replace(/(<meta property="og:title" content=")[\s\S]*?("\s*\/?>)/, `$1${t}$2`)
       .replace(/(<meta property="og:description" content=")[\s\S]*?("\s*\/?>)/, `$1${d}$2`)
       .replace(/(<meta property="og:url" content=")[\s\S]*?("\s*\/?>)/, `$1${url}$2`);
+    // Standortseiten ausserhalb Hamelns bringen eigene geo-Signale mit (seo.data.js).
+    if (meta.geo) {
+      const g = { region: esc(meta.geo.region), place: esc(meta.geo.placename), pos: esc(meta.geo.position) };
+      html = html
+        .replace(/(<meta name="geo.region" content=")[^"]*/, `$1${g.region}`)
+        .replace(/(<meta name="geo.placename" content=")[^"]*/, `$1${g.place}`)
+        .replace(/(<meta name="geo.position" content=")[^"]*/, `$1${g.pos}`)
+        .replace(/(<meta name="ICBM" content=")[^"]*/, `$1${g.pos.replace(";", ", ")}`);
+    }
   }
 
   if (render) {

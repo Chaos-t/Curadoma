@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Link, Outlet, useLocation } from "react-router";
-import { Phone, Mail, Heart, Menu, X, MapPin, ChevronDown, Cookie } from "lucide-react";
+import { Phone, Mail, Heart, Menu, X, MapPin, ChevronDown, Cookie, Route as RouteIcon } from "lucide-react";
 import { BackgroundScene } from "./BackgroundScene";
 import { CookieBanner } from "./CookieBanner";
 import { WhatsAppButton } from "./WhatsAppButton";
@@ -424,6 +424,12 @@ export function Layout() {
                     <span className="block text-[#111111] font-normal"><Editable as="span" id="shared.footer.standort.paderborn">Standort Paderborn</Editable></span>
                     <AddressBlock variant="br" location="paderborn" />
                   </Link>
+                </li>
+                {/* Immer im HTML (anders als das Standorte-Menue, das erst beim
+                    Klick entsteht) -> Suchmaschinen finden /einzugsgebiet von jeder Seite. */}
+                <li className="flex items-start gap-2">
+                  <RouteIcon size={16} className="mt-0.5 shrink-0 text-[#6FD3D1]" />
+                  <Link to="/einzugsgebiet" className="hover:text-[#0F7C77] transition-colors"><Editable as="span" id="shared.footer.einzugsgebiet">Einzugsgebiet & Orte</Editable></Link>
                 </li>
               </ul>
             </div>
