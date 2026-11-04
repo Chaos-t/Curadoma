@@ -14,6 +14,7 @@ import {
 } from "../../lib/validation";
 import { Editable } from "./editor/Editable";
 import { PhoneText } from "./editor/Shared";
+import { useContent } from "../../lib/content";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 
@@ -163,6 +164,7 @@ const HOW_STEPS = [
 ];
 
 export function TerminPage() {
+  const { editMode } = useContent();
   const [today, setToday] = useState<Date | null>(null);
   const [service, setService] = useState("");
   const [location, setLocation] = useState<BookingLocation | "">("");
@@ -505,11 +507,20 @@ export function TerminPage() {
                     </div>
                   )}
 
-                  <button type="submit" disabled={submitting}
-                    className="w-full bg-[#0F7C77] text-white hover:bg-[#0E6E6A] disabled:opacity-60 disabled:cursor-not-allowed px-6 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)] flex items-center justify-center gap-2"
+                  {/* Erst nach dem Haekchen bei der Datenschutz-Zustimmung absendbar (Wunsch
+                      des Betreibers). Im Editor bleibt der Knopf aktiv, sonst liesse sich seine
+                      Beschriftung nicht anklicken. Der Server prueft die Zustimmung zusaetzlich. */}
+                  <button type="submit" disabled={submitting || (!form.consent && !editMode)}
+                    aria-describedby={!form.consent ? "termin-consent-hint" : undefined}
+                    className="w-full bg-[#0F7C77] text-white hover:bg-[#0E6E6A] disabled:opacity-50 disabled:shadow-none disabled:hover:bg-[#0F7C77] disabled:cursor-not-allowed px-6 py-3.5 rounded-full text-base font-normal transition-all shadow-[0_8px_20px_rgb(111,211,209,0.25)] flex items-center justify-center gap-2"
                     style={jakarta}>
                     {submitting ? "Wird gesendet…" : <><Editable as="span" id="termin.submit">Termin anfragen</Editable> <ArrowRight size={18} /></>}
                   </button>
+                  {!form.consent && (
+                    <p id="termin-consent-hint" className="text-xs text-[#5F6B73] text-center mt-3">
+                      <Editable as="span" id="termin.consent.hint">Bitte setzen Sie zuerst das Häkchen bei der Datenschutzerklärung.</Editable>
+                    </p>
+                  )}
 
                   <p className="text-xs text-[#5F6B73] font-light text-center mt-4">
                     <Editable as="span" id="termin.phone-hint">Unverbindlich. Lieber telefonisch?</Editable>{" "}
