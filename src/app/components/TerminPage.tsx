@@ -5,7 +5,7 @@ import {
   ArrowRight, AlertCircle, MessageSquare, Sparkles,
 } from "lucide-react";
 import {
-  BOOKING_SERVICES, BOOKING_SLOTS, BOOKING_LOCATIONS, FN_BASE, FN_ANON,
+  BOOKING_SERVICES, BOOKING_SLOTS, BOOKING_LOCATIONS, BOOKING_LEAD_DAYS, FN_BASE, FN_ANON,
   toISODate, isWeekend, startOfToday, formatGermanDate, fetchBookedMap,
   type BookingLocation,
 } from "../../lib/booking";
@@ -45,18 +45,18 @@ function CalendarSkeleton() {
   );
 }
 
-// Heute nur noch Zeiten mit mindestens 60 Minuten Vorlauf; die Server-Pruefung
-// (POST /appointments) lehnt zusaetzlich alles ab, was bereits vorbei ist.
-const LEAD_MINUTES = 60;
-const slotMinutes = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
-function isSlotTooLate(t: string, now: Date) {
-  return slotMinutes(t) < now.getHours() * 60 + now.getMinutes() + LEAD_MINUTES;
+// Vorlaufzeit (Wunsch des Betreibers): fruehestens BOOKING_LEAD_DAYS Tage ab heute.
+// Der Server prueft dieselbe Regel (APPT_LEAD_DAYS) und lehnt fruehere Tage ab.
+function earliestBookable(today: Date) {
+  return new Date(today.getFullYear(), today.getMonth(), today.getDate() + BOOKING_LEAD_DAYS);
 }
-const noSlotLeftToday = (now: Date) => BOOKING_SLOTS.every((t) => isSlotTooLate(t, now));
+const monthIndex = (d: Date) => d.getFullYear() * 12 + d.getMonth();
 
 function Calendar({ today, selected, onSelect }: { today: Date; selected: Date | null; onSelect: (d: Date) => void }) {
+  const earliest = earliestBookable(today);
+  // Startet im Monat des fruehesten Termins (Ende November liegt der schon im Dezember).
   const [view, setView] = useState(() => {
-    const base = selected ?? today;
+    const base = selected ?? earliest;
     return new Date(base.getFullYear(), base.getMonth(), 1);
   });
   const year = view.getFullYear();
@@ -64,12 +64,11 @@ function Calendar({ today, selected, onSelect }: { today: Date; selected: Date |
   const monthLabel = view.toLocaleDateString("de-DE", { month: "long", year: "numeric" });
   const offset = (new Date(year, month, 1).getDay() + 6) % 7; // Monday-based
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const isCurrentMonth = year === today.getFullYear() && month === today.getMonth();
+  const isFirstMonth = monthIndex(view) <= monthIndex(earliest);
 
   const cells: (Date | null)[] = [];
   for (let i = 0; i < offset; i++) cells.push(null);
   for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(year, month, d));
-  const todayFull = noSlotLeftToday(new Date()); // nach 15 Uhr ist heute nichts mehr frei
 
   return (
     <div>
@@ -77,7 +76,7 @@ function Calendar({ today, selected, onSelect }: { today: Date; selected: Date |
         <button
           type="button"
           onClick={() => setView(new Date(year, month - 1, 1))}
-          disabled={isCurrentMonth}
+          disabled={isFirstMonth}
           className="w-9 h-9 rounded-full flex items-center justify-center text-[#5F6B73] hover:bg-[#F8FEFF] disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           aria-label="Voriger Monat"
         >
@@ -102,7 +101,7 @@ function Calendar({ today, selected, onSelect }: { today: Date; selected: Date |
         {cells.map((d, i) => {
           if (!d) return <div key={i} />;
           const isToday = toISODate(d) === toISODate(today);
-          const disabled = isWeekend(d) || d < today || (isToday && todayFull);
+          const disabled = isWeekend(d) || d < earliest;
           const isSel = !!selected && toISODate(d) === toISODate(selected);
           return (
             <button
@@ -211,20 +210,15 @@ export function TerminPage() {
   const clearErr = (key: string) => setFieldErrors((p) => { const { [key]: _x, ...r } = p; return r; });
 
   const selISO = date ? toISODate(date) : "";
-  const isTodaySel = !!today && selISO === toISODate(today);
-  // Belegte UND (heute) zu knappe Zeiten sind nicht waehlbar. Nur im Browser
-  // relevant: ein Tag ist erst nach dem Mounten waehlbar (siehe CalendarSkeleton).
-  const now = isTodaySel ? new Date() : null;
   const takenTimes = selISO ? (bookedMap[selISO] ?? []) : [];
-  const unavailable = (t: string) => takenTimes.includes(t) || (!!now && isSlotTooLate(t, now));
+  const unavailable = (t: string) => takenTimes.includes(t);
   const locationLabel = BOOKING_LOCATIONS.find((l) => l.key === location)?.label ?? "";
 
   const pickDate = (d: Date) => {
     setDate(d);
     clearErr("date");
     const iso = toISODate(d);
-    const tooLate = !!today && iso === toISODate(today) && !!time && isSlotTooLate(time, new Date());
-    if (time && ((bookedMap[iso] ?? []).includes(time) || tooLate)) setTime("");
+    if (time && (bookedMap[iso] ?? []).includes(time)) setTime("");
   };
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -387,7 +381,7 @@ export function TerminPage() {
                 <StepCard n={2} title={<Editable as="span" id="termin.step.2.title">Tag</Editable>} icon={<CalendarDays size={18} strokeWidth={1.8} />}>
                   {today ? <Calendar today={today} selected={date} onSelect={pickDate} /> : <CalendarSkeleton />}
                   <p className="text-xs text-[#5F6B73] font-light mt-4">
-                    <Editable as="span" id="termin.tag.hint">Termine Mo–Fr. Wochenenden und vergangene Tage sind nicht wählbar.</Editable>
+                    <Editable as="span" id="termin.tag.hint">Termine Mo–Fr, frühestens eine Woche im Voraus.</Editable>
                   </p>
                   <FieldError msg={fieldErrors.date} className="mt-2" />
                 </StepCard>
@@ -410,7 +404,7 @@ export function TerminPage() {
                               type="button"
                               disabled={taken}
                               aria-pressed={sel}
-                              aria-label={taken ? `${t} Uhr – nicht verfügbar` : `${t} Uhr`}
+                              aria-label={taken ? `${t} Uhr – bereits vergeben` : `${t} Uhr`}
                               onClick={() => { setTime(t); clearErr("time"); }}
                               className={`py-2.5 rounded-xl text-sm border transition-all ${
                                 taken
@@ -426,7 +420,7 @@ export function TerminPage() {
                         })}
                       </div>
                       <p className="text-xs text-[#5F6B73] font-light mt-4">
-                        <Editable as="span" id="termin.uhrzeit.hint">Durchgestrichene Zeiten sind bereits vergeben oder zu kurzfristig.</Editable>
+                        <Editable as="span" id="termin.uhrzeit.hint">Durchgestrichene Zeiten sind bereits vergeben.</Editable>
                       </p>
                     </>
                   )}

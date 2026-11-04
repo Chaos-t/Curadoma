@@ -1163,6 +1163,9 @@ const APPT_SLOTS = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00
 // landet im Datensatz, in den Mails und im Backoffice.
 const APPT_LOCATIONS: Record<string, string> = { hameln: "Hameln", paderborn: "Paderborn" };
 const APPT_TZ = "Europe/Berlin";
+// Vorlaufzeit: fruehester Termin = heute (Berlin) + APPT_LEAD_DAYS Tage.
+// Spiegel von BOOKING_LEAD_DAYS in src/lib/booking.ts.
+const APPT_LEAD_DAYS = 7;
 
 function todayBerlinISO(): string {
   // en-CA formats as YYYY-MM-DD
@@ -1170,14 +1173,11 @@ function todayBerlinISO(): string {
     timeZone: APPT_TZ, year: "numeric", month: "2-digit", day: "2-digit",
   }).format(new Date());
 }
-// Aktuelle Uhrzeit in Berlin als "HH:MM" (h23) — direkt vergleichbar mit APPT_SLOTS.
-function nowBerlinHHMM(): string {
-  return new Intl.DateTimeFormat("en-GB", {
-    timeZone: APPT_TZ, hour: "2-digit", minute: "2-digit", hourCycle: "h23",
-  }).format(new Date());
-}
-function isPastISO(d: string): boolean {
-  return d < todayBerlinISO();
+// "YYYY-MM-DD" + n Tage (Mittag UTC, damit keine Zeitzone den Tag verschiebt).
+function addDaysISO(iso: string, n: number): string {
+  const d = new Date(`${iso}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + n);
+  return d.toISOString().slice(0, 10);
 }
 function isWeekdayISO(d: string): boolean {
   // noon UTC avoids any date shift; getUTCDay 1..5 = Mon..Fri
@@ -1309,13 +1309,13 @@ app.post("/make-server-ec6100a6/appointments", async (c) => {
     const errors: Record<string, string> = {};
     if (!APPT_SERVICES.includes(service)) errors.service = "Bitte wählen Sie eine Leistung.";
     if (!location) errors.location = "Bitte wählen Sie einen Standort.";
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateISO) || isPastISO(dateISO) || !isWeekdayISO(dateISO)) {
-      errors.date = "Bitte wählen Sie einen gültigen Werktag (Mo–Fr, nicht in der Vergangenheit).";
+    if (
+      !/^\d{4}-\d{2}-\d{2}$/.test(dateISO) || !isWeekdayISO(dateISO) ||
+      dateISO < addDaysISO(todayBerlinISO(), APPT_LEAD_DAYS)
+    ) {
+      errors.date = "Bitte wählen Sie einen Werktag (Mo–Fr), frühestens eine Woche ab heute.";
     }
     if (!APPT_SLOTS.includes(time)) errors.time = "Bitte wählen Sie eine gültige Uhrzeit.";
-    else if (!errors.date && dateISO === todayBerlinISO() && time <= nowBerlinHHMM()) {
-      errors.time = "Diese Uhrzeit ist heute schon vorbei. Bitte wählen Sie eine spätere Zeit.";
-    }
     if (!name) errors.name = "Bitte geben Sie Ihren Namen an.";
     else if (!isValidName(name)) errors.name = "Bitte geben Sie einen echten Namen ein.";
     if (!phone) errors.phone = "Bitte geben Sie eine Telefonnummer an.";

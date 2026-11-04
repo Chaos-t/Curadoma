@@ -11,6 +11,10 @@ export const BOOKING_SERVICES = [
   "Verhinderungspflege",
 ] as const;
 
+/** Vorlaufzeit: frueheste Buchung = heute + so viele Tage. Spiegel von
+ *  APPT_LEAD_DAYS in der Edge Function — synchron halten. */
+export const BOOKING_LEAD_DAYS = 7;
+
 export const BOOKING_SLOTS = [
   "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00",
 ] as const;
