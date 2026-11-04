@@ -59,6 +59,9 @@ test("yesNo + column specs", () => {
   assert.ok(CSV_COLUMNS.contact.length > 0);
   assert.ok(CSV_COLUMNS.job.some(([h]) => h === "Lebenslauf"));
   assert.ok(!JSON.stringify(CSV_COLUMNS.appointment).includes("token"));
+  // Standort der Terminanfrage (Hameln/Paderborn) steht im Export direkt nach der Leistung
+  const keys = CSV_COLUMNS.appointment.map(([, k]) => k);
+  assert.equal(keys[keys.indexOf("service") + 1], "location");
 });
 
 test("validateZones accepts good structure and rejects bad", () => {

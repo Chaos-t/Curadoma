@@ -64,6 +64,11 @@ export const SEO_BY_PATH = {
     description:
       "Kontakt zu Cura Doma: kostenloses, unverbindliches Erstgespräch zur Betreuung in Hameln, Paderborn & Umgebung. Telefon 05151 7107093, info@curadoma.de.",
   },
+  "/termin": {
+    title: "Termin online vereinbaren | Cura Doma Hameln & Paderborn",
+    description:
+      "Kostenloses Erstgespräch oder Beratung online anfragen: Wunschtermin wählen, wir bestätigen per E-Mail. Cura Doma in Hameln, Paderborn & Umgebung.",
+  },
   "/karriere": {
     title: "Karriere & Jobs in Hameln & Paderborn | Cura Doma",
     description:

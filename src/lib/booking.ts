@@ -15,6 +15,14 @@ export const BOOKING_SLOTS = [
   "08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00",
 ] as const;
 
+/** Standort der Anfrage. Die Keys sind die Whitelist APPT_LOCATIONS in der
+ *  Edge Function (dort steht auch das Label fuer Mails/Backoffice) — synchron halten. */
+export const BOOKING_LOCATIONS = [
+  { key: "hameln", label: "Hameln & Umgebung" },
+  { key: "paderborn", label: "Paderborn & Umgebung" },
+] as const;
+export type BookingLocation = (typeof BOOKING_LOCATIONS)[number]["key"];
+
 export const FN_BASE = `https://${projectId}.supabase.co/functions/v1/make-server-ec6100a6`;
 export const FN_ANON = publicAnonKey;
 

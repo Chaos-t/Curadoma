@@ -20,6 +20,7 @@ const BUILTIN: Record<string, string> = {
   "/standort-hameln": "standort-hameln",
   "/standort-paderborn": "standort-paderborn",
   "/kontakt": "kontakt",
+  "/termin": "termin",
   "/karriere": "karriere",
 };
 

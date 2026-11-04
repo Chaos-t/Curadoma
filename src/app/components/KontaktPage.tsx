@@ -215,7 +215,7 @@ export function KontaktPage() {
                       className="w-full px-4 py-3 rounded-xl border border-[#E5F4F5] bg-[#F8FEFF] text-sm font-light text-[#111111] focus:outline-none focus:border-[#6FD3D1] focus:ring-1 focus:ring-[#6FD3D1] transition-colors"
                       placeholder="Max"
                     />
-                    {fieldErrors.firstName && <p className="text-xs text-red-500 mt-1">{fieldErrors.firstName}</p>}
+                    {fieldErrors.firstName && <p className="text-xs text-red-700 mt-1">{fieldErrors.firstName}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-[#111111] mb-1.5" htmlFor="kontakt-lastName"><Editable as="span" id="kontakt.form.label.lastname">Nachname *</Editable></label>
@@ -231,7 +231,7 @@ export function KontaktPage() {
                       className="w-full px-4 py-3 rounded-xl border border-[#E5F4F5] bg-[#F8FEFF] text-sm font-light text-[#111111] focus:outline-none focus:border-[#6FD3D1] focus:ring-1 focus:ring-[#6FD3D1] transition-colors"
                       placeholder="Mustermann"
                     />
-                    {fieldErrors.lastName && <p className="text-xs text-red-500 mt-1">{fieldErrors.lastName}</p>}
+                    {fieldErrors.lastName && <p className="text-xs text-red-700 mt-1">{fieldErrors.lastName}</p>}
                   </div>
                 </div>
                 <div>
@@ -249,7 +249,7 @@ export function KontaktPage() {
                     className="w-full px-4 py-3 rounded-xl border border-[#E5F4F5] bg-[#F8FEFF] text-sm font-light text-[#111111] focus:outline-none focus:border-[#6FD3D1] focus:ring-1 focus:ring-[#6FD3D1] transition-colors"
                     placeholder="max@beispiel.de"
                   />
-                  {fieldErrors.email && <p className="text-xs text-red-500 mt-1">{fieldErrors.email}</p>}
+                  {fieldErrors.email && <p className="text-xs text-red-700 mt-1">{fieldErrors.email}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-[#111111] mb-1.5" htmlFor="kontakt-phone"><Editable as="span" id="kontakt.form.label.phone">Telefonnummer</Editable></label>
@@ -265,7 +265,7 @@ export function KontaktPage() {
                     className="w-full px-4 py-3 rounded-xl border border-[#E5F4F5] bg-[#F8FEFF] text-sm font-light text-[#111111] focus:outline-none focus:border-[#6FD3D1] focus:ring-1 focus:ring-[#6FD3D1] transition-colors"
                     placeholder="05151 7107093"
                   />
-                  {fieldErrors.phone && <p className="text-xs text-red-500 mt-1">{fieldErrors.phone}</p>}
+                  {fieldErrors.phone && <p className="text-xs text-red-700 mt-1">{fieldErrors.phone}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-[#111111] mb-1.5" htmlFor="kontakt-subject"><Editable as="span" id="kontakt.form.label.subject">Betreff</Editable></label>
@@ -295,7 +295,7 @@ export function KontaktPage() {
                     className="w-full px-4 py-3 rounded-xl border border-[#E5F4F5] bg-[#F8FEFF] text-sm font-light text-[#111111] focus:outline-none focus:border-[#6FD3D1] focus:ring-1 focus:ring-[#6FD3D1] transition-colors resize-none"
                     placeholder="Beschreiben Sie kurz Ihre Situation oder Ihr Anliegen..."
                   />
-                  {fieldErrors.message && <p className="text-xs text-red-500 mt-1">{fieldErrors.message}</p>}
+                  {fieldErrors.message && <p className="text-xs text-red-700 mt-1">{fieldErrors.message}</p>}
                 </div>
                 <label className="flex items-start gap-3 text-sm text-[#5F6B73] font-light leading-relaxed">
                   <input type="checkbox" checked={form.consent} onChange={(e) => update("consent", e.target.checked)} className="mt-1 w-4 h-4 accent-[#6FD3D1] shrink-0" />
@@ -303,7 +303,7 @@ export function KontaktPage() {
                     <Editable as="span" id="kontakt.form.consent.pre">Ich habe die </Editable><Link to="/datenschutz" className="text-[#0F7C77] underline hover:text-[#5BC2C0]"><Editable as="span" id="kontakt.form.consent.linktext">Datenschutzerklärung</Editable></Link><Editable as="span" id="kontakt.form.consent.post"> gelesen und stimme zu, dass meine Angaben zur Bearbeitung meiner Anfrage verarbeitet werden.</Editable>
                   </span>
                 </label>
-                {fieldErrors.consent_privacy && <p className="text-xs text-red-500 -mt-3">{fieldErrors.consent_privacy}</p>}
+                {fieldErrors.consent_privacy && <p className="text-xs text-red-700 -mt-3">{fieldErrors.consent_privacy}</p>}
 
                 {error && (
                   <div className="flex items-start gap-2 p-3 rounded-xl bg-red-50 border border-red-100 text-sm text-red-700">

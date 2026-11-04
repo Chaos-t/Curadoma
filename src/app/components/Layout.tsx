@@ -41,7 +41,7 @@ const topNav = [
   { path: "/", label: "Startseite", id: "shared.nav.startseite" },
   { path: "/karriere", label: "Karriere", id: "shared.nav.karriere" },
   { path: "/kontakt", label: "Kontakt", id: "shared.nav.kontakt" },
-  // { path: "/termin", label: "Termin vereinbaren", id: "shared.nav.termin_mobile" }, // TEMP deaktiviert – Termin-Bereich vorerst ausgeblendet
+  { path: "/termin", label: "Termin vereinbaren", id: "shared.nav.termin-mobile" },
 ];
 
 export function Layout() {
@@ -178,7 +178,7 @@ export function Layout() {
           <div className="flex items-center gap-6">
             <span className="flex items-center gap-1.5 hover:text-[#111111] transition-colors">
               <Phone size={16} strokeWidth={1.5} />
-              <PhoneText id="shared.tel_display" />
+              <PhoneText id="shared.tel-display" />
             </span>
             <span className="flex items-center gap-1.5 hover:text-[#111111] transition-colors">
               <Mail size={16} strokeWidth={1.5} />
@@ -199,7 +199,10 @@ export function Layout() {
             <CuraDomaLogo animate className={`w-auto transition-all duration-300 ${scrolled ? "h-14 sm:h-16" : "h-16 sm:h-18 md:h-20"}`} />
           </Link>
 
-          <div className="hidden lg:flex items-center gap-6 xl:gap-8">
+          {/* Zwischen 1024 und 1279 px ist die Leiste voll (seit dem Menuepunkt "Termin"):
+              dort entfaellt der Text-Link "Kontakt" — der gruene Button fuehrt ohnehin
+              zur Kontaktseite. Ab xl ist alles wieder sichtbar. */}
+          <div className="hidden lg:flex items-center gap-4 xl:gap-8">
             <Link to="/" className={`text-sm font-light transition-colors ${isActive("/") ? "text-[#0F7C77]" : "text-[#5F6B73] hover:text-[#0F7C77]"}`}>
               <Editable as="span" id="shared.nav.startseite">Startseite</Editable>
             </Link>
@@ -256,7 +259,7 @@ export function Layout() {
             <Link to="/karriere" className={`text-sm font-light transition-colors ${isActive("/karriere") ? "text-[#0F7C77]" : "text-[#5F6B73] hover:text-[#0F7C77]"}`}>
               <Editable as="span" id="shared.nav.karriere">Karriere</Editable>
             </Link>
-            <Link to="/kontakt" className={`text-sm font-light transition-colors ${isActive("/kontakt") ? "text-[#0F7C77]" : "text-[#5F6B73] hover:text-[#0F7C77]"}`}>
+            <Link to="/kontakt" className={`hidden xl:block text-sm font-light transition-colors ${isActive("/kontakt") ? "text-[#0F7C77]" : "text-[#5F6B73] hover:text-[#0F7C77]"}`}>
               <Editable as="span" id="shared.nav.kontakt">Kontakt</Editable>
             </Link>
             {extraPages.map((p) => (
@@ -264,15 +267,13 @@ export function Layout() {
                 {p.label}
               </Link>
             ))}
-            {/* TEMP deaktiviert – Termin-Bereich vorerst ausgeblendet
             <Link to="/termin" className={`text-sm font-light transition-colors ${isActive("/termin") ? "text-[#0F7C77]" : "text-[#5F6B73] hover:text-[#0F7C77]"}`}>
               <Editable as="span" id="shared.nav.termin">Termin</Editable>
             </Link>
-            */}
 
             <Link
               to="/kontakt"
-              className="text-sm font-light text-white bg-[#0F7C77] hover:bg-[#0E6E6A] transition-colors rounded-full py-2.5 px-5 shadow-[0_4px_14px_rgb(111,211,209,0.3)]"
+              className="whitespace-nowrap text-sm font-light text-white bg-[#0F7C77] hover:bg-[#0E6E6A] transition-colors rounded-full py-2.5 px-5 shadow-[0_4px_14px_rgb(111,211,209,0.3)]"
             >
               <Editable as="span" id="shared.nav.cta">Kostenlos beraten lassen</Editable>
             </Link>

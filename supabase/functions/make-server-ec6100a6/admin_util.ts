@@ -65,7 +65,7 @@ export const CSV_COLUMNS: Record<AdminType, Array<[string, string]>> = {
   ],
   appointment: [
     ["Eingegangen", "created_at"], ["Buchungsstatus", "status"], ["Status", "admin_status"],
-    ["Leistung", "service"], ["Datum", "appt_date"], ["Uhrzeit", "appt_time"],
+    ["Leistung", "service"], ["Standort", "location"], ["Datum", "appt_date"], ["Uhrzeit", "appt_time"],
     ["Name", "name"], ["E-Mail", "email"], ["Telefon", "phone"],
     ["Nachricht", "message"], ["Notiz", "admin_note"],
   ],

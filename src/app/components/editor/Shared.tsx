@@ -10,7 +10,7 @@ function telHref(display: string) {
   return digits.startsWith("+") ? `tel:${digits}` : `tel:+49${digits.replace(/^0/, "")}`;
 }
 // icon: optional INNERHALB des Links, damit z. B. eine Telefon-"Pille" als Ganzes tippbar ist.
-export function PhoneText({ id = "shared.tel_display", def = "05151 7107093", className, icon }: { id?: string; def?: string; className?: string; icon?: ReactNode }) {
+export function PhoneText({ id = "shared.tel-display", def = "05151 7107093", className, icon }: { id?: string; def?: string; className?: string; icon?: ReactNode }) {
   const { get } = useContent();
   const display = get(id) ?? def;
   return <a href={telHref(display)} className={className}>{icon}<Editable as="span" id={id}>{def}</Editable></a>;

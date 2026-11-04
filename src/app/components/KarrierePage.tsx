@@ -416,7 +416,7 @@ export function KarrierePage() {
                   <Editable as="span" id="karriere.form.consent.text.pre">Ich habe die </Editable><Link to="/datenschutz" className="text-[#0F7C77] underline hover:text-[#5BC2C0]">Datenschutzerklärung</Link><Editable as="span" id="karriere.form.consent.text.post"> gelesen und stimme zu, dass meine Angaben zur Bearbeitung meiner Bewerbung verarbeitet werden.</Editable>
                 </span>
               </label>
-              {fieldErrors.consent_privacy && <p className="text-xs text-red-500 -mt-3">{fieldErrors.consent_privacy}</p>}
+              {fieldErrors.consent_privacy && <p className="text-xs text-red-700 -mt-3">{fieldErrors.consent_privacy}</p>}
 
               {error && (
                 <div className="flex items-start gap-2 p-3 rounded-xl bg-red-50 border border-red-100 text-sm text-red-700">
@@ -448,7 +448,7 @@ function Field({ label, children, error }: { label: React.ReactNode; children: R
     <div>
       <label className="block text-sm font-medium text-[#111111] mb-1.5">{label}</label>
       {children}
-      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+      {error && <p className="text-xs text-red-700 mt-1">{error}</p>}
     </div>
   );
 }

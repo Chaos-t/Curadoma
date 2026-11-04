@@ -1159,12 +1159,21 @@ const APPT_SERVICES = [
   "Verhinderungspflege",
 ];
 const APPT_SLOTS = ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"];
+// Standort der Anfrage (Keys = BOOKING_LOCATIONS in src/lib/booking.ts). Das Label
+// landet im Datensatz, in den Mails und im Backoffice.
+const APPT_LOCATIONS: Record<string, string> = { hameln: "Hameln", paderborn: "Paderborn" };
 const APPT_TZ = "Europe/Berlin";
 
 function todayBerlinISO(): string {
   // en-CA formats as YYYY-MM-DD
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: APPT_TZ, year: "numeric", month: "2-digit", day: "2-digit",
+  }).format(new Date());
+}
+// Aktuelle Uhrzeit in Berlin als "HH:MM" (h23) — direkt vergleichbar mit APPT_SLOTS.
+function nowBerlinHHMM(): string {
+  return new Intl.DateTimeFormat("en-GB", {
+    timeZone: APPT_TZ, hour: "2-digit", minute: "2-digit", hourCycle: "h23",
   }).format(new Date());
 }
 function isPastISO(d: string): boolean {
@@ -1186,13 +1195,14 @@ function fmtApptDate(dateISO: string): string {
 }
 
 function apptOperatorEmail(o: {
-  service: string; dateDe: string; time: string; name: string; phone: string;
+  service: string; location: string; dateDe: string; time: string; name: string; phone: string;
   email: string; message: string; funcBase: string; token: string;
 }) {
   const confirmUrl = `${o.funcBase}/appointment-action?token=${o.token}&action=confirm`;
   const declineUrl = `${o.funcBase}/appointment-action?token=${o.token}&action=decline`;
   const rows: Array<[string, string | null | undefined]> = [
     ["Leistung", o.service],
+    ["Standort", o.location],
     ["Datum", o.dateDe],
     ["Uhrzeit", `${o.time} Uhr`],
     ["Name", o.name],
@@ -1203,47 +1213,52 @@ function apptOperatorEmail(o: {
   return curaEmailLayout(
     "Neue Terminanfrage",
     `${rowsTable(rows)}
+     <p style="margin:16px 0 0;font-size:14px;"><a href="mailto:${escapeHtml(o.email)}?subject=${encodeURIComponent("Ihre Terminanfrage bei Cura Doma")}" style="color:#0F7C77;font-weight:600;text-decoration:underline;">Der anfragenden Person antworten</a></p>
      <p style="margin:18px 0 10px;font-size:14px;line-height:1.55;color:#2F3A40;">Bitte bestätigen oder ablehnen — die anfragende Person wird automatisch per E-Mail informiert:</p>
-     <p style="margin:0 0 8px;"><a href="${confirmUrl}" style="display:inline-block;background:#6FBDB8;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 22px;border-radius:999px;font-size:14px;">Termin bestätigen</a></p>
+     <p style="margin:0 0 8px;"><a href="${confirmUrl}" style="display:inline-block;background:#0F7C77;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 22px;border-radius:999px;font-size:14px;">Termin bestätigen</a></p>
      <p style="margin:0;"><a href="${declineUrl}" style="display:inline-block;background:#ffffff;color:#5F6B73;border:1px solid #E5F4F5;text-decoration:none;font-weight:600;padding:11px 22px;border-radius:999px;font-size:14px;">Ablehnen</a></p>
-     <p style="margin-top:14px;font-size:12px;color:#9AA3A8;">Erst mit „Bestätigen" wird der Zeit-Slot gesperrt.</p>`,
+     <p style="margin-top:14px;font-size:12px;color:#5F6B73;">Erst mit „Bestätigen" wird der Zeit-Slot gesperrt. Bitte diese E-Mail nicht weiterleiten oder darauf antworten — die beiden Buttons wirken direkt.</p>`,
   );
 }
-function apptReceivedEmail(o: { service: string; dateDe: string; time: string; name: string }) {
+type ApptMailArgs = { service: string; location?: string | null; dateDe: string; time: string; name: string };
+function apptReceivedEmail(o: ApptMailArgs) {
   const rows: Array<[string, string | null | undefined]> = [
     ["Leistung", o.service],
+    ["Standort", o.location],
     ["Wunschtermin", `${o.dateDe}, ${o.time} Uhr`],
   ];
   return curaEmailLayout(
     "Ihre Terminanfrage ist eingegangen",
     `<p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2F3A40;">Hallo ${escapeHtml(o.name)},<br><br>vielen Dank für Ihre Terminanfrage. Wir prüfen Ihren Wunschtermin und bestätigen ihn in Kürze per E-Mail. <strong>Erst mit unserer Bestätigung ist der Termin verbindlich.</strong></p>
      ${rowsTable(rows)}
-     <p style="margin-top:16px;font-size:13px;color:#5F6B73;">Falls es dringend ist, erreichen Sie uns telefonisch unter <a href="tel:+4951517107093" style="color:#6FBDB8;text-decoration:none;">05151 7107093</a>.</p>`,
+     <p style="margin-top:16px;font-size:13px;color:#5F6B73;">Falls es dringend ist, erreichen Sie uns telefonisch unter <a href="tel:+4951517107093" style="color:#0F7C77;text-decoration:none;">05151 7107093</a>.</p>`,
   );
 }
-function apptConfirmedEmail(o: { service: string; dateDe: string; time: string; name: string }) {
+function apptConfirmedEmail(o: ApptMailArgs) {
   const rows: Array<[string, string | null | undefined]> = [
     ["Leistung", o.service],
+    ["Standort", o.location],
     ["Termin", `${o.dateDe}, ${o.time} Uhr`],
   ];
   return curaEmailLayout(
     "Ihr Termin ist bestätigt",
     `<p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2F3A40;">Hallo ${escapeHtml(o.name)},<br><br>Ihr Termin ist <strong>bestätigt</strong>. Wir freuen uns auf das Gespräch mit Ihnen.</p>
      ${rowsTable(rows)}
-     <p style="margin-top:16px;font-size:13px;color:#5F6B73;">Sollten Sie den Termin nicht wahrnehmen können, geben Sie uns bitte kurz Bescheid: <a href="tel:+4951517107093" style="color:#6FBDB8;text-decoration:none;">05151 7107093</a> oder <a href="mailto:info@curadoma.de" style="color:#6FBDB8;text-decoration:none;">info@curadoma.de</a>.</p>`,
+     <p style="margin-top:16px;font-size:13px;color:#5F6B73;">Sollten Sie den Termin nicht wahrnehmen können, geben Sie uns bitte kurz Bescheid: <a href="tel:+4951517107093" style="color:#0F7C77;text-decoration:none;">05151 7107093</a> oder <a href="mailto:info@curadoma.de" style="color:#0F7C77;text-decoration:none;">info@curadoma.de</a>.</p>`,
   );
 }
-function apptDeclinedEmail(o: { service: string; dateDe: string; time: string; name: string }) {
+function apptDeclinedEmail(o: ApptMailArgs) {
   const rows: Array<[string, string | null | undefined]> = [
     ["Leistung", o.service],
+    ["Standort", o.location],
     ["Angefragt", `${o.dateDe}, ${o.time} Uhr`],
   ];
   return curaEmailLayout(
     "Zu Ihrer Terminanfrage",
     `<p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2F3A40;">Hallo ${escapeHtml(o.name)},<br><br>leider können wir Ihren Wunschtermin nicht bestätigen. Bitte wählen Sie auf unserer Website einen anderen Termin oder rufen Sie uns an — wir finden gemeinsam eine passende Zeit.</p>
      ${rowsTable(rows)}
-     <p style="margin-top:16px;"><a href="https://curadoma.de/termin" style="display:inline-block;background:#6FBDB8;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 22px;border-radius:999px;font-size:14px;">Neuen Termin wählen</a></p>
-     <p style="margin-top:12px;font-size:13px;color:#5F6B73;">Oder telefonisch: <a href="tel:+4951517107093" style="color:#6FBDB8;text-decoration:none;">05151 7107093</a>.</p>`,
+     <p style="margin-top:16px;"><a href="https://curadoma.de/termin" style="display:inline-block;background:#0F7C77;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 22px;border-radius:999px;font-size:14px;">Neuen Termin wählen</a></p>
+     <p style="margin-top:12px;font-size:13px;color:#5F6B73;">Oder telefonisch: <a href="tel:+4951517107093" style="color:#0F7C77;text-decoration:none;">05151 7107093</a>.</p>`,
   );
 }
 
@@ -1281,6 +1296,8 @@ app.post("/make-server-ec6100a6/appointments", async (c) => {
     await bumpRateLimit(rlKey, rl);
 
     const service = String(body.service ?? "").trim();
+    const locationKey = String(body.location ?? "").trim();
+    const location = Object.hasOwn(APPT_LOCATIONS, locationKey) ? APPT_LOCATIONS[locationKey] : "";
     const dateISO = String(body.date_iso ?? "").trim();
     const time = String(body.time ?? "").trim();
     const name = String(body.name ?? "").trim();
@@ -1291,10 +1308,14 @@ app.post("/make-server-ec6100a6/appointments", async (c) => {
 
     const errors: Record<string, string> = {};
     if (!APPT_SERVICES.includes(service)) errors.service = "Bitte wählen Sie eine Leistung.";
+    if (!location) errors.location = "Bitte wählen Sie einen Standort.";
     if (!/^\d{4}-\d{2}-\d{2}$/.test(dateISO) || isPastISO(dateISO) || !isWeekdayISO(dateISO)) {
       errors.date = "Bitte wählen Sie einen gültigen Werktag (Mo–Fr, nicht in der Vergangenheit).";
     }
     if (!APPT_SLOTS.includes(time)) errors.time = "Bitte wählen Sie eine gültige Uhrzeit.";
+    else if (!errors.date && dateISO === todayBerlinISO() && time <= nowBerlinHHMM()) {
+      errors.time = "Diese Uhrzeit ist heute schon vorbei. Bitte wählen Sie eine spätere Zeit.";
+    }
     if (!name) errors.name = "Bitte geben Sie Ihren Namen an.";
     else if (!isValidName(name)) errors.name = "Bitte geben Sie einen echten Namen ein.";
     if (!phone) errors.phone = "Bitte geben Sie eine Telefonnummer an.";
@@ -1317,7 +1338,7 @@ app.post("/make-server-ec6100a6/appointments", async (c) => {
     const token = crypto.randomUUID();
     const created_at = new Date().toISOString();
     const record = {
-      id, created_at, service, appt_date: dateISO, appt_time: time,
+      id, created_at, service, location, appt_date: dateISO, appt_time: time,
       name, phone, email, message: message || null, consent_privacy,
       status: "pending", token, status_changed_at: null,
     };
@@ -1327,30 +1348,33 @@ app.post("/make-server-ec6100a6/appointments", async (c) => {
     const funcBase = `${Deno.env.get("SUPABASE_URL")}/functions/v1/make-server-ec6100a6`;
     const dateDe = fmtApptDate(dateISO);
 
+    let opSent = false;
     if (!(await globalMailCapReached())) {
       // Operator notification (with confirm/decline links)
       const opRes = await sendEmail({
         to: apptRecipient,
-        reply_to: email,
-        subject: `Neue Terminanfrage: ${service} — ${dateDe} ${time} Uhr`,
+        subject: `Neue Terminanfrage (${location}): ${service} — ${dateDe} ${time} Uhr`,
         text: "",
-        html: apptOperatorEmail({ service, dateDe, time, name, phone, email, message, funcBase, token }),
+        html: apptOperatorEmail({ service, location, dateDe, time, name, phone, email, message, funcBase, token }),
       });
+      opSent = opRes.ok;
       if (!opRes.ok) console.log("Appointment operator email failed:", opRes.error);
-      // Visitor "request received"
-      const visRes = await sendEmail({
-        to: email,
-        subject: `Ihre Terminanfrage bei Cura Doma — ${dateDe} ${time} Uhr`,
-        text: "",
-        html: apptReceivedEmail({ service, dateDe, time, name }),
-      });
+      // Visitor "request received" — eigener Zaehlerschritt im Tageslimit (#6)
+      const visRes = (await globalMailCapReached())
+        ? { ok: false, error: "global mail cap reached" }
+        : await sendEmail({
+          to: email,
+          subject: `Ihre Terminanfrage bei Cura Doma — ${dateDe} ${time} Uhr`,
+          text: "",
+          html: apptReceivedEmail({ service, location, dateDe, time, name }),
+        });
       if (!visRes.ok) console.log("Appointment visitor email failed:", visRes.error);
     }
 
-    return c.json({ ok: true, id, created_at }, 201);
+    return c.json({ ok: true, id, created_at, email_sent: opSent }, 201);
   } catch (error) {
     console.log("Error while storing appointment:", error);
-    return c.json({ error: `Serverfehler beim Speichern der Terminanfrage: ${error}` }, 500);
+    return c.json({ error: "Serverfehler beim Speichern der Terminanfrage." }, 500);
   }
 });
 
@@ -1373,8 +1397,9 @@ app.get("/make-server-ec6100a6/appointment-action", async (c) => {
     if (appt.status === "declined") return redirect("already-declined");
 
     const dateDe = fmtApptDate(String(appt.appt_date));
-    const mailArgs = {
-      service: String(appt.service), dateDe, time: String(appt.appt_time), name: String(appt.name),
+    const mailArgs: ApptMailArgs = {
+      service: String(appt.service), location: typeof appt.location === "string" ? appt.location : null,
+      dateDe, time: String(appt.appt_time), name: String(appt.name),
     };
     if (action === "confirm") {
       // Race guard: another booking may have just been confirmed for this slot.

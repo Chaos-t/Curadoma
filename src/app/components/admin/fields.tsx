@@ -54,11 +54,13 @@ export const TYPE_META: Record<AdminType, Meta> = {
       { key: "created_at", label: "Datum" },
       { key: "name", label: "Name" },
       { key: "service", label: "Leistung" },
+      { key: "location", label: "Standort" },
     ],
     detail: [
       { key: "created_at", label: "Eingegangen", kind: "date" },
       { key: "status", label: "Buchungsstatus" },
       { key: "service", label: "Leistung" },
+      { key: "location", label: "Standort" },
       { key: "appt_date", label: "Datum" },
       { key: "appt_time", label: "Uhrzeit" },
       { key: "name", label: "Name" },

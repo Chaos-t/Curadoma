@@ -60,12 +60,20 @@ export function DatenschutzPage() {
             </p>
           </Section>
 
-          <Section title={<Editable as="span" id="datenschutz.section4.title">4. Kontaktformular / Anfrageformular</Editable>}>
+          <Section title={<Editable as="span" id="datenschutz.section4.title">4. Kontaktformular, Anfrageformular und Online-Terminanfrage</Editable>}>
             <p>
               <Editable as="span" id="datenschutz.section4.text">
                 Die im Kontaktformular eingegebenen Daten (Name, E-Mail-Adresse, ggf. Telefonnummer, Betreff und Ihre
                 Nachricht) werden ausschließlich zur Bearbeitung Ihrer Anfrage und einer möglichen Rückkontaktaufnahme
                 verwendet. Eine Weitergabe an Dritte erfolgt nicht.
+              </Editable>
+            </p>
+            <p>
+              <Editable as="span" id="datenschutz.section4.termin">
+                Bei einer Online-Terminanfrage verarbeiten wir zusätzlich die gewählte Leistung, den Standort und Ihren
+                Wunschtermin sowie Name, Telefonnummer, E-Mail-Adresse und ggf. Ihre Nachricht, um den Termin mit Ihnen
+                abzustimmen. Sie erhalten dazu automatisch E-Mails an die angegebene Adresse: eine Eingangsbestätigung
+                sowie die Bestätigung oder Absage des Termins. Eine Weitergabe an Dritte erfolgt nicht.
               </Editable>
             </p>
           </Section>

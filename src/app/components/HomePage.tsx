@@ -445,7 +445,7 @@ export function HomePage() {
             </Link>
             <a href="tel:+4951517107093" className="w-full sm:w-auto bg-[#F8FEFF] text-[#111111] border border-[#E5F4F5] hover:bg-[#DFF7F8] px-8 py-4 rounded-full text-base font-normal transition-all flex items-center justify-center gap-2">
               <Phone size={20} className="text-[#6FD3D1]" />
-              Anrufen: <Editable as="span" id="shared.tel_display">05151 7107093</Editable>
+              Anrufen: <Editable as="span" id="shared.tel-display">05151 7107093</Editable>
             </a>
           </div>
           <div className="text-sm text-[#5F6B73] font-light flex items-center justify-center gap-2">
