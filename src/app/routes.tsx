@@ -33,6 +33,7 @@ export const routes = [
       { path: "datenschutz", lazy: async () => ({ Component: (await import("./components/DatenschutzPage")).DatenschutzPage }) },
       { path: "karriere", lazy: async () => ({ Component: (await import("./components/KarrierePage")).KarrierePage }) },
       { path: "termin", lazy: async () => ({ Component: (await import("./components/TerminPage")).TerminPage }) },
+      { path: "termin-bestaetigen", lazy: async () => ({ Component: (await import("./components/TerminBestaetigenPage")).TerminBestaetigenPage }) }, // Zwischenseite der Betreiber-Mail (Bestaetigen per Klick/POST)
       { path: "termin-status", lazy: async () => ({ Component: (await import("./components/TerminStatusPage")).TerminStatusPage }) }, // Landeseite der Bestaetigungs-Mails
       { path: ":slug", lazy: async () => ({ Component: (await import("./components/DynamicPage")).DynamicPage }) }, // dynamisch angelegte Seiten (sonst 404)
       {

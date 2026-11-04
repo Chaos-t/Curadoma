@@ -160,7 +160,7 @@ export const MAX_PAGE_LABEL = 40;
 export const RESERVED_SLUGS = new Set([
   "leistungen", "entlastung", "demenzbetreuung", "haushaltsnahe-dienstleistungen",
   "verhinderungspflege", "umwandlung-sachleistungen", "einzugsgebiet", "kontakt",
-  "impressum", "datenschutz", "karriere", "termin", "termin-status", "admin",
+  "impressum", "datenschutz", "karriere", "termin", "termin-status", "termin-bestaetigen", "admin",
   "standort-hameln", "standort-paderborn",
   "api", "assets", "src", "index",
 ]);
@@ -247,4 +247,120 @@ export function validateZones(input: unknown):
     out[zoneId] = keys;
   }
   return { ok: true, zones: out };
+}
+
+// --- Kalenderdatei (.ics, RFC 5545) fuer bestaetigte Termine -----------------
+// METHOD:PUBLISH = "Termin zum Eintragen", keine Einladung mit Zu-/Absage. Die
+// Datei wird per Link ausgeliefert (kein Mail-Anhang: die Mails bleiben bewusst
+// single-part text/html, siehe sendEmail). Uhrzeiten in Europe/Berlin mit
+// VTIMEZONE, damit Outlook/Apple/Google sie auch ueber die Zeitumstellung richtig lesen.
+
+/** Text fuer ICS-Werte maskieren (Backslash, Semikolon, Komma, Zeilenumbruch). */
+export function icsEscape(v: unknown): string {
+  return String(v ?? "")
+    .replace(/\\/g, "\\\\")
+    .replace(/;/g, "\\;")
+    .replace(/,/g, "\\,")
+    .replace(/\r\n|\r|\n/g, "\\n"); // auch einzelnes CR: koennte sonst eine neue ICS-Zeile beginnen
+}
+
+/** Eine Inhaltszeile auf max. 75 Bytes (UTF-8) falten; Folgezeilen beginnen mit Leerzeichen. */
+export function foldIcsLine(line: string): string {
+  const enc = new TextEncoder();
+  if (enc.encode(line).length <= 75) return line;
+  const out: string[] = [];
+  let cur = "";
+  let curBytes = 0;
+  let limit = 75; // erste Zeile 75, Folgezeilen 74 + fuehrendes Leerzeichen
+  for (const ch of line) { // for..of laeuft ueber ganze Zeichen, nie mitten durch ein Umlaut-Byte
+    const b = enc.encode(ch).length;
+    if (curBytes + b > limit) {
+      out.push(cur);
+      cur = "";
+      curBytes = 0;
+      limit = 74;
+    }
+    cur += ch;
+    curBytes += b;
+  }
+  out.push(cur);
+  return out.join("\r\n ");
+}
+
+export type IcsEvent = {
+  uid: string;
+  dateISO: string;     // "2026-11-11" (Ortszeit Berlin)
+  time: string;        // "13:00"
+  durationMin: number;
+  summary: string;
+  description: string;
+  stampISO: string;    // Erzeugungszeitpunkt (UTC, ISO)
+};
+
+const BERLIN_VTIMEZONE = [
+  "BEGIN:VTIMEZONE",
+  "TZID:Europe/Berlin",
+  "BEGIN:DAYLIGHT",
+  "TZOFFSETFROM:+0100",
+  "TZOFFSETTO:+0200",
+  "TZNAME:CEST",
+  "DTSTART:19700329T020000",
+  "RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU",
+  "END:DAYLIGHT",
+  "BEGIN:STANDARD",
+  "TZOFFSETFROM:+0200",
+  "TZOFFSETTO:+0100",
+  "TZNAME:CET",
+  "DTSTART:19701025T030000",
+  "RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU",
+  "END:STANDARD",
+  "END:VTIMEZONE",
+];
+
+// "2026-11-11" + "13:00" (+ Minuten) -> "20261111T130000" — reine Kalenderrechnung
+// ueber UTC, damit keine Zeitzone/Sommerzeit des Servers mitrechnet.
+function icsLocal(dateISO: string, time: string, plusMin = 0): string {
+  const [y, mo, d] = dateISO.split("-").map(Number);
+  const [h, mi] = time.split(":").map(Number);
+  const t = new Date(Date.UTC(y, mo - 1, d, h, mi + plusMin));
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${t.getUTCFullYear()}${p(t.getUTCMonth() + 1)}${p(t.getUTCDate())}T${p(t.getUTCHours())}${p(t.getUTCMinutes())}00`;
+}
+
+/** Vollstaendige .ics-Datei (CRLF, gefaltet) mit genau einem Termin. */
+export function buildIcs(ev: IcsEvent): string {
+  const stamp = ev.stampISO.replace(/[-:]/g, "").replace(/\.\d+/, "").replace(/Z?$/, "Z");
+  const lines = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Cura Doma//Termin//DE",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    ...BERLIN_VTIMEZONE,
+    "BEGIN:VEVENT",
+    `UID:${icsEscape(ev.uid)}`,
+    `DTSTAMP:${stamp}`,
+    `DTSTART;TZID=Europe/Berlin:${icsLocal(ev.dateISO, ev.time)}`,
+    `DTEND;TZID=Europe/Berlin:${icsLocal(ev.dateISO, ev.time, ev.durationMin)}`,
+    `SUMMARY:${icsEscape(ev.summary)}`,
+    `DESCRIPTION:${icsEscape(ev.description)}`,
+    "STATUS:CONFIRMED",
+    "TRANSP:OPAQUE",
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ];
+  return lines.map(foldIcsLine).join("\r\n") + "\r\n";
+}
+
+/** Link "In Google Kalender eintragen". Google kann eine verlinkte .ics nicht
+ *  oeffnen (Gmail am PC laedt sie nur herunter, die Android-App importiert gar
+ *  nicht) — dieser Link oeffnet stattdessen das vorausgefuellte Termin-Formular.
+ *  dates = Ortszeit ohne "Z" + ctz, damit Google die deutsche Zeit nimmt. */
+export function googleCalUrl(ev: Pick<IcsEvent, "dateISO" | "time" | "durationMin" | "summary" | "description">): string {
+  const dates = `${icsLocal(ev.dateISO, ev.time)}/${icsLocal(ev.dateISO, ev.time, ev.durationMin)}`;
+  return "https://calendar.google.com/calendar/render?action=TEMPLATE"
+    + `&text=${encodeURIComponent(ev.summary)}`
+    + `&dates=${dates}`
+    + `&ctz=${encodeURIComponent("Europe/Berlin")}`
+    + `&details=${encodeURIComponent(ev.description)}`;
 }

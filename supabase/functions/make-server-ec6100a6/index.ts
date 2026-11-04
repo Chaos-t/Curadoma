@@ -6,6 +6,7 @@ import * as kv from "./kv_store.ts";
 import {
   isAdminType, isAdminStatus, isUuid, keyFor, prefixFor,
   sanitizeNote, buildCsv, CSV_COLUMNS, yesNo, validateZones, validatePages, validateBlocks, validateSeo, type AdminType,
+  buildIcs, googleCalUrl,
 } from "./admin_util.ts";
 
 const app = new Hono();
@@ -1217,10 +1218,10 @@ function apptOperatorEmail(o: {
      <p style="margin:18px 0 10px;font-size:14px;line-height:1.55;color:#2F3A40;">Bitte bestätigen oder ablehnen — die anfragende Person wird automatisch per E-Mail informiert:</p>
      <p style="margin:0 0 8px;"><a href="${confirmUrl}" style="display:inline-block;background:#0F7C77;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 22px;border-radius:999px;font-size:14px;">Termin bestätigen</a></p>
      <p style="margin:0;"><a href="${declineUrl}" style="display:inline-block;background:#ffffff;color:#5F6B73;border:1px solid #E5F4F5;text-decoration:none;font-weight:600;padding:11px 22px;border-radius:999px;font-size:14px;">Ablehnen</a></p>
-     <p style="margin-top:14px;font-size:12px;color:#5F6B73;">Erst mit „Bestätigen" wird der Zeit-Slot gesperrt. Bitte diese E-Mail nicht weiterleiten oder darauf antworten — die beiden Buttons wirken direkt.</p>`,
+     <p style="margin-top:14px;font-size:12px;color:#5F6B73;">Die Buttons öffnen eine Seite auf curadoma.de, dort lösen Sie die Aktion mit einem Klick aus. Erst mit „Bestätigen" wird der Zeit-Slot gesperrt. Bitte diese E-Mail nicht weiterleiten — wer die Buttons hat, kann den Termin bestätigen oder ablehnen.</p>`,
   );
 }
-type ApptMailArgs = { service: string; location?: string | null; dateDe: string; time: string; name: string };
+type ApptMailArgs = { service: string; location?: string | null; dateDe: string; time: string; name: string; icsUrl?: string; gcalUrl?: string };
 function apptReceivedEmail(o: ApptMailArgs) {
   const rows: Array<[string, string | null | undefined]> = [
     ["Leistung", o.service],
@@ -1229,7 +1230,7 @@ function apptReceivedEmail(o: ApptMailArgs) {
   ];
   return curaEmailLayout(
     "Ihre Terminanfrage ist eingegangen",
-    `<p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2F3A40;">Hallo ${escapeHtml(o.name)},<br><br>vielen Dank für Ihre Terminanfrage. Wir prüfen Ihren Wunschtermin und bestätigen ihn in Kürze per E-Mail. <strong>Erst mit unserer Bestätigung ist der Termin verbindlich.</strong></p>
+    `<p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2F3A40;">Hallo ${escapeHtml(o.name)},<br><br>vielen Dank für Ihre Terminanfrage. Wir prüfen Ihren Wunschtermin und bestätigen ihn in Kürze per E-Mail. <strong>Der Termin gilt, sobald wir ihn bestätigt haben.</strong></p>
      ${rowsTable(rows)}
      <p style="margin-top:16px;font-size:13px;color:#5F6B73;">Falls es dringend ist, erreichen Sie uns telefonisch unter <a href="tel:+4951517107093" style="color:#0F7C77;text-decoration:none;">05151 7107093</a>.</p>`,
   );
@@ -1244,6 +1245,9 @@ function apptConfirmedEmail(o: ApptMailArgs) {
     "Ihr Termin ist bestätigt",
     `<p style="margin:0 0 14px;font-size:15px;line-height:1.6;color:#2F3A40;">Hallo ${escapeHtml(o.name)},<br><br>Ihr Termin ist <strong>bestätigt</strong>. Wir freuen uns auf das Gespräch mit Ihnen.</p>
      ${rowsTable(rows)}
+     ${o.icsUrl ? `<p style="margin:20px 0 8px;"><a href="${escapeHtml(o.icsUrl)}" style="display:inline-block;background:#0F7C77;color:#ffffff;text-decoration:none;font-weight:600;padding:12px 22px;border-radius:999px;font-size:14px;">&#128197;&nbsp; Zum Kalender hinzufügen</a></p>` : ""}
+     ${o.gcalUrl ? `<p style="margin:0 0 8px;"><a href="${escapeHtml(o.gcalUrl)}" style="display:inline-block;background:#ffffff;color:#0F7C77;border:1px solid #BFEAF2;text-decoration:none;font-weight:600;padding:11px 22px;border-radius:999px;font-size:14px;">In Google Kalender eintragen</a></p>` : ""}
+     ${o.icsUrl ? `<p style="margin:0;font-size:12px;color:#5F6B73;">„Zum Kalender hinzufügen“ für iPhone, Outlook und Mac – „In Google Kalender eintragen“, wenn Sie den Google-Kalender nutzen.</p>` : ""}
      <p style="margin-top:16px;font-size:13px;color:#5F6B73;">Sollten Sie den Termin nicht wahrnehmen können, geben Sie uns bitte kurz Bescheid: <a href="tel:+4951517107093" style="color:#0F7C77;text-decoration:none;">05151 7107093</a> oder <a href="mailto:info@curadoma.de" style="color:#0F7C77;text-decoration:none;">info@curadoma.de</a>.</p>`,
   );
 }
@@ -1378,23 +1382,77 @@ app.post("/make-server-ec6100a6/appointments", async (c) => {
   }
 });
 
-// GET /appointment-action — operator confirm/decline from the email link.
-// Opened directly from an email (no auth header), so the function must be
-// deployed with --no-verify-jwt. Always 302-redirects to the SPA status page.
-app.get("/make-server-ec6100a6/appointment-action", async (c) => {
-  const siteUrl = Deno.env.get("SITE_URL") ?? "https://curadoma.de";
-  const redirect = (s: string) => c.redirect(`${siteUrl}/termin-status?s=${s}`, 302);
+// --- Termin bestaetigen / ablehnen + Kalender ---------------------------------
+// Die Buttons in der Betreiber-Mail zeigen auf GET /appointment-action. GET AENDERT
+// NICHTS: Mail-Scanner und Link-Vorschauen rufen Links automatisch per GET auf und
+// haetten Termine so versehentlich bestaetigt. GET leitet nur auf die Website-Seite
+// /termin-bestaetigen weiter; erst deren Knopf schickt die Aktion per POST (Vorbild
+// de Vries). Kein Auth-Header (Mail-Link bzw. Formular von curadoma.de) ->
+// --no-verify-jwt bleibt Pflicht.
+const APPT_TOKEN_RE = /^[0-9a-f-]{36}$/i;
+const siteUrlOf = () => Deno.env.get("SITE_URL") ?? "https://curadoma.de";
+const apptFuncBase = () => `${Deno.env.get("SUPABASE_URL")}/functions/v1/make-server-ec6100a6`;
+
+async function findApptByToken(token: string) {
+  const all = (await kv.getByPrefix("appointment:")) as Array<Record<string, unknown>>;
+  return { all, appt: all.find((a) => a?.token === token) as Record<string, unknown> | undefined };
+}
+
+// GET: nur Weiterleitung auf die Bestaetigungsseite (keine Zustandsaenderung).
+app.get("/make-server-ec6100a6/appointment-action", (c) => {
   const token = String(c.req.query("token") ?? "");
   const action = String(c.req.query("action") ?? "");
-  if (!/^[0-9a-f-]{36}$/i.test(token) || (action !== "confirm" && action !== "decline")) {
-    return redirect("invalid");
+  if (!APPT_TOKEN_RE.test(token) || (action !== "confirm" && action !== "decline")) {
+    return c.redirect(`${siteUrlOf()}/termin-status?s=invalid`, 302);
   }
+  return c.redirect(`${siteUrlOf()}/termin-bestaetigen?token=${token}&action=${action}`, 302);
+});
+
+// GET /appointment-info?token=… — Eckdaten fuer die Bestaetigungsseite. Nur mit dem
+// geheimen Token aus der Betreiber-Mail (die dieselben Angaben ohnehin enthaelt).
+app.get("/make-server-ec6100a6/appointment-info", async (c) => {
+  const token = String(c.req.query("token") ?? "");
+  if (!APPT_TOKEN_RE.test(token)) return c.json({ status: "invalid" }, 400);
   try {
-    const all = (await kv.getByPrefix("appointment:")) as Array<Record<string, unknown>>;
-    const appt = all.find((a) => a?.token === token) as Record<string, unknown> | undefined;
-    if (!appt) return redirect("notfound");
-    if (appt.status === "confirmed") return redirect("already-confirmed");
-    if (appt.status === "declined") return redirect("already-declined");
+    const { appt } = await findApptByToken(token);
+    // 200 statt 404: "nicht gefunden" ist hier eine normale Antwort (keine rote Konsolenmeldung).
+    if (!appt) return c.json({ status: "notfound" });
+    return c.json({
+      status: appt.status,
+      id: appt.id,
+      service: appt.service,
+      location: typeof appt.location === "string" ? appt.location : null,
+      date_de: fmtApptDate(String(appt.appt_date)),
+      time: appt.appt_time,
+      name: appt.name,
+    });
+  } catch (e) {
+    console.log("appointment-info error:", e);
+    return c.json({ status: "error" }, 500);
+  }
+});
+
+// POST: die eigentliche Aktion (Formular auf /termin-bestaetigen, Felder token + action).
+// Antwortet mit 303 auf die Statusseite; bei "bestaetigt" mit &id=… fuer den Kalender-Knopf.
+app.post("/make-server-ec6100a6/appointment-action", async (c) => {
+  const go = (s: string, id?: string) =>
+    c.redirect(`${siteUrlOf()}/termin-status?s=${s}${id ? `&id=${id}` : ""}`, 303);
+  let token = "", action = "";
+  try {
+    const ct = c.req.header("content-type") ?? "";
+    const body = (ct.includes("application/json") ? await c.req.json() : await c.req.parseBody()) as Record<string, unknown>;
+    token = String(body.token ?? "");
+    action = String(body.action ?? "");
+  } catch {
+    return go("invalid");
+  }
+  if (!APPT_TOKEN_RE.test(token) || (action !== "confirm" && action !== "decline")) return go("invalid");
+  try {
+    const { all, appt } = await findApptByToken(token);
+    if (!appt) return go("notfound");
+    const id = isUuid(appt.id) ? appt.id : undefined;
+    if (appt.status === "confirmed") return go("already-confirmed", id);
+    if (appt.status === "declined") return go("already-declined");
 
     const dateDe = fmtApptDate(String(appt.appt_date));
     const mailArgs: ApptMailArgs = {
@@ -1406,7 +1464,7 @@ app.get("/make-server-ec6100a6/appointment-action", async (c) => {
       const taken = all.some(
         (a) => a?.status === "confirmed" && a.appt_date === appt.appt_date && a.appt_time === appt.appt_time,
       );
-      if (taken) return redirect("taken");
+      if (taken) return go("taken");
       appt.status = "confirmed";
       appt.status_changed_at = new Date().toISOString();
       await kv.set(`appointment:${appt.id}`, appt);
@@ -1415,10 +1473,14 @@ app.get("/make-server-ec6100a6/appointment-action", async (c) => {
           to: String(appt.email),
           subject: `Ihr Termin bei Cura Doma ist bestätigt — ${dateDe} ${appt.appt_time} Uhr`,
           text: "",
-          html: apptConfirmedEmail(mailArgs),
+          html: apptConfirmedEmail({
+            ...mailArgs,
+            icsUrl: id ? `${apptFuncBase()}/appointment-ics?id=${id}` : undefined,
+            gcalUrl: id ? `${apptFuncBase()}/appointment-gcal?id=${id}` : undefined,
+          }),
         });
       }
-      return redirect("confirmed");
+      return go("confirmed", id);
     } else {
       appt.status = "declined";
       appt.status_changed_at = new Date().toISOString();
@@ -1431,11 +1493,88 @@ app.get("/make-server-ec6100a6/appointment-action", async (c) => {
           html: apptDeclinedEmail(mailArgs),
         });
       }
-      return redirect("declined");
+      return go("declined");
     }
   } catch (error) {
     console.log("appointment-action error:", error);
-    return redirect("invalid");
+    return go("invalid");
+  }
+});
+
+// Termin-Angaben fuer Kalender-Eintraege (.ics und Google). Kunde: knapp, mit unserer
+// Telefonnummer; Team (for=team): mit den Kontaktdaten der Person.
+function apptCalEvent(appt: Record<string, unknown>, forTeam: boolean) {
+  const service = String(appt.service ?? "Termin");
+  const loc = typeof appt.location === "string" ? appt.location : "";
+  const description = forTeam
+    ? [
+        `Kunde: ${appt.name}`,
+        `Telefon: ${appt.phone}`,
+        `E-Mail: ${appt.email}`,
+        loc ? `Standort: ${loc}` : "",
+        appt.message ? `Nachricht: ${appt.message}` : "",
+      ]
+    : [
+        "Ihr bestätigter Termin bei Cura Doma.",
+        `Leistung: ${service}`,
+        loc ? `Standort: ${loc}` : "",
+        "Wir melden uns zum Termin bei Ihnen.",
+        "Fragen oder Terminänderung: 05151 7107093 · info@curadoma.de",
+      ];
+  return {
+    dateISO: String(appt.appt_date),
+    time: String(appt.appt_time),
+    durationMin: 60,
+    summary: forTeam ? `${service}: ${appt.name}${loc ? ` (${loc})` : ""}` : `Cura Doma – ${service}`,
+    description: description.filter(Boolean).join("\n"),
+  };
+}
+
+// Nur BESTAETIGTE Termine; die id ist eine nicht ratbare UUID.
+async function confirmedAppt(id: string): Promise<Record<string, unknown> | null> {
+  if (!isUuid(id)) return null;
+  const appt = (await kv.get(`appointment:${id}`)) as Record<string, unknown> | undefined;
+  return appt && appt.status === "confirmed" ? appt : null;
+}
+
+// GET /appointment-ics?id=…[&for=team] — Kalenderdatei (.ics) fuer einen BESTAETIGTEN
+// Termin. Kunde: Knopf in der Bestaetigungsmail; Team: Knopf auf der Statusseite.
+// "inline" statt "attachment": das iPhone zeigt dann direkt "Zum Kalender
+// hinzufuegen", am PC oeffnet Outlook bzw. der Kalender die Datei.
+app.get("/make-server-ec6100a6/appointment-ics", async (c) => {
+  const id = String(c.req.query("id") ?? "");
+  const forTeam = c.req.query("for") === "team";
+  try {
+    const appt = await confirmedAppt(id);
+    if (!appt) return c.text("Termin nicht gefunden oder noch nicht bestätigt.", 404);
+    const ics = buildIcs({
+      ...apptCalEvent(appt, forTeam),
+      uid: `${id}${forTeam ? "-team" : ""}@curadoma.de`,
+      stampISO: new Date().toISOString(),
+    });
+    return c.body(ics, 200, {
+      "Content-Type": "text/calendar; charset=utf-8; method=PUBLISH",
+      "Content-Disposition": 'inline; filename="cura-doma-termin.ics"',
+      "Cache-Control": "no-store",
+    });
+  } catch (e) {
+    console.log("appointment-ics error:", e);
+    return c.text("Kalenderdatei konnte nicht erstellt werden.", 500);
+  }
+});
+
+// GET /appointment-gcal?id=…[&for=team] — leitet auf den vorausgefuellten Google-
+// Kalender-Termin weiter (Google kann eine verlinkte .ics nicht oeffnen).
+app.get("/make-server-ec6100a6/appointment-gcal", async (c) => {
+  const id = String(c.req.query("id") ?? "");
+  const forTeam = c.req.query("for") === "team";
+  try {
+    const appt = await confirmedAppt(id);
+    if (!appt) return c.text("Termin nicht gefunden oder noch nicht bestätigt.", 404);
+    return c.redirect(googleCalUrl(apptCalEvent(appt, forTeam)), 302);
+  } catch (e) {
+    console.log("appointment-gcal error:", e);
+    return c.text("Kalender-Link konnte nicht erstellt werden.", 500);
   }
 });
 

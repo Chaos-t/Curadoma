@@ -1,5 +1,6 @@
 import { useSearchParams, Link } from "react-router";
 import { CheckCircle, XCircle, AlertTriangle, Info, CalendarDays } from "lucide-react";
+import { CalendarButton } from "./TerminBestaetigenPage";
 
 const jakarta = { fontFamily: "'Plus Jakarta Sans', 'Plus Jakarta Sans Fallback', sans-serif" };
 
@@ -9,9 +10,9 @@ type Entry = { variant: Variant; title: string; desc: string };
 // This page is the landing target for the operator's confirm/decline links
 // (the Edge Function 302-redirects here with ?s=…). Messages are operator-facing.
 const STATUS: Record<string, Entry> = {
-  confirmed: { variant: "ok", title: "Termin bestätigt", desc: "Der Zeit-Slot ist jetzt reserviert und gesperrt. Die anfragende Person wurde automatisch per E-Mail informiert." },
+  confirmed: { variant: "ok", title: "Termin bestätigt", desc: "Der Zeit-Slot ist jetzt reserviert und gesperrt. Die anfragende Person hat eine Bestätigung mit Kalender-Eintrag per E-Mail erhalten." },
   declined: { variant: "warn", title: "Termin abgelehnt", desc: "Die Anfrage wurde abgelehnt. Die anfragende Person wurde automatisch per E-Mail informiert und kann einen neuen Termin wählen." },
-  "already-confirmed": { variant: "warn", title: "Bereits bestätigt", desc: "Dieser Termin wurde zuvor schon bestätigt. Es wurde nichts geändert." },
+  "already-confirmed": { variant: "ok", title: "Bereits bestätigt", desc: "Dieser Termin wurde zuvor schon bestätigt. Es wurde nichts geändert." },
   "already-declined": { variant: "warn", title: "Bereits abgelehnt", desc: "Diese Anfrage wurde zuvor schon abgelehnt. Es wurde nichts geändert." },
   taken: { variant: "warn", title: "Zeit-Slot inzwischen vergeben", desc: "Für diesen Tag und diese Uhrzeit wurde bereits ein anderer Termin bestätigt. Diese Anfrage wurde nicht bestätigt." },
   notfound: { variant: "error", title: "Anfrage nicht gefunden", desc: "Diese Terminanfrage existiert nicht (mehr). Möglicherweise wurde sie bereits entfernt." },
@@ -27,6 +28,9 @@ const ICONS: Record<Variant, React.ReactNode> = {
 export function TerminStatusPage() {
   const [params] = useSearchParams();
   const s = params.get("s") ?? "";
+  // Nach dem Bestaetigen haengt die Edge Function die Termin-id an -> Kalender-Knopf.
+  const id = params.get("id") ?? "";
+  const showCalendar = (s === "confirmed" || s === "already-confirmed") && /^[0-9a-f-]{36}$/i.test(id);
   const entry: Entry = STATUS[s] ?? {
     variant: "warn",
     title: "Kein Status",
@@ -43,6 +47,7 @@ export function TerminStatusPage() {
           </div>
           <h1 className="text-2xl font-medium tracking-tight text-[#111111] mb-3" style={jakarta}>{entry.title}</h1>
           <p className="text-[15px] text-[#5F6B73] font-light leading-relaxed mb-8">{entry.desc}</p>
+          {showCalendar && <div className="-mt-4 mb-8"><CalendarButton id={id} /></div>}
           <div className="flex items-center justify-center gap-2 text-xs text-[#5F6B73] font-light">
             <Info size={14} /> Cura Doma — Terminverwaltung
           </div>

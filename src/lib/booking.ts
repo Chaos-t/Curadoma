@@ -30,6 +30,16 @@ export type BookingLocation = (typeof BOOKING_LOCATIONS)[number]["key"];
 export const FN_BASE = `https://${projectId}.supabase.co/functions/v1/make-server-ec6100a6`;
 export const FN_ANON = publicAnonKey;
 
+/** Link zur Kalenderdatei (.ics) eines BESTAETIGTEN Termins. team = Variante mit
+ *  Kundendaten fuer Cura Doma; ohne = Kunden-Variante (auch in der Bestaetigungsmail). */
+export function apptIcsUrl(id: string, team = false): string {
+  return `${FN_BASE}/appointment-ics?id=${encodeURIComponent(id)}${team ? "&for=team" : ""}`;
+}
+/** Gleicher Termin als Google-Kalender-Link (Server leitet weiter). */
+export function apptGcalUrl(id: string, team = false): string {
+  return `${FN_BASE}/appointment-gcal?id=${encodeURIComponent(id)}${team ? "&for=team" : ""}`;
+}
+
 /** Local date → "YYYY-MM-DD" without any timezone shift. */
 export function toISODate(d: Date): string {
   const y = d.getFullYear();

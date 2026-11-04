@@ -333,7 +333,7 @@ export function TerminPage() {
                 </p>
               ) : (
                 <p className="text-[15px] text-[#5F6B73] font-light leading-relaxed mb-2">
-                  <Editable as="span" id="termin.success.text">Vielen Dank. Wir haben Ihnen eine Bestätigungs-E-Mail geschickt und melden uns zeitnah, um Ihren Termin verbindlich zu bestätigen.</Editable>
+                  <Editable as="span" id="termin.success.text">Vielen Dank. Wir haben Ihnen eine Eingangsbestätigung per E-Mail geschickt und melden uns zeitnah, um Ihren Termin zu bestätigen.</Editable>
                 </p>
               )}
               <p className="text-sm text-[#5F6B73] font-light mb-6">

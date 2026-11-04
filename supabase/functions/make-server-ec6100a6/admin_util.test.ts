@@ -4,6 +4,7 @@ import {
   ADMIN_TYPES, isAdminType, prefixFor, keyFor, isUuid,
   ADMIN_STATUSES, isAdminStatus, sanitizeNote, yesNo, csvCell, buildCsv, CSV_COLUMNS,
   validateZones, isZoneKey, validatePages, validateBlocks, safeHref, validateSeo,
+  icsEscape, foldIcsLine, buildIcs, googleCalUrl,
 } from "./admin_util.ts";
 
 test("type guard + prefixes + key", () => {
@@ -169,4 +170,71 @@ test("validatePages accepts good pages and rejects bad/reserved/dupes", () => {
   assert.ok(!validatePages([{ slug: "../evil", label: "x", inMenu: false }]).ok);    // traversal
   assert.ok(!validatePages([{ slug: "ok-slug", label: "", inMenu: false }]).ok);     // empty label
   assert.ok(!validatePages([{ slug: "a", label: "x" }, { slug: "a", label: "y" }]).ok); // dup
+});
+
+
+// --- Kalenderdatei (.ics) fuer bestaetigte Termine --------------------------
+const BS = String.fromCharCode(92); // ein Backslash, ohne Escape-Verwirrung
+
+test("icsEscape maskiert Backslash, Semikolon, Komma und Zeilenumbrueche", () => {
+  const input = "a" + BS + "b;c,d\ne";
+  const expected = "a" + BS + BS + "b" + BS + ";c" + BS + ",d" + BS + "ne";
+  assert.equal(icsEscape(input), expected);
+  assert.equal(icsEscape("x\r\ny"), "x" + BS + "ny");
+  assert.equal(icsEscape("x\rATTENDEE:y"), "x" + BS + "nATTENDEE:y");
+  assert.equal(icsEscape(null), "");
+});
+
+test("foldIcsLine: hoechstens 75 Bytes pro Zeile, auch mit Umlauten", () => {
+  const long = "DESCRIPTION:" + "Grüße aus Hameln – Demenz- & Seniorenbetreuung ".repeat(6);
+  const folded = foldIcsLine(long);
+  const parts = folded.split("\r\n");
+  assert.ok(parts.length > 1);
+  for (const p of parts) assert.ok(new TextEncoder().encode(p).length <= 75, "Zeile zu lang: " + p);
+  for (const p of parts.slice(1)) assert.ok(p.startsWith(" "), "Folgezeile ohne Leerzeichen");
+  // Entfalten (CRLF + Leerzeichen entfernen) ergibt wieder den Originaltext
+  assert.equal(folded.split("\r\n ").join(""), long);
+  assert.equal(foldIcsLine("SUMMARY:kurz"), "SUMMARY:kurz");
+});
+
+test("buildIcs: gueltiger Kalender mit deutscher Zeitzone und 1 Stunde Dauer", () => {
+  const ics = buildIcs({
+    uid: "abc@curadoma.de", dateISO: "2026-11-11", time: "16:00", durationMin: 60,
+    summary: "Cura Doma – Kostenloses Erstgespräch", description: "Zeile 1\nZeile 2; mit, Zeichen",
+    stampISO: "2026-11-04T14:05:09.123Z",
+  });
+  const lines = ics.split("\r\n");
+  assert.equal(lines[0], "BEGIN:VCALENDAR");
+  assert.ok(ics.endsWith("END:VCALENDAR\r\n"));
+  assert.equal(ics.split("\r\n").join("").includes("\n"), false, "nur CRLF-Zeilenenden");
+  assert.ok(lines.includes("METHOD:PUBLISH"));
+  assert.ok(lines.includes("TZID:Europe/Berlin"));
+  assert.ok(lines.includes("DTSTART;TZID=Europe/Berlin:20261111T160000"));
+  assert.ok(lines.includes("DTEND;TZID=Europe/Berlin:20261111T170000"));
+  assert.ok(lines.includes("DTSTAMP:20261104T140509Z"));
+  assert.ok(lines.includes("UID:abc@curadoma.de"));
+  const unfolded = ics.split("\r\n ").join("");
+  assert.ok(unfolded.includes("DESCRIPTION:Zeile 1" + BS + "nZeile 2" + BS + "; mit" + BS + ", Zeichen"));
+  assert.ok(unfolded.includes("SUMMARY:Cura Doma – Kostenloses Erstgespräch"));
+  assert.equal((ics.match(/BEGIN:VEVENT/g) || []).length, 1);
+  for (const l of lines) assert.ok(new TextEncoder().encode(l).length <= 75);
+});
+
+test("buildIcs: Dauer ueber Mitternacht rechnet das Datum weiter", () => {
+  const ics = buildIcs({ uid: "x", dateISO: "2026-12-31", time: "23:30", durationMin: 60, summary: "s", description: "d", stampISO: "2026-11-04T00:00:00Z" });
+  assert.ok(ics.includes("DTEND;TZID=Europe/Berlin:20270101T003000"));
+});
+
+test("googleCalUrl: Google-Kalender-Link mit Zeitraum, Zeitzone und kodierten Texten", () => {
+  const url = googleCalUrl({
+    dateISO: "2026-11-11", time: "13:00", durationMin: 60,
+    summary: "Cura Doma – Erstgespräch & Beratung", description: "Zeile 1\nTelefon: 05151 7107093",
+  });
+  assert.ok(url.startsWith("https://calendar.google.com/calendar/render?action=TEMPLATE&"));
+  assert.ok(url.includes("&dates=20261111T130000/20261111T140000&"), url);
+  assert.ok(url.includes("&ctz=Europe%2FBerlin"), url);
+  const q = new URL(url).searchParams;
+  assert.equal(q.get("text"), "Cura Doma – Erstgespräch & Beratung");
+  assert.equal(q.get("details"), "Zeile 1\nTelefon: 05151 7107093");
+  assert.equal(q.get("ctz"), "Europe/Berlin");
 });

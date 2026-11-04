@@ -10,7 +10,7 @@ const SLUG_RE = /^[a-z][a-z0-9-]{1,40}$/;
 const RESERVED = new Set([
   "leistungen", "entlastung", "demenzbetreuung", "haushaltsnahe-dienstleistungen",
   "verhinderungspflege", "umwandlung-sachleistungen", "einzugsgebiet", "kontakt",
-  "impressum", "datenschutz", "karriere", "termin", "termin-status", "admin",
+  "impressum", "datenschutz", "karriere", "termin", "termin-status", "termin-bestaetigen", "admin",
   "standort-hameln", "standort-paderborn",
   "api", "assets", "src", "index",
 ]);
