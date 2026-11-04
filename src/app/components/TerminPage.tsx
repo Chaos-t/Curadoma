@@ -231,7 +231,9 @@ export function TerminPage() {
     e.preventDefault();
     setError(null);
 
-    if (form.website) { setSubmitted(true); return; } // honeypot
+    // Bot-Falle (Feld "website"): NICHT mehr hier im Browser still abbrechen. Die
+    // Pruefung macht der Server (isHoneypotTripped) und protokolliert sie — sonst
+    // verschwand eine echte Anfrage spurlos, wenn das Autofill das Feld befuellte.
 
     const errs: Record<string, string> = {};
     if (!service) errs.service = "Bitte wählen Sie eine Leistung.";
@@ -269,6 +271,7 @@ export function TerminPage() {
           email: form.email.trim(),
           message: form.message.trim() || null,
           consent_privacy: form.consent,
+          website: form.website,
         }),
       });
       const data = await res.json().catch(() => ({}));
