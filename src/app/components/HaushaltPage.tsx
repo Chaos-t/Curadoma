@@ -25,13 +25,13 @@ export function HaushaltPage() {
       <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28 bg-gradient-to-b from-white/80 to-[#F8FEFF]/80">
         <div className="cura-reveal cura-reveal-up max-w-4xl mx-auto px-6 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#DFF7F8] text-xs font-medium text-[#0E6E6A] mb-6 uppercase tracking-wider">
-            <Editable as="span" id="haushalt.hero.badge">§ 45a SGB XI</Editable>
+            <Editable as="span" id="haushalt.hero.badge">§ 45b SGB XI</Editable>
           </div>
           <h1 className="text-4xl sm:text-5xl font-medium tracking-tight text-[#111111] leading-[1.15] mb-6" style={jakarta}>
             <Editable as="span" id="haushalt.hero.title">Haushaltsnahe</Editable> <span className="text-[#0F7C77]"><Editable as="span" id="haushalt.hero.title.accent">Dienstleistungen</Editable></span>
           </h1>
           <p className="text-lg text-[#5F6B73] leading-relaxed font-light">
-            <Editable as="span" id="haushalt.hero.subtitle">Unterstützung im Alltag nach § 45a SGB XI – zuverlässig, individuell und mit Herz.</Editable>
+            <Editable as="span" id="haushalt.hero.subtitle">Unterstützung im Alltag nach § 45b SGB XI – zuverlässig, individuell und mit Herz.</Editable>
           </p>
         </div>
       </section>
